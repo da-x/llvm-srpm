@@ -1,0 +1,20 @@
+diff -r d001baf31c4b tools/llvm-config/Makefile
+--- a/tools/llvm-config/Makefile	Sat Jan 19 21:47:39 2008 -0800
++++ b/tools/llvm-config/Makefile	Sat Jan 19 21:49:20 2008 -0800
+@@ -57,11 +57,11 @@ llvm-config.in: $(ConfigInIn) $(ConfigSt
+ # Build our final script.
+ $(ToolDir)/llvm-config: llvm-config.in $(FinalLibDeps)
+ 	$(Echo) "Building llvm-config script."
+-	$(Verb) $(ECHO) 's,@LLVM_CPPFLAGS@,$(SUB_CPPFLAGS),' > temp.sed
+-	$(Verb) $(ECHO) 's,@LLVM_CFLAGS@,$(SUB_CFLAGS),' >> temp.sed
+-	$(Verb) $(ECHO) 's,@LLVM_CXXFLAGS@,$(SUB_CXXFLAGS),' >> temp.sed
+-	$(Verb) $(ECHO) 's,@LLVM_LDFLAGS@,$(SUB_LDFLAGS),' >> temp.sed
+-	$(Verb) $(ECHO) 's,@LLVM_BUILDMODE@,$(BuildMode),' >> temp.sed
++	$(Verb) $(ECHO) 's!@LLVM_CPPFLAGS@!$(SUB_CPPFLAGS)!' > temp.sed
++	$(Verb) $(ECHO) 's!@LLVM_CFLAGS@!$(SUB_CFLAGS)!' >> temp.sed
++	$(Verb) $(ECHO) 's!@LLVM_CXXFLAGS@!$(SUB_CXXFLAGS)!' >> temp.sed
++	$(Verb) $(ECHO) 's!@LLVM_LDFLAGS@!$(SUB_LDFLAGS)!' >> temp.sed
++	$(Verb) $(ECHO) 's!@LLVM_BUILDMODE@!$(BuildMode)!' >> temp.sed
+ 	$(Verb) $(SED) -f temp.sed < $< > $@
+ 	$(Verb) $(RM) temp.sed
+ 	$(Verb) cat $(FinalLibDeps) >> $@
