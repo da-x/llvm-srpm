@@ -13,8 +13,8 @@
 %define __debug_install_post echo not building debuginfo 
 
 Name: llvm
-Version: 2.1
-Release: 2%{?dist}
+Version: 2.2
+Release: 1%{?dist}
 Summary: The Low Level Virtual Machine
 License: NCSA
 Group: Development/Languages
