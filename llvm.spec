@@ -14,7 +14,7 @@
 
 Name: llvm
 Version: 2.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: The Low Level Virtual Machine
 License: NCSA
 Group: Development/Languages
@@ -287,6 +287,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Feb 18 2008 Fedora Release Engineering <rel-eng@fedoraproject.org> - 2.2-2
+- Autorebuild for GCC 4.3
+
 * Sun Jan 20 2008 Bryan O'Sullivan <bos@serpentine.com> - 2.1-2
 - Fix review comments
 
