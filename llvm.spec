@@ -14,7 +14,7 @@
 
 Name: llvm
 Version: 2.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: The Low Level Virtual Machine
 License: NCSA
 Group: Development/Languages
@@ -25,6 +25,7 @@ Source1: http://llvm.org/releases/%{version}/llvm-gcc%{lgcc_version}-%{version}.
 %endif
 
 Patch0: llvm-2.1-fix-sed.patch
+Patch1: llvm-2.2-gcc43.patch
 
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRequires: bison
@@ -113,6 +114,7 @@ API documentation for the LLVM compiler infrastructure.
 %setup -q -n llvm-%{version} %{?_with_gcc:-a1}
 
 %patch0 -p1 -b .fix-sed
+%patch1 -p1 -b .gcc43
 
 %build
 # We're not building a debuginfo package yet, because some generated
@@ -287,6 +289,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Mar  5 2008 Bryan O'Sullivan <bos@serpentine.com> - 2.2-3
+- Fix compilation problems with gcc 4.3
+
 * Mon Feb 18 2008 Fedora Release Engineering <rel-eng@fedoraproject.org> - 2.2-2
 - Autorebuild for GCC 4.3
 
