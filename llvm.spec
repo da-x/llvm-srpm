@@ -14,7 +14,7 @@
 
 Name: llvm
 Version: 2.2
-Release: 3%{?dist}
+Release: 4%{?dist}
 Summary: The Low Level Virtual Machine
 License: NCSA
 Group: Development/Languages
@@ -76,7 +76,7 @@ Documentation for the LLVM compiler infrastructure.
 
 %package gcc
 Summary: C compiler for LLVM
-License: GPL
+License: GPL+
 Group: Development/Languages
 Requires: %{name} = %{version}-%{release}
 
@@ -87,7 +87,7 @@ C compiler for LLVM.
 
 %package gcc-c++
 Summary: C++ compiler for LLVM
-License: GPL
+License: GPL+
 Group: Development/Languages
 Requires: %{name}-gcc = %{version}-%{release}
 
@@ -289,6 +289,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu May 29 2008 Tom "spot" Callaway <tcallawa@redhat.com> - 2.2-4
+- fix license tags
+
 * Wed Mar  5 2008 Bryan O'Sullivan <bos@serpentine.com> - 2.2-3
 - Fix compilation problems with gcc 4.3
 
