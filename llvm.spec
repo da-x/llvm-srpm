@@ -13,8 +13,8 @@
 %define __debug_install_post echo not building debuginfo 
 
 Name: llvm
-Version: 2.2
-Release: 4%{?dist}
+Version: 2.3
+Release: 1%{?dist}
 Summary: The Low Level Virtual Machine
 License: NCSA
 Group: Development/Languages
@@ -25,7 +25,6 @@ Source1: http://llvm.org/releases/%{version}/llvm-gcc%{lgcc_version}-%{version}.
 %endif
 
 Patch0: llvm-2.1-fix-sed.patch
-Patch1: llvm-2.2-gcc43.patch
 
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRequires: bison
@@ -114,7 +113,6 @@ API documentation for the LLVM compiler infrastructure.
 %setup -q -n llvm-%{version} %{?_with_gcc:-a1}
 
 %patch0 -p1 -b .fix-sed
-%patch1 -p1 -b .gcc43
 
 %build
 # We're not building a debuginfo package yet, because some generated
@@ -237,7 +235,6 @@ rm -rf %{buildroot}
 %files devel
 %defattr(-,root,root,-)
 %{_bindir}/llvm-config
-%{_datadir}/%{name}-%{version}
 %{_includedir}/%{name}
 %{_includedir}/%{name}-c
 %{_libdir}/%{name}
@@ -289,6 +286,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Jun 18 2008 Bryan O'Sullivan <bos@serpentine.com> - 2.3-1
+- LLVM 2.3
+
 * Thu May 29 2008 Tom "spot" Callaway <tcallawa@redhat.com> - 2.2-4
 - fix license tags
 
