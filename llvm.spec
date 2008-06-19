@@ -14,7 +14,7 @@
 
 Name: llvm
 Version: 2.3
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: The Low Level Virtual Machine
 License: NCSA
 Group: Development/Languages
@@ -31,6 +31,7 @@ BuildRequires: bison
 BuildRequires: chrpath
 BuildRequires: flex
 BuildRequires: gcc-c++ >= 3.4
+BuildRequires: groff
 BuildRequires: libtool-ltdl-devel
 %if %{?_with_doxygen:1}%{!?_with_doxygen:0}
 BuildRequires: doxygen graphviz
@@ -286,6 +287,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Jun 18 2008 Bryan O'Sullivan <bos@serpentine.com> - 2.3-2
+- Add dependency on groff
+
 * Wed Jun 18 2008 Bryan O'Sullivan <bos@serpentine.com> - 2.3-1
 - LLVM 2.3
 
