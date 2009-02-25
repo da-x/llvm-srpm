@@ -15,7 +15,7 @@
 
 Name:		llvm
 Version:	2.4
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	The Low Level Virtual Machine
 
 Group:		Development/Languages
@@ -337,6 +337,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Feb 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
 * Tue Dec  2 2008 Michel Salim <salimma@fedoraproject.org> - 2.4-2
 - Patched build process for the OCaml binding
 
