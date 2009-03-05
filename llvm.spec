@@ -13,33 +13,40 @@
 
 %define debug_package %{nil}
 
-Name:		llvm
-Version:	2.4
-Release:	3%{?dist}
-Summary:	The Low Level Virtual Machine
+Name:           llvm
+Version:        2.5
+Release:        1%{?dist}
+Summary:        The Low Level Virtual Machine
 
-Group:		Development/Languages
-License:	NCSA
-URL:		http://llvm.org/
-Source0:	http://llvm.org/releases/%{version}/llvm-%{version}.tar.gz
+Group:          Development/Languages
+License:        NCSA
+URL:            http://llvm.org/
+Source0:        http://llvm.org/releases/%{version}/llvm-%{version}.tar.gz
 %if %{?_with_gcc:1}%{!?_with_gcc:0}
-Source1:	http://llvm.org/releases/%{version}/llvm-gcc%{lgcc_version}-%{version}.source.tar.gz
+Source1:        http://llvm.org/releases/%{version}/llvm-gcc%{lgcc_version}-%{version}.source.tar.gz
 %endif
-Patch0:		llvm-2.1-fix-sed.patch
+Source2:        llvm-build-examples.sh.in
+Patch0:         llvm-2.1-fix-sed.patch
 Patch1:         llvm-2.4-fix-ocaml.patch
+# http://llvm.org/bugs/show_bug.cgi?id=3726
+Patch2:         llvm-2.5-gcc44.patch
 
-BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
-BuildRequires:	bison
-BuildRequires:	chrpath
-BuildRequires:	flex
-BuildRequires:	gcc-c++ >= 3.4
-BuildRequires:	groff
-BuildRequires:	libtool-ltdl-devel
-BuildRequires:	ocaml-ocamldoc
+BuildRequires:  bison
+BuildRequires:  chrpath
+BuildRequires:  flex
+BuildRequires:  gcc-c++ >= 3.4
+BuildRequires:  groff
+BuildRequires:  libtool-ltdl-devel
+BuildRequires:  ocaml-ocamldoc
 %if %{?_with_doxygen:1}%{!?_with_doxygen:0}
-BuildRequires:	doxygen graphviz
+BuildRequires:  doxygen graphviz
 %endif
+
+# LLVM is not supported on PPC64
+# http://llvm.org/bugs/show_bug.cgi?id=3729
+ExcludeArch:    ppc64
 
 %description
 LLVM is a compiler infrastructure designed for compile-time,
@@ -55,10 +62,10 @@ ends derived from GCC %{lgcc_version}.
 
 
 %package devel
-Summary:	Libraries and header files for LLVM
-Group:		Development/Languages
-Requires:	%{name} = %{version}-%{release}
-Requires:	libstdc++-devel >= 3.4
+Summary:        Libraries and header files for LLVM
+Group:          Development/Languages
+Requires:       %{name} = %{version}-%{release}
+Requires:       libstdc++-devel >= 3.4
 
 
 %description devel
@@ -67,9 +74,10 @@ native programs that use the LLVM infrastructure.
 
 
 %package doc
-Summary:	Documentation for LLVM
-Group:		Development/Languages
-Requires:	%{name} = %{version}-%{release}
+Summary:        Documentation for LLVM
+Group:          Development/Languages
+# depend on devel since the examples require build scripts
+Requires:       %{name}-devel = %{version}-%{release}
 
 %description doc
 Documentation for the LLVM compiler infrastructure.
@@ -78,10 +86,10 @@ Documentation for the LLVM compiler infrastructure.
 %if %{?_with_gcc:1}%{!?_with_gcc:0}
 
 %package gcc
-Summary:	C compiler for LLVM
-License:	GPL+
-Group:		Development/Languages
-Requires:	%{name} = %{version}-%{release}
+Summary:        C compiler for LLVM
+License:        GPL+
+Group:          Development/Languages
+Requires:       %{name} = %{version}-%{release}
 
 
 %description gcc
@@ -89,10 +97,10 @@ C compiler for LLVM.
 
 
 %package gcc-c++
-Summary:	C++ compiler for LLVM
-License:	GPL+
-Group:		Development/Languages
-Requires:	%{name}-gcc = %{version}-%{release}
+Summary:        C++ compiler for LLVM
+License:        GPL+
+Group:          Development/Languages
+Requires:       %{name}-gcc = %{version}-%{release}
 
 
 %description gcc-c++
@@ -103,9 +111,9 @@ C++ compiler for LLVM.
 
 %if %{?_with_doxygen:1}%{!?_with_doxygen:0}
 %package apidoc
-Summary:	API documentation for LLVM
-Group:		Development/Languages
-Requires:	%{name}-docs = %{version}-%{release}
+Summary:        API documentation for LLVM
+Group:          Development/Languages
+Requires:       %{name}-docs = %{version}-%{release}
 
 
 %description apidoc
@@ -113,23 +121,23 @@ API documentation for the LLVM compiler infrastructure.
 %endif
 
 
-%package	ocaml
-Summary:	OCaml binding for LLVM
-Group:	 	Development/Libraries
+%package        ocaml
+Summary:        OCaml binding for LLVM
+Group:          Development/Libraries
 Requires:       %{name} = %{version}-%{release}
-Requires:	ocaml-runtime
+Requires:       ocaml-runtime
 
-%description	ocaml
+%description    ocaml
 OCaml binding for LLVM.
 
 
 %package        ocaml-devel
-Summary:	Development files for %{name}-ocaml
-Group:		Development/Libraries
+Summary:        Development files for %{name}-ocaml
+Group:          Development/Libraries
 Requires:       %{name}-devel = %{version}-%{release}
-Requires:	%{name}-ocaml = %{version}-%{release}
+Requires:       %{name}-ocaml = %{version}-%{release}
 
-%description	ocaml-devel
+%description    ocaml-devel
 The %{name}-ocaml-devel package contains libraries and signature files
 for developing applications that use %{name}-ocaml.
 
@@ -139,8 +147,10 @@ for developing applications that use %{name}-ocaml.
 
 %patch0 -p1 -b .fix-sed
 %patch1 -p1 -b .fix-ocaml
+%patch2 -p1 -b .gcc44
 
 %build
+# Note: --enable-pic can be turned off when 2.6 comes out
 %configure \
   --libdir=%{_libdir}/%{name} \
   --datadir=%{_datadir}/%{name}-%{version} \
@@ -149,7 +159,7 @@ for developing applications that use %{name}-ocaml.
   --enable-debug-runtime \
   --enable-jit \
   --enable-optimized \
-  --enable-shared \
+  --enable-pic \
   --with-pic
 #   --enable-targets=host-only \
 
@@ -224,6 +234,14 @@ sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}/%{name}",' \
   %{buildroot}%{_bindir}/llvm-config
 
 chmod -x %{buildroot}%{_libdir}/%{name}/*.[oa]
+
+# Install build scripts
+mkdir -p %{buildroot}%{_libdir}/llvm/build
+chmod -x Makefile{,.common}
+for f in Makefile.{common,config,rules}; do
+  cp -p $f %{buildroot}%{_libdir}/llvm/build/
+done
+cat %{SOURCE2} | sed -e "s|LIBDIR|%{_libdir}|g" > examples/build-examples.sh
 
 %if %{?_with_gcc:1}%{!?_with_gcc:0}
 # Install llvm-gcc.
@@ -337,8 +355,9 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Wed Feb 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.4-3
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+* Wed Mar  4 2009 Michel Salim <salimma@fedoraproject.org> - 2.5-1
+- Update to 2.5
+- Package build scripts (bug #457881)
 
 * Tue Dec  2 2008 Michel Salim <salimma@fedoraproject.org> - 2.4-2
 - Patched build process for the OCaml binding
