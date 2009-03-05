@@ -15,7 +15,7 @@
 
 Name:           llvm
 Version:        2.5
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -25,7 +25,6 @@ Source0:        http://llvm.org/releases/%{version}/llvm-%{version}.tar.gz
 %if %{?_with_gcc:1}%{!?_with_gcc:0}
 Source1:        http://llvm.org/releases/%{version}/llvm-gcc%{lgcc_version}-%{version}.source.tar.gz
 %endif
-Source2:        llvm-build-examples.sh.in
 Patch0:         llvm-2.1-fix-sed.patch
 Patch1:         llvm-2.4-fix-ocaml.patch
 # http://llvm.org/bugs/show_bug.cgi?id=3726
@@ -76,8 +75,7 @@ native programs that use the LLVM infrastructure.
 %package doc
 Summary:        Documentation for LLVM
 Group:          Development/Languages
-# depend on devel since the examples require build scripts
-Requires:       %{name}-devel = %{version}-%{release}
+Requires:       %{name} = %{version}-%{release}
 
 %description doc
 Documentation for the LLVM compiler infrastructure.
@@ -235,13 +233,9 @@ sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}/%{name}",' \
 
 chmod -x %{buildroot}%{_libdir}/%{name}/*.[oa]
 
-# Install build scripts
-mkdir -p %{buildroot}%{_libdir}/llvm/build
-chmod -x Makefile{,.common}
-for f in Makefile.{common,config,rules}; do
-  cp -p $f %{buildroot}%{_libdir}/llvm/build/
-done
-cat %{SOURCE2} | sed -e "s|LIBDIR|%{_libdir}|g" > examples/build-examples.sh
+# remove documentation makefiles:
+# they require the build directory to work
+find examples -name 'Makefile'
 
 %if %{?_with_gcc:1}%{!?_with_gcc:0}
 # Install llvm-gcc.
@@ -355,6 +349,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Mar  4 2009 Michel Salim <salimma@fedoraproject.org> - 2.5-2
+- Remove build scripts; they require the build directory to work
+
 * Wed Mar  4 2009 Michel Salim <salimma@fedoraproject.org> - 2.5-1
 - Update to 2.5
 - Package build scripts (bug #457881)
