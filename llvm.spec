@@ -15,7 +15,7 @@
 
 Name:           llvm
 Version:        2.5
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -349,6 +349,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sat Jul 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.5-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+
 * Wed Mar  4 2009 Michel Salim <salimma@fedoraproject.org> - 2.5-2
 - Remove build scripts; they require the build directory to work
 
