@@ -23,7 +23,7 @@ License:        NCSA
 URL:            http://llvm.org/
 Source0:        http://llvm.org/releases/%{version}/llvm-%{version}.tar.gz
 %if %{?_with_gcc:1}%{!?_with_gcc:0}
-Source1:        http://llvm.org/releases/%{version}/llvm-gcc%{lgcc_version}-%{version}.source.tar.gz
+Source1:        http://llvm.org/releases/%{version}/llvm-gcc-%{lgcc_version}-%{version}.source.tar.gz
 %endif
 Patch0:         llvm-2.1-fix-sed.patch
 Patch1:         llvm-2.4-fix-ocaml.patch
