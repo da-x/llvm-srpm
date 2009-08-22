@@ -15,7 +15,7 @@
 
 Name:           llvm
 Version:        2.5
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -159,7 +159,7 @@ for developing applications that use %{name}-ocaml.
   --enable-debug-runtime \
   --enable-jit \
   --enable-optimized \
-%ifarch x86_64
+%ifnarch %ix86
   --enable-pic
 %endif
 #   --enable-targets=host-only \
@@ -352,6 +352,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sat Aug 22 2009 Michel Salim <salimma@fedoraproject.org> - 2.5-5
+- Only disable PIC on %%ix86; ppc actually needs it
+
 * Sat Aug 22 2009 Michel Salim <salimma@fedoraproject.org> - 2.5-4
 - Disable use of position-independent code on 32-bit platforms
   (buggy in LLVM <= 2.5)
