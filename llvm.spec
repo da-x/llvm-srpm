@@ -15,7 +15,7 @@
 
 Name:           llvm
 Version:        2.5
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -149,6 +149,8 @@ for developing applications that use %{name}-ocaml.
 
 %build
 # Note: --enable-pic can be turned off when 2.6 comes out
+#       and up to 2.5, unsafe on 32-bit archs (in our case,
+#       anything but x86_64)
 %configure \
   --libdir=%{_libdir}/%{name} \
   --datadir=%{_datadir}/%{name}-%{version} \
@@ -157,8 +159,9 @@ for developing applications that use %{name}-ocaml.
   --enable-debug-runtime \
   --enable-jit \
   --enable-optimized \
-  --enable-pic \
-  --with-pic
+%ifarch x86_64
+  --enable-pic
+%endif
 #   --enable-targets=host-only \
 
 make %{_smp_mflags} OPTIMIZE_OPTION='%{optflags}'
@@ -349,6 +352,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sat Aug 22 2009 Michel Salim <salimma@fedoraproject.org> - 2.5-4
+- Disable use of position-independent code on 32-bit platforms
+  (buggy in LLVM <= 2.5)
+
 * Sat Jul 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.5-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
