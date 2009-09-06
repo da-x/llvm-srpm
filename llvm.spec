@@ -166,6 +166,7 @@ for developing applications that use %{name}-ocaml.
 mkdir obj && cd obj
 ../configure \
   --prefix=%{_prefix} \
+  --libdir=%{_libdir}/llvm \
   --disable-assertions \
   --enable-debug-runtime \
   --enable-jit \
@@ -174,7 +175,7 @@ mkdir obj && cd obj
 %endif
 
 # configure does not properly specify libdir
-sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config
+sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}/llvm|g' Makefile.config
 
 make %{_smp_mflags} OPTIMIZE_OPTION='%{optflags}'
 
@@ -220,7 +221,7 @@ chmod -x examples/Makefile
 # OVERRIDE_libdir used by our patched Makefile.ocaml:
 # see http://llvm.org/bugs/show_bug.cgi?id=3153
 make install DESTDIR=%{buildroot} \
-     OVERRIDE_libdir=%{_libdir} \
+     OVERRIDE_libdir=%{_libdir}/llvm \
      PROJ_docsdir=`pwd`/../moredocs
 
 #make install \
@@ -237,7 +238,7 @@ find %{buildroot} -name .dir -print0 | xargs -0r rm -f
 file %{buildroot}/%{_bindir}/* | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
 
 # Get rid of erroneously installed example files.
-rm %{buildroot}%{_libdir}/LLVMHello.*
+rm %{buildroot}%{_libdir}/llvm/LLVMHello.*
 
 # And OCaml .o files
 rm %{buildroot}%{_libdir}/ocaml/*.o
@@ -311,8 +312,7 @@ rm -rf %{buildroot}
 %{_bindir}/llvm-config
 %{_includedir}/%{name}
 %{_includedir}/%{name}-c
-%exclude %{_libdir}/ocaml
-%{_libdir}/*
+%{_libdir}/llvm
 
 
 %files ocaml
