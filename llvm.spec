@@ -4,11 +4,10 @@
 #   The doxygen docs are HUGE, so they are not built by default.
 #
 # --with gcc
-#   The llvm-gcc package doesn't currently build.
+#   The llvm-gcc package doesn't currently build
+#   (builds on x86_64, not on i686). Plan is to enable clang instead.
 
 %define lgcc_version 4.2
-# attempt turning on llvm-gcc
-%define _with_gcc 1
 
 # LLVM object files don't contain build IDs.  I don't know why yet.
 # Suppress their generation for now.
@@ -376,7 +375,6 @@ rm -rf %{buildroot}
 * Sat Sep  6 2009 Michel Salim <salimma@fedoraproject.org> - 2.5-6
 - Disable assertions (needed by OpenGTL)
 - Align spec file with upstream build instructions
-- Enable llvm-gcc
 - Enable unit tests
 
 * Sat Aug 22 2009 Michel Salim <salimma@fedoraproject.org> - 2.5-5
