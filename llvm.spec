@@ -187,10 +187,11 @@ cd ..
 mkdir gcc-obj
 cd gcc-obj
 
-../llvm-gcc-%{lgcc_version}-%{version}.source/configure \
-  --prefix=%{_prefix} \
-  --libdir=%{_libdir} \
-  --enable-languages=ada,c,c++ \
+../llvm-gcc%{lgcc_version}-%{version}.source/configure \
+  --target=%{_target_platform} \
+  --prefix=%{_libdir}/llvm-gcc \
+  --libdir=%{_libdir}/llvm-gcc/%{_lib} \
+  --enable-languages=c,c++ \
   --enable-checking \
   --enable-llvm=$PWD/../obj \
   --disable-bootstrap \
@@ -250,7 +251,7 @@ rm %{buildroot}%{_libdir}/ocaml/*.o
 # Remove deprecated tools.
 rm %{buildroot}%{_bindir}/gcc{as,ld}
 
-sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}/%{name}",' \
+sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}",' \
   %{buildroot}%{_bindir}/llvm-config
 
 chmod -x %{buildroot}%{_libdir}/*.[oa]
@@ -262,7 +263,7 @@ find examples -name 'Makefile'
 %if %{?_with_gcc:1}%{!?_with_gcc:0}
 # Install llvm-gcc.
 
-make -C llvm-gcc%{lgcc_version}-%{version}.source/build install DESTDIR=%{buildroot}
+make -C ../gcc-obj install DESTDIR=%{buildroot}
 cd %{buildroot}%{_libdir}/llvm-gcc/%{_lib}
 find . -name '*.la' -print0 | xargs -0r rm
 find . -name '*.a' -exec %{buildroot}%{_bindir}/llvm-ranlib {} \;
@@ -272,8 +273,8 @@ rm llvm-cpp llvm-gccbug llvm-gcov %{_target_platform}-gcc*
 cd ..
 mv man/man1/llvm-gcc.1 man/man1/llvm-g++.1 %{buildroot}%{_mandir}/man1
 rm -r info man %{_lib}/libiberty.a
-rm -r libexec/gcc/%{_target_platform}/%{lgcc_version}/install-tools
-rm -r %{_lib}/gcc/%{_target_platform}/%{lgcc_version}/install-tools
+rm -r libexec/gcc/%{_target_platform}/*/install-tools
+rm -r %{_lib}/gcc/%{_target_platform}/*/install-tools
 %endif
 
 
@@ -372,7 +373,7 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Sat Sep  5 2009 Michel Salim <salimma@fedoraproject.org> - 2.5-6
+* Sat Sep  6 2009 Michel Salim <salimma@fedoraproject.org> - 2.5-6
 - Disable assertions (needed by OpenGTL)
 - Align spec file with upstream build instructions
 - Enable llvm-gcc
