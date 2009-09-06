@@ -7,15 +7,18 @@
 #   The llvm-gcc package doesn't currently build.
 
 %define lgcc_version 4.2
+# attempt turning on llvm-gcc
+%define _with_gcc 1
 
 # LLVM object files don't contain build IDs.  I don't know why yet.
 # Suppress their generation for now.
 
-%define debug_package %{nil}
+%define _missing_build_ids_terminate_build 0
+#define debug_package %{nil}
 
 Name:           llvm
 Version:        2.5
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -29,6 +32,8 @@ Patch0:         llvm-2.1-fix-sed.patch
 Patch1:         llvm-2.4-fix-ocaml.patch
 # http://llvm.org/bugs/show_bug.cgi?id=3726
 Patch2:         llvm-2.5-gcc44.patch
+Patch3:         llvm-2.5-tclsh_check.patch
+Patch4:         llvm-2.5-Base.td-x86_32.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -39,6 +44,8 @@ BuildRequires:  gcc-c++ >= 3.4
 BuildRequires:  groff
 BuildRequires:  libtool-ltdl-devel
 BuildRequires:  ocaml-ocamldoc
+# for DejaGNU test suite
+BuildRequires:  dejagnu tcl-devel
 %if %{?_with_doxygen:1}%{!?_with_doxygen:0}
 BuildRequires:  doxygen graphviz
 %endif
@@ -146,63 +153,75 @@ for developing applications that use %{name}-ocaml.
 %patch0 -p1 -b .fix-sed
 %patch1 -p1 -b .fix-ocaml
 %patch2 -p1 -b .gcc44
+%patch3 -p1 -b .tclsh_check
+
+%ifarch %{ix86}
+%patch4 -p0 -b .ix86pic
+%endif
 
 %build
 # Note: --enable-pic can be turned off when 2.6 comes out
 #       and up to 2.5, unsafe on 32-bit archs (in our case,
 #       anything but x86_64)
-%configure \
-  --libdir=%{_libdir}/%{name} \
-  --datadir=%{_datadir}/%{name}-%{version} \
-  --disable-static \
-  --enable-assertions \
+# Disabling assertions now, rec. by pure and needed for OpenGTL
+mkdir obj && cd obj
+../configure \
+  --prefix=%{_prefix} \
+  --disable-assertions \
   --enable-debug-runtime \
   --enable-jit \
-  --enable-optimized \
-%ifnarch %ix86
+%ifnarch %{ix86}
   --enable-pic
 %endif
-#   --enable-targets=host-only \
+
+# configure does not properly specify libdir
+sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}|g' Makefile.config
 
 make %{_smp_mflags} OPTIMIZE_OPTION='%{optflags}'
-# tools-only VERBOSE=1 OmitFramePointer='' REQUIRES_EH=1 \
-#  OPTIMIZE_OPTION='%{optflags}'
 
 %if %{?_with_gcc:1}%{!?_with_gcc:0}
 # Build llvm-gcc.
 
-export PATH=%{_builddir}/%{?buildsubdir}/Release/bin:$PATH
+export PATH=%{_builddir}/obj/Release-Asserts/bin:$PATH
+cd ..
+mkdir gcc-obj
+cd gcc-obj
 
-mkdir llvm-gcc%{lgcc_version}-%{version}.source/build
-cd llvm-gcc%{lgcc_version}-%{version}.source/build
-
-../configure \
-  --host=%{_host} \
-  --build=%{_build} \
-  --target=%{_target_platform} \
-  --prefix=%{_libdir}/llvm-gcc \
-  --libdir=%{_libdir}/llvm-gcc/%{_lib} \
-  --enable-threads \
-  --disable-nls \
+../llvm-gcc-%{lgcc_version}-%{version}.source/configure \
+  --prefix=%{_prefix} \
+  --libdir=%{_libdir} \
+  --enable-languages=ada,c,c++ \
+  --enable-checking \
+  --enable-llvm=$PWD/../obj \
+  --disable-bootstrap \
 %ifarch x86_64
   --disable-multilib \
   --disable-shared \
 %endif
-  --enable-languages=c,c++ \
-  --enable-llvm=%{_builddir}/%{?buildsubdir} \
   --program-prefix=llvm-
+
 make %{_smp_mflags} LLVM_VERSION_INFO=%{version}
 %endif
 
+%check
+(cd obj && make check) 2>&1 | tee testlogs.txt ; true
+
+# Report failures and unexpected successes
+echo
+cat testlogs.txt | grep FAIL
+cat testlogs.txt | grep XPASS
+echo
+
+
 %install
 rm -rf %{buildroot}
+cd obj
 chmod -x examples/Makefile
 # OVERRIDE_libdir used by our patched Makefile.ocaml:
 # see http://llvm.org/bugs/show_bug.cgi?id=3153
 make install DESTDIR=%{buildroot} \
-     PROJ_libdir=%{buildroot}/%{_libdir}/%{name} \
-     OVERRIDE_libdir=%{_libdir}/%{name}/%{name} \
-     PROJ_docsdir=`pwd`/moredocs
+     OVERRIDE_libdir=%{_libdir} \
+     PROJ_docsdir=`pwd`/../moredocs
 
 #make install \
 #  PROJ_prefix=%{buildroot}/%{_prefix} \
@@ -218,7 +237,7 @@ find %{buildroot} -name .dir -print0 | xargs -0r rm -f
 file %{buildroot}/%{_bindir}/* | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
 
 # Get rid of erroneously installed example files.
-rm %{buildroot}%{_libdir}/%{name}/LLVMHello.*
+rm %{buildroot}%{_libdir}/LLVMHello.*
 
 # And OCaml .o files
 rm %{buildroot}%{_libdir}/ocaml/*.o
@@ -234,7 +253,7 @@ rm %{buildroot}%{_bindir}/gcc{as,ld}
 sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}/%{name}",' \
   %{buildroot}%{_bindir}/llvm-config
 
-chmod -x %{buildroot}%{_libdir}/%{name}/*.[oa]
+chmod -x %{buildroot}%{_libdir}/*.[oa]
 
 # remove documentation makefiles:
 # they require the build directory to work
@@ -270,7 +289,7 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc CREDITS.TXT LICENSE.TXT README.txt
+%doc CREDITS.TXT LICENSE.TXT README.txt testlogs.txt
 %exclude %{_bindir}/llvm-config
 %{_bindir}/bugpoint
 %{_bindir}/llc
@@ -292,7 +311,8 @@ rm -rf %{buildroot}
 %{_bindir}/llvm-config
 %{_includedir}/%{name}
 %{_includedir}/%{name}-c
-%{_libdir}/%{name}
+%exclude %{_libdir}/ocaml
+%{_libdir}/*
 
 
 %files ocaml
@@ -352,6 +372,12 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sat Sep  5 2009 Michel Salim <salimma@fedoraproject.org> - 2.5-6
+- Disable assertions (needed by OpenGTL)
+- Align spec file with upstream build instructions
+- Enable llvm-gcc
+- Enable unit tests
+
 * Sat Aug 22 2009 Michel Salim <salimma@fedoraproject.org> - 2.5-5
 - Only disable PIC on %%ix86; ppc actually needs it
 

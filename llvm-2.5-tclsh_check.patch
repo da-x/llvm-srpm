@@ -1,0 +1,11 @@
+--- llvm-2.5/configure.tclsh_check	2009-02-03 00:29:49.000000000 -0500
++++ llvm-2.5/configure	2009-09-05 12:25:54.761389908 -0400
+@@ -8032,7 +8032,7 @@
+ else
+ 
+ if test x"${with_tclinclude}" != x ; then
+-  if test -f ${with_tclinclude}/tclsh ; then
++  if test -f ${with_tclinclude}/tcl.h ; then
+     ac_cv_path_tclsh=`(cd ${with_tclinclude}; pwd)`
+   elif test -f ${with_tclinclude}/src/tclsh ; then
+     ac_cv_path_tclsh=`(cd ${with_tclinclude}/src; pwd)`
