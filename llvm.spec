@@ -5,7 +5,7 @@
 
 Name:           llvm
 Version:        2.6
-Release:        0.1.pre1%{?dist}
+Release:        0.2.pre1%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -139,9 +139,6 @@ popd
 
 
 %build
-# Note: --enable-pic can be turned off when 2.6 comes out
-#       and up to 2.5, unsafe on 32-bit archs (in our case,
-#       anything but x86_64)
 # Disabling assertions now, rec. by pure and needed for OpenGTL
 mkdir obj && cd obj
 ../configure \
@@ -150,8 +147,8 @@ mkdir obj && cd obj
   --disable-assertions \
   --enable-debug-runtime \
   --enable-jit \
-%ifnarch %{ix86}
-  --enable-pic
+%ifarch %{ix86}
+  --enable-pic=no
 %endif
 
 # FIXME file this
@@ -281,6 +278,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Sep  7 2009 Michel Salim <salimma@fedoraproject.org> - 2.6-0.2.pre1
+- PIC is now enabled by default; explicitly disable on %%{ix86}
+
 * Mon Sep  7 2009 Michel Salim <salimma@fedoraproject.org> - 2.6-0.1.pre1
 - First 2.6 prerelease
 - Enable Clang front-end
