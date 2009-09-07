@@ -1,0 +1,99 @@
+From 01c48a60e0a3bcd2e4d6829f2f0186d4ee6ef504 Mon Sep 17 00:00:00 2001
+From: Erick Tryzelaar <erickt@pixar.com>
+Date: Fri, 21 Aug 2009 12:37:18 -0700
+Subject: [PATCH] Use LLVM's new DESTDIR-less PROJ_* variables.
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="------------1.6.4"
+
+This is a multi-part message in MIME format.
+--------------1.6.4
+Content-Type: text/plain; charset=UTF-8; format=fixed
+Content-Transfer-Encoding: 8bit
+
+---
+ docs/Makefile           |   18 +++++++++---------
+ docs/tools/Makefile     |    6 +++---
+ tools/clang-cc/Makefile |    2 +-
+ 3 files changed, 13 insertions(+), 13 deletions(-)
+
+
+--------------1.6.4
+Content-Type: text/x-patch; name="0001-Use-LLVM-s-new-DESTDIR-less-PROJ_-variables.patch"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="0001-Use-LLVM-s-new-DESTDIR-less-PROJ_-variables.patch"
+
+diff --git docs/Makefile docs/Makefile
+index 9b706c7..e9bbb28 100644
+--- docs/Makefile
++++ docs/Makefile
+@@ -48,11 +48,11 @@ generated:: doxygen
+ 
+ install-html: $(PROJ_OBJ_DIR)/html.tar.gz
+ 	$(Echo) Installing HTML documentation
+-	$(Verb) $(MKDIR) $(PROJ_docsdir)/html
+-	$(Verb) $(MKDIR) $(PROJ_docsdir)/html/img
+-	$(Verb) $(DataInstall) $(HTML) $(PROJ_docsdir)/html
+-#	$(Verb) $(DataInstall) $(IMAGES) $(PROJ_docsdir)/html/img
+-	$(Verb) $(DataInstall) $(PROJ_OBJ_DIR)/html.tar.gz $(PROJ_docsdir)
++	$(Verb) $(MKDIR) $(DESTDIR)$(PROJ_docsdir)/html
++	$(Verb) $(MKDIR) $(DESTDIR)$(PROJ_docsdir)/html/img
++	$(Verb) $(DataInstall) $(HTML) $(DESTDIR)$(PROJ_docsdir)/html
++#	$(Verb) $(DataInstall) $(IMAGES) $(DESTDIR)$(PROJ_docsdir)/html/img
++	$(Verb) $(DataInstall) $(PROJ_OBJ_DIR)/html.tar.gz $(DESTDIR)$(PROJ_docsdir)
+ 
+ $(PROJ_OBJ_DIR)/html.tar.gz: $(HTML)
+ 	$(Echo) Packaging HTML documentation
+@@ -63,11 +63,11 @@ $(PROJ_OBJ_DIR)/html.tar.gz: $(HTML)
+ 
+ install-doxygen: doxygen
+ 	$(Echo) Installing doxygen documentation
+-	$(Verb) $(MKDIR) $(PROJ_docsdir)/html/doxygen
+-	$(Verb) $(DataInstall) $(PROJ_OBJ_DIR)/doxygen.tar.gz $(PROJ_docsdir)
++	$(Verb) $(MKDIR) $(DESTDIR)$(PROJ_docsdir)/html/doxygen
++	$(Verb) $(DataInstall) $(PROJ_OBJ_DIR)/doxygen.tar.gz $(DESTDIR)$(PROJ_docsdir)
+ 	$(Verb) cd $(PROJ_OBJ_DIR)/doxygen && \
+ 	  $(FIND) . -type f -exec \
+-	    $(DataInstall) {} $(PROJ_docsdir)/html/doxygen \;
++	    $(DataInstall) {} $(DESTDIR)$(PROJ_docsdir)/html/doxygen \;
+ 
+ doxygen: regendoc $(PROJ_OBJ_DIR)/doxygen.tar.gz
+ 
+@@ -94,4 +94,4 @@ $(LLVM_SRC_ROOT)/docs/userloc.html:
+ 
+ uninstall-local::
+ 	$(Echo) Uninstalling Documentation
+-	$(Verb) $(RM) -rf $(PROJ_docsdir)
++	$(Verb) $(RM) -rf $(DESTDIR)$(PROJ_docsdir)
+diff --git docs/tools/Makefile docs/tools/Makefile
+index 90eb776..8107754 100644
+--- docs/tools/Makefile
++++ docs/tools/Makefile
+@@ -81,9 +81,9 @@ EXTRA_DIST := $(POD)
+ clean-local::
+ 	$(Verb) $(RM) -f pod2htm*.*~~ $(HTML) $(MAN) $(PS)
+ 
+-HTML_DIR := $(PROJ_docsdir)/html/clang
+-MAN_DIR  := $(PROJ_mandir)/man1
+-PS_DIR   := $(PROJ_docsdir)/ps
++HTML_DIR := $(DESTDIR)$(PROJ_docsdir)/html/clang
++MAN_DIR  := $(DESTDIR)$(PROJ_mandir)/man1
++PS_DIR   := $(DESTDIR)$(PROJ_docsdir)/ps
+ 
+ install-html:: $(HTML)
+ 	$(Echo) Installing HTML Clang Tools Documentation
+diff --git tools/clang-cc/Makefile tools/clang-cc/Makefile
+index 874a42f..7c31f37 100644
+--- tools/clang-cc/Makefile
++++ tools/clang-cc/Makefile
+@@ -27,6 +27,6 @@ USEDLIBS = clangFrontend.a clangCodeGen.a clangAnalysis.a 	\
+ 
+ # clang-cc lives in a special location; we can get away with this
+ # because nothing else gets installed from here.
+-PROJ_bindir := $(DESTDIR)$(PROJ_prefix)/libexec
++PROJ_bindir := $(PROJ_prefix)/libexec
+ 
+ include $(LLVM_SRC_ROOT)/Makefile.rules
+
+--------------1.6.4--
+
+

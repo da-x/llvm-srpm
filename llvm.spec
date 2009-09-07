@@ -2,37 +2,24 @@
 #
 # --with doxygen
 #   The doxygen docs are HUGE, so they are not built by default.
-#
-# --with gcc
-#   The llvm-gcc package doesn't currently build
-#   (builds on x86_64, not on i686). Plan is to enable clang instead.
-
-%define lgcc_version 4.2
-
-# LLVM object files don't contain build IDs.  I don't know why yet.
-# Suppress their generation for now.
-
-%define _missing_build_ids_terminate_build 0
-#define debug_package %{nil}
 
 Name:           llvm
-Version:        2.5
-Release:        6%{?dist}
+Version:        2.6
+Release:        0.1.pre1%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
 License:        NCSA
 URL:            http://llvm.org/
-Source0:        http://llvm.org/releases/%{version}/llvm-%{version}.tar.gz
-%if %{?_with_gcc:1}%{!?_with_gcc:0}
-Source1:        http://llvm.org/releases/%{version}/llvm-gcc-%{lgcc_version}-%{version}.source.tar.gz
-%endif
-Patch0:         llvm-2.1-fix-sed.patch
-Patch1:         llvm-2.4-fix-ocaml.patch
-# http://llvm.org/bugs/show_bug.cgi?id=3726
-Patch2:         llvm-2.5-gcc44.patch
-Patch3:         llvm-2.5-tclsh_check.patch
-Patch4:         llvm-2.5-Base.td-x86_32.patch
+Source0:        http://llvm.org/prereleases/%{version}/llvm-%{version}.tar.gz
+Source1:        http://llvm.org/prereleases/%{version}/clang-%{version}.tar.gz
+# http://llvm.org/bugs/show_bug.cgi?id=3153
+Patch0:         llvm-2.6-destdir.patch
+Patch1:         llvm-2.6-destdir-clang.patch
+# http://llvm.org/bugs/show_bug.cgi?id=4911
+Patch2:         llvm-2.5-tclsh_check.patch
+# http://llvm.org/bugs/show_bug.cgi?id=3239
+Patch3:         llvm-2.5-Base.td-x86_32.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -60,11 +47,6 @@ arbitrary programming languages.  The compiler infrastructure includes
 mirror sets of programming tools as well as libraries with equivalent
 functionality.
 
-%if %{?_with_gcc:1}%{!?_with_gcc:0}
-It currently supports compilation of C and C++ programs, using front
-ends derived from GCC %{lgcc_version}.
-%endif
-
 
 %package devel
 Summary:        Libraries and header files for LLVM
@@ -87,30 +69,21 @@ Requires:       %{name} = %{version}-%{release}
 Documentation for the LLVM compiler infrastructure.
 
 
-%if %{?_with_gcc:1}%{!?_with_gcc:0}
-
-%package gcc
-Summary:        C compiler for LLVM
-License:        GPL+
+%package clang
+Summary:        A C language family frontend for LLVM
+License:        NCSA
 Group:          Development/Languages
 Requires:       %{name} = %{version}-%{release}
 
+%description clang
+clang: noun
+    1. A loud, resonant, metallic sound.
+    2. The strident call of a crane or goose.
+    3. C-language family front-end toolkit.
 
-%description gcc
-C compiler for LLVM.
-
-
-%package gcc-c++
-Summary:        C++ compiler for LLVM
-License:        GPL+
-Group:          Development/Languages
-Requires:       %{name}-gcc = %{version}-%{release}
-
-
-%description gcc-c++
-C++ compiler for LLVM.
-
-%endif
+The goal of the Clang project is to create a new C, C++, Objective C
+and Objective C++ front-end for the LLVM compiler. Its qqqtools are built
+as libraries and designed to be loosely-coupled and extendable.
 
 
 %if %{?_with_doxygen:1}%{!?_with_doxygen:0}
@@ -146,16 +119,28 @@ The %{name}-ocaml-devel package contains libraries and signature files
 for developing applications that use %{name}-ocaml.
 
 
-%prep
-%setup -q -n llvm-%{version} %{?_with_gcc:-a1}
+%package ocaml-doc
+Summary:        Documentation for LLVM's OCaml binding
+Group:          Documentation
+Requires:       %{name}-ocaml = %{version}-%{release}
 
-%patch0 -p1 -b .fix-sed
-%patch1 -p1 -b .fix-ocaml
-%patch2 -p1 -b .gcc44
-%patch3 -p1 -b .tclsh_check
+%description ocaml-doc
+HTML documentation for LLVM's OCaml binding.
+
+
+
+%prep
+%setup -q -n llvm-%{version} -a1 %{?_with_gcc:-a2}
+mv clang-2.6 tools/clang
+
+%patch0 -p0 -b .destdir
+pushd tools/clang
+%patch1 -p0 -b .destdir-clang
+popd
+%patch2 -p1 -b .tclsh_check
 
 %ifarch %{ix86}
-%patch4 -p0 -b .ix86pic
+%patch3 -p0 -b .ix86pic
 %endif
 
 %build
@@ -166,7 +151,7 @@ for developing applications that use %{name}-ocaml.
 mkdir obj && cd obj
 ../configure \
   --prefix=%{_prefix} \
-  --libdir=%{_libdir}/llvm \
+  --libdir=%{_libdir}/%{name} \
   --disable-assertions \
   --enable-debug-runtime \
   --enable-jit \
@@ -174,108 +159,55 @@ mkdir obj && cd obj
   --enable-pic
 %endif
 
+# FIXME file this
 # configure does not properly specify libdir
-sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}/llvm|g' Makefile.config
+sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}/%{name}|g' Makefile.config
 
 make %{_smp_mflags} OPTIMIZE_OPTION='%{optflags}'
 
-%if %{?_with_gcc:1}%{!?_with_gcc:0}
-# Build llvm-gcc.
-
-export PATH=%{_builddir}/obj/Release-Asserts/bin:$PATH
-cd ..
-mkdir gcc-obj
-cd gcc-obj
-
-../llvm-gcc%{lgcc_version}-%{version}.source/configure \
-  --target=%{_target_platform} \
-  --prefix=%{_libdir}/llvm-gcc \
-  --libdir=%{_libdir}/llvm-gcc/%{_lib} \
-  --enable-languages=c,c++ \
-  --enable-checking \
-  --enable-llvm=$PWD/../obj \
-  --disable-bootstrap \
-%ifarch x86_64
-  --disable-multilib \
-  --disable-shared \
-%endif
-  --program-prefix=llvm-
-
-make %{_smp_mflags} LLVM_VERSION_INFO=%{version}
-%endif
 
 %check
-(cd obj && make check) 2>&1 | tee testlogs.txt ; true
-
-# Report failures and unexpected successes
-echo
-cat testlogs.txt | grep FAIL
-cat testlogs.txt | grep XPASS
-echo
+cd obj && make check
 
 
 %install
 rm -rf %{buildroot}
 cd obj
 chmod -x examples/Makefile
-# OVERRIDE_libdir used by our patched Makefile.ocaml:
-# see http://llvm.org/bugs/show_bug.cgi?id=3153
-make install DESTDIR=%{buildroot} \
-     OVERRIDE_libdir=%{_libdir}/llvm \
-     PROJ_docsdir=`pwd`/../moredocs
 
-#make install \
-#  PROJ_prefix=%{buildroot}/%{_prefix} \
-#  PROJ_bindir=%{buildroot}/%{_bindir} \
-#  PROJ_libdir=%{buildroot}/%{_libdir}/%{name} \
-#  PROJ_datadir=%{buildroot}/%{_datadir} \
-#  PROJ_docsdir=%{buildroot}/%{_docdir}/%{name}-%{version} \
-#  PROJ_etcdir=%{buildroot}/%{_datadir}/%{name}-%{version} \
-#  PROJ_includedir=%{buildroot}/%{_includedir} \
-#  PROJ_infodir=%{buildroot}/%{_infodir} \
-#  PROJ_mandir=%{buildroot}/%{_mandir}
+# Fix hard-coded libdir for clang Headers
+sed -i 's|(PROJ_prefix)/lib/clang|(PROJ_prefix)/%{_lib}/clang|g' \
+     tools/clang/lib/Headers/Makefile
+
+make install DESTDIR=%{buildroot} \
+     PROJ_docsdir=/moredocs
+
+# Move documentation back to build directory
+# 
+mv %{buildroot}/moredocs ../
+rm ../moredocs/*.tar.gz
+rm ../moredocs/ocamldoc/html/*.tar.gz
+
 find %{buildroot} -name .dir -print0 | xargs -0r rm -f
 file %{buildroot}/%{_bindir}/* | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
+file %{buildroot}/%{_libdir}/llvm/*.so | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
+chrpath -d %{buildroot}/%{_libexecdir}/clang-cc
 
 # Get rid of erroneously installed example files.
-rm %{buildroot}%{_libdir}/llvm/LLVMHello.*
-
-# And OCaml .o files
-rm %{buildroot}%{_libdir}/ocaml/*.o
-
-# Use relative links for ocaml's libLLVM*.a
-#(cd %{buildroot}%{_libdir}/ocaml && for i in libLLVM*.a; do
-#    ln -sf %{_libdir}/llvm/$i $i;
-# done)
+rm %{buildroot}%{_libdir}/%{name}/*LLVMHello.*
 
 # Remove deprecated tools.
 rm %{buildroot}%{_bindir}/gcc{as,ld}
 
-sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}",' \
+# FIXME file this bug
+sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}/%{name}",' \
   %{buildroot}%{_bindir}/llvm-config
 
-chmod -x %{buildroot}%{_libdir}/*.[oa]
+chmod -x %{buildroot}%{_libdir}/*/*.a
 
 # remove documentation makefiles:
 # they require the build directory to work
-find examples -name 'Makefile'
-
-%if %{?_with_gcc:1}%{!?_with_gcc:0}
-# Install llvm-gcc.
-
-make -C ../gcc-obj install DESTDIR=%{buildroot}
-cd %{buildroot}%{_libdir}/llvm-gcc/%{_lib}
-find . -name '*.la' -print0 | xargs -0r rm
-find . -name '*.a' -exec %{buildroot}%{_bindir}/llvm-ranlib {} \;
-cd ../bin
-ln llvm-c++ llvm-gcc llvm-g++ %{buildroot}%{_bindir}
-rm llvm-cpp llvm-gccbug llvm-gcov %{_target_platform}-gcc*
-cd ..
-mv man/man1/llvm-gcc.1 man/man1/llvm-g++.1 %{buildroot}%{_mandir}/man1
-rm -r info man %{_lib}/libiberty.a
-rm -r libexec/gcc/%{_target_platform}/*/install-tools
-rm -r %{_lib}/gcc/%{_target_platform}/*/install-tools
-%endif
+find examples -name 'Makefile' | xargs -0r rm -f
 
 
 %clean
@@ -290,7 +222,7 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc CREDITS.TXT LICENSE.TXT README.txt testlogs.txt
+%doc CREDITS.TXT LICENSE.TXT README.txt
 %exclude %{_bindir}/llvm-config
 %{_bindir}/bugpoint
 %{_bindir}/llc
@@ -312,8 +244,21 @@ rm -rf %{buildroot}
 %{_bindir}/llvm-config
 %{_includedir}/%{name}
 %{_includedir}/%{name}-c
-%{_libdir}/llvm
+%{_libdir}/%{name}
 
+
+%files clang
+%defattr(-,root,root,-)
+%{_bindir}/clang*
+%{_bindir}/FileCheck
+%{_bindir}/FileUpdate
+%{_bindir}/tblgen
+%{_libdir}/clang
+%{_libexecdir}/clang-cc
+
+%files doc
+%defattr(-,root,root,-)
+%doc examples moredocs/html
 
 %files ocaml
 %defattr(-,root,root,-)
@@ -326,10 +271,9 @@ rm -rf %{buildroot}
 %{_libdir}/ocaml/*.cmx*
 %{_libdir}/ocaml/*.mli
 
-%files doc
+%files ocaml-doc
 %defattr(-,root,root,-)
-%doc docs/*.{html,css} docs/img examples moredocs/*
-
+%doc moredocs/ocamldoc/html/*
 
 %if %{?_with_doxygen:1}%{!?_with_doxygen:0}
 %files apidoc
@@ -338,41 +282,14 @@ rm -rf %{buildroot}
 %endif
 
 
-%if %{?_with_gcc:1}%{!?_with_gcc:0}
-%files gcc
-%defattr(-,root,root,-)
-%{_bindir}/llvm-gcc
-%dir %{_libdir}/llvm-gcc
-%dir %{_libdir}/llvm-gcc/bin
-%dir %{_libdir}/llvm-gcc/include
-%dir %{_libdir}/llvm-gcc/%{_lib}
-%dir %{_libdir}/llvm-gcc/libexec
-%dir %{_libdir}/llvm-gcc/libexec/gcc
-%dir %{_libdir}/llvm-gcc/libexec/gcc/%{_target_platform}/%{lgcc_version}
-%{_libdir}/llvm-gcc/%{_lib}/gcc
-%{_libdir}/llvm-gcc/%{_lib}/libmudflap*.a
-%{_libdir}/llvm-gcc/bin/%{_target_platform}-llvm-gcc
-%{_libdir}/llvm-gcc/bin/llvm-gcc
-%{_libdir}/llvm-gcc/include/mf-runtime.h
-%{_libdir}/llvm-gcc/libexec/gcc/%{_target_platform}/%{lgcc_version}/cc1
-%{_libdir}/llvm-gcc/libexec/gcc/%{_target_platform}/%{lgcc_version}/collect2
-%doc %{_mandir}/man1/llvm-gcc.*
-
-
-%files gcc-c++
-%defattr(-,root,root,-)
-%{_bindir}/llvm-[cg]++
-%{_libdir}/llvm-gcc/%{_lib}/lib*++.a
-%{_libdir}/llvm-gcc/bin/%{_target_platform}-llvm-[cg]++
-%{_libdir}/llvm-gcc/bin/llvm-[cg]++
-%{_libdir}/llvm-gcc/include/c++
-%{_libdir}/llvm-gcc/libexec/gcc/%{_target_platform}/%{lgcc_version}/cc1plus
-%doc %{_mandir}/man1/llvm-g++.*
-%endif
-
 
 %changelog
-* Sat Sep  6 2009 Michel Salim <salimma@fedoraproject.org> - 2.5-6
+* Mon Sep  7 2009 Michel Salim <salimma@fedoraproject.org> - 2.6-0.1.pre1
+- First 2.6 prerelease
+- Enable Clang front-end
+- Enable debuginfo generation
+
+* Sat Sep  5 2009 Michel Salim <salimma@fedoraproject.org> - 2.5-6
 - Disable assertions (needed by OpenGTL)
 - Align spec file with upstream build instructions
 - Enable unit tests
