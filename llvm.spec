@@ -18,8 +18,6 @@ Patch0:         llvm-2.6-destdir.patch
 Patch1:         llvm-2.6-destdir-clang.patch
 # http://llvm.org/bugs/show_bug.cgi?id=4911
 Patch2:         llvm-2.5-tclsh_check.patch
-# http://llvm.org/bugs/show_bug.cgi?id=3239
-Patch3:         llvm-2.5-Base.td-x86_32.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -139,9 +137,6 @@ pushd tools/clang
 popd
 %patch2 -p1 -b .tclsh_check
 
-%ifarch %{ix86}
-%patch3 -p0 -b .ix86pic
-%endif
 
 %build
 # Note: --enable-pic can be turned off when 2.6 comes out
