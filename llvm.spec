@@ -29,7 +29,7 @@ BuildRequires:  groff
 BuildRequires:  libtool-ltdl-devel
 BuildRequires:  ocaml-ocamldoc
 # for DejaGNU test suite
-BuildRequires:  dejagnu tcl-devel
+BuildRequires:  dejagnu tcl-devel python
 %if %{?_with_doxygen:1}%{!?_with_doxygen:0}
 BuildRequires:  doxygen graphviz
 %endif
@@ -162,8 +162,7 @@ make %{_smp_mflags} OPTIMIZE_OPTION='%{optflags}'
 
 
 %check
-# 2 tests currently fail on i686
-cd obj && make check; true
+cd obj && make check
 
 
 %install
