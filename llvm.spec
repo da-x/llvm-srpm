@@ -162,7 +162,9 @@ make %{_smp_mflags} OPTIMIZE_OPTION='%{optflags}'
 
 
 %check
+%ifnarch ppc
 cd obj && make check
+%endif
 
 
 %install
