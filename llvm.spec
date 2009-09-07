@@ -198,7 +198,7 @@ rm %{buildroot}%{_bindir}/gcc{as,ld}
 sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}/%{name}",' \
   %{buildroot}%{_bindir}/llvm-config
 
-chmod -x %{buildroot}%{_libdir}/*/*.a
+chmod -x %{buildroot}%{_libdir}/%{name}/*.a
 
 # remove documentation makefiles:
 # they require the build directory to work
