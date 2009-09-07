@@ -5,7 +5,7 @@
 
 Name:           llvm
 Version:        2.6
-Release:        0.2.pre1%{?dist}
+Release:        0.3.pre1%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -140,6 +140,7 @@ popd
 
 %build
 # Disabling assertions now, rec. by pure and needed for OpenGTL
+# no PIC on ix86: http://llvm.org/bugs/show_bug.cgi?id=3239
 mkdir obj && cd obj
 ../configure \
   --prefix=%{_prefix} \
@@ -159,6 +160,8 @@ make %{_smp_mflags} OPTIMIZE_OPTION='%{optflags}'
 
 
 %check
+# some tests fail on PPC
+# http://www.nabble.com/LLVM-2.6-pre1%3A-test-failures-on-Fedora-11.91-%28Rawhide%29-ppc-td25334198.html
 %ifnarch ppc
 cd obj && make check
 %endif
@@ -175,6 +178,10 @@ sed -i 's|(PROJ_prefix)/lib/clang|(PROJ_prefix)/%{_lib}/clang|g' \
 
 make install DESTDIR=%{buildroot} \
      PROJ_docsdir=/moredocs
+
+# Static analyzer not installed by default:
+# http://clang-analyzer.llvm.org/installation#OtherPlatforms
+cp -p tools/clang/{util/scan-build,tools/scan-view} %{buildroot}%{_bindir}/
 
 # Move documentation back to build directory
 # 
@@ -246,6 +253,8 @@ rm -rf %{buildroot}
 %{_bindir}/clang*
 %{_bindir}/FileCheck
 %{_bindir}/FileUpdate
+%{_bindir}/scan-build
+%{_bindir}/scan-view
 %{_bindir}/tblgen
 %{_libdir}/clang
 %{_libexecdir}/clang-cc
@@ -278,6 +287,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Sep  7 2009 Michel Salim <salimma@fedoraproject.org> - 2.6-0.3.pre1
+- Package Clang's static analyzer tools
+
 * Mon Sep  7 2009 Michel Salim <salimma@fedoraproject.org> - 2.6-0.2.pre1
 - PIC is now enabled by default; explicitly disable on %%{ix86}
 
