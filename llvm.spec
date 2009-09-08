@@ -84,6 +84,22 @@ and Objective C++ front-end for the LLVM compiler. Its qqqtools are built
 as libraries and designed to be loosely-coupled and extendable.
 
 
+%package clang-analyzer
+Summary:        A source code analysis framework
+License:        NCSA
+Group:          Development/Languages
+Requires:       %{name}-clang = %{version}-%{release}
+# not picked up automatically since files are currently not instaled
+# in standard Python hierarchies yet
+Requires:       python
+
+%description clang-analyzer
+The Clang Static Analyzer consists of both a source code analysis
+framework and a standalone tool that finds bugs in C and Objective-C
+programs. The standalone tool is invoked from the command-line, and is
+intended to run in tandem with a build of a project or code base.
+
+
 %if %{?_with_doxygen:1}%{!?_with_doxygen:0}
 %package apidoc
 Summary:        API documentation for LLVM
@@ -181,7 +197,25 @@ make install DESTDIR=%{buildroot} \
 
 # Static analyzer not installed by default:
 # http://clang-analyzer.llvm.org/installation#OtherPlatforms
-cp -p tools/clang/{util/scan-build,tools/scan-view} %{buildroot}%{_bindir}/
+mkdir -p %{buildroot}%{_libdir}/clang-analyzer/libexec
+# link clang-cc for scan-build to find
+ln -s %{_libexecdir}/clang-cc %{buildroot}%{_libdir}/clang-analyzer/libexec/
+# create launchers
+for f in scan-{build,view}; do
+  ln -s %{_libdir}/clang-analyzer/$f %{buildroot}%{_bindir}/$f << EOF
+done
+
+pushd ../tools/clang/utils
+cp -p ccc-analyzer %{buildroot}%{_libdir}/clang-analyzer/libexec/
+
+for f in scan-build scanview.css sorttable.js; do
+  cp -p $f %{buildroot}%{_libdir}/clang-analyzer/
+done
+popd
+
+pushd ../tools/clang/tools/scan-view
+cp -pr * %{buildroot}%{_libdir}/clang-analyzer/
+popd
 
 # Move documentation back to build directory
 # 
@@ -230,6 +264,8 @@ rm -rf %{buildroot}
 %{_bindir}/lli
 %{_bindir}/llvm*
 %{_bindir}/opt
+%exclude %{_mandir}/man1/clang.1.*
+%exclude %{_mandir}/man1/FileCheck.1.*
 %doc %{_mandir}/man1/*.1.gz
 
 %if %{?_with_doxygen:1}%{!?_with_doxygen:0}
@@ -253,11 +289,18 @@ rm -rf %{buildroot}
 %{_bindir}/clang*
 %{_bindir}/FileCheck
 %{_bindir}/FileUpdate
-%{_bindir}/scan-build
-%{_bindir}/scan-view
 %{_bindir}/tblgen
 %{_libdir}/clang
 %{_libexecdir}/clang-cc
+%doc %{_mandir}/man1/clang.1.*
+%doc %{_mandir}/man1/FileCheck.1.*
+
+
+%files clang-analyzer
+%defattr(-,root,root,-)
+%{_bindir}/scan-build
+%{_bindir}/scan-view
+%{_libdir}/clang-analyzer
 
 %files doc
 %defattr(-,root,root,-)
