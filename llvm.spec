@@ -202,7 +202,7 @@ mkdir -p %{buildroot}%{_libdir}/clang-analyzer/libexec
 ln -s %{_libexecdir}/clang-cc %{buildroot}%{_libdir}/clang-analyzer/libexec/
 # create launchers
 for f in scan-{build,view}; do
-  ln -s %{_libdir}/clang-analyzer/$f %{buildroot}%{_bindir}/$f << EOF
+  ln -s %{_libdir}/clang-analyzer/$f %{buildroot}%{_bindir}/$f
 done
 
 pushd ../tools/clang/utils
