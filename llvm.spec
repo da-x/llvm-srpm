@@ -342,7 +342,7 @@ rm -rf %{buildroot}
 - Enable debuginfo generation
 
 * Sat Sep  5 2009 Michel Salim <salimma@fedoraproject.org> - 2.5-6
-- Disable assertions (needed by OpenGTL)
+- Disable assertions (needed by OpenGTL, #521261)
 - Align spec file with upstream build instructions
 - Enable unit tests
 
