@@ -5,7 +5,7 @@
 
 Name:           llvm
 Version:        2.6
-Release:        0.3.pre1%{?dist}
+Release:        0.4.pre1%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -153,6 +153,14 @@ pushd tools/clang
 popd
 %patch2 -p1 -b .tclsh_check
 
+# Fix hard-coded libdir for clang Headers
+%ifarch x86_64
+sed -i 's|(PROJ_prefix)/lib/clang|(PROJ_prefix)/%{_lib}/clang|g' \
+     tools/clang/lib/Headers/Makefile
+sed -i 's|lib/clang/1.0|%{_lib}/clang/1.0|g' \
+     tools/clang/lib/Driver/ToolChains.cpp
+%endif
+
 
 %build
 # Disabling assertions now, rec. by pure and needed for OpenGTL
@@ -180,6 +188,7 @@ make %{_smp_mflags} OPTIMIZE_OPTION='%{optflags}'
 # http://www.nabble.com/LLVM-2.6-pre1%3A-test-failures-on-Fedora-11.91-%28Rawhide%29-ppc-td25334198.html
 %ifnarch ppc
 cd obj && make check
+cd tools/clang && make test
 %endif
 
 
@@ -187,10 +196,6 @@ cd obj && make check
 rm -rf %{buildroot}
 cd obj
 chmod -x examples/Makefile
-
-# Fix hard-coded libdir for clang Headers
-sed -i 's|(PROJ_prefix)/lib/clang|(PROJ_prefix)/%{_lib}/clang|g' \
-     tools/clang/lib/Headers/Makefile
 
 make install DESTDIR=%{buildroot} \
      PROJ_docsdir=/moredocs
@@ -330,6 +335,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Sep  9 2009 Michel Salim <salimma@fedoraproject.org> - 2.6-0.4.pre1
+- Properly adjust clang include dir (bz#521893)
+- Enable clang unit tests
+
 * Mon Sep  7 2009 Michel Salim <salimma@fedoraproject.org> - 2.6-0.3.pre1
 - Package Clang's static analyzer tools
 
@@ -342,7 +351,7 @@ rm -rf %{buildroot}
 - Enable debuginfo generation
 
 * Sat Sep  5 2009 Michel Salim <salimma@fedoraproject.org> - 2.5-6
-- Disable assertions (needed by OpenGTL, #521261)
+- Disable assertions (needed by OpenGTL, bz#521261)
 - Align spec file with upstream build instructions
 - Enable unit tests
 
