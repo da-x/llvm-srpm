@@ -169,11 +169,6 @@ popd
 # Disabling assertions now, rec. by pure and needed for OpenGTL
 # no PIC on ix86: http://llvm.org/bugs/show_bug.cgi?id=3239
 mkdir obj && cd obj
-%ifarch ppc
-CXXFLAGS="%{optflags} -fno-var-tracking-assignments" \
-%else
-CXXFLAGS="%{optflags}" \
-%endif
 ../configure \
   --prefix=%{_prefix} \
   --libdir=%{_libdir}/%{name} \
@@ -188,7 +183,12 @@ CXXFLAGS="%{optflags}" \
 # configure does not properly specify libdir
 sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}/%{name}|g' Makefile.config
 
-make %{_smp_mflags} OPTIMIZE_OPTION='%{optflags}'
+make %{_smp_mflags} \
+%ifarch ppc
+  OPTIMIZE_OPTION="%{optflags} -fno-var-tracking-assignments"
+%else
+  OPTIMIZE_OPTION="%{optflags}"
+%endif
 
 
 %check
