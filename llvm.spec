@@ -194,8 +194,9 @@ make %{_smp_mflags} \
 %check
 # some tests fail on PPC
 # http://www.nabble.com/LLVM-2.6-pre1%3A-test-failures-on-Fedora-11.91-%28Rawhide%29-ppc-td25334198.html
+cd obj
 %ifnarch ppc
-cd obj && make check
+make check
 %endif
 # some clang tests still fail, preserve test results
 (cd tools/clang && make test 2>&1) | tee ../testlog.txt || true
