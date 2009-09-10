@@ -5,7 +5,7 @@
 
 Name:           llvm
 Version:        2.6
-Release:        0.4.pre1%{?dist}
+Release:        0.5.pre1%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -169,6 +169,11 @@ popd
 # Disabling assertions now, rec. by pure and needed for OpenGTL
 # no PIC on ix86: http://llvm.org/bugs/show_bug.cgi?id=3239
 mkdir obj && cd obj
+%ifarch ppc
+CXXFLAGS="%{optflags} -fno-var-tracking-assignments" \
+%else
+CXXFLAGS="%{optflags}" \
+%endif
 ../configure \
   --prefix=%{_prefix} \
   --libdir=%{_libdir}/%{name} \
@@ -352,6 +357,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Sep  9 2009 Michel Salim <salimma@fedoraproject.org> - 2.6-0.5.pre1
+- Disable var tracking assignments on PPC
+
 * Wed Sep  9 2009 Michel Salim <salimma@fedoraproject.org> - 2.6-0.4.pre1
 - Don't adjust clang include dir; files there are noarch (bz#521893)
 - Enable clang unit tests
