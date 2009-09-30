@@ -5,14 +5,14 @@
 
 Name:           llvm
 Version:        2.6
-Release:        0.5.pre1%{?dist}
+Release:        0.6.pre2%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
 License:        NCSA
 URL:            http://llvm.org/
-Source0:        http://llvm.org/prereleases/%{version}/llvm-%{version}.tar.gz
-Source1:        http://llvm.org/prereleases/%{version}/clang-%{version}.tar.gz
+Source0:        http://llvm.org/prereleases/%{version}/pre-release2/llvm-%{version}.tar.gz
+Source1:        http://llvm.org/prereleases/%{version}/pre-release2/clang-%{version}.tar.gz
 # http://llvm.org/bugs/show_bug.cgi?id=3153
 Patch0:         llvm-2.6-destdir.patch
 Patch1:         llvm-2.6-destdir-clang.patch
@@ -53,6 +53,7 @@ Summary:        Libraries and header files for LLVM
 Group:          Development/Languages
 Requires:       %{name} = %{version}-%{release}
 Requires:       libstdc++-devel >= 3.4
+Provides:       llvm-static = %{version}-%{release}
 
 
 %description devel
@@ -177,6 +178,8 @@ mkdir obj && cd obj
   --enable-jit \
 %ifarch %{ix86}
   --enable-pic=no
+%else
+  --enable-shared
 %endif
 
 # FIXME file this
@@ -358,6 +361,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Sep 18 2009 Michel Salim <salimma@fedoraproject.org> - 2.6-0.6.pre2
+- Update to 2.6 pre-release2
+- -devel subpackage now virtually provides -static
+
 * Wed Sep  9 2009 Michel Salim <salimma@fedoraproject.org> - 2.6-0.5.pre1
 - Disable var tracking assignments on PPC
 
