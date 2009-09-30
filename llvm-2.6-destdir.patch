@@ -1,39 +1,102 @@
-From 5a380ce5d1c8d5a1474764a7a54a1e2072fddb03 Mon Sep 17 00:00:00 2001
-From: Erick Tryzelaar <idadesub@users.sourceforge.net>
-Date: Fri, 21 Aug 2009 11:59:01 -0700
-Subject: [PATCH] Rewrite makefiles to explicitly reference DESTDIR so we can not bake DESTDIR
- into the O'Caml symlinks.
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------1.6.4"
-
-This is a multi-part message in MIME format.
---------------1.6.4
-Content-Type: text/plain; charset=UTF-8; format=fixed
-Content-Transfer-Encoding: 8bit
-
----
- Makefile.config.in         |   16 +++++++-------
- Makefile.rules             |   46 ++++++++++++++++++++++----------------------
- docs/CommandGuide/Makefile |    6 ++--
- docs/Makefile              |   24 +++++++++++-----------
- docs/tutorial/Makefile     |    2 +-
- lib/VMCore/Makefile        |    4 +-
- tools/gccas/Makefile       |    4 +-
- tools/gccld/Makefile       |    4 +-
- tools/llvm-config/Makefile |    4 +-
- 9 files changed, 55 insertions(+), 55 deletions(-)
-
-
---------------1.6.4
-Content-Type: text/x-patch; name="0001-Rewrite-makefiles-to-explicitly-reference-DESTDIR-so.patch"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="0001-Rewrite-makefiles-to-explicitly-reference-DESTDIR-so.patch"
-
-diff --git Makefile.config.in Makefile.config.in
-index ecd0595..73656f7 100644
---- Makefile.config.in
-+++ Makefile.config.in
-@@ -76,14 +76,14 @@ endif
+diff -ru llvm-2.6.orig/docs/CommandGuide/Makefile llvm-2.6/docs/CommandGuide/Makefile
+--- llvm-2.6.orig/docs/CommandGuide/Makefile	2009-08-31 02:25:32.000000000 -0400
++++ llvm-2.6/docs/CommandGuide/Makefile	2009-09-30 02:28:03.107649582 -0400
+@@ -77,9 +77,9 @@
+ clean-local::
+ 	$(Verb) $(RM) -f pod2htm*.*~~ $(HTML) $(MAN) $(PS)
+ 
+-HTML_DIR := $(PROJ_docsdir)/html/CommandGuide
+-MAN_DIR  := $(PROJ_mandir)/man1
+-PS_DIR   := $(PROJ_docsdir)/ps
++HTML_DIR := $(DESTDIR)$(PROJ_docsdir)/html/CommandGuide
++MAN_DIR  := $(DESTDIR)$(PROJ_mandir)/man1
++PS_DIR   := $(DESTDIR)$(PROJ_docsdir)/ps
+ 
+ install-local:: $(HTML) $(INSTALL_MANS) $(PS)
+ 	$(Echo) Installing HTML CommandGuide Documentation
+diff -ru llvm-2.6.orig/docs/Makefile llvm-2.6/docs/Makefile
+--- llvm-2.6.orig/docs/Makefile	2008-03-31 13:27:57.000000000 -0400
++++ llvm-2.6/docs/Makefile	2009-09-30 02:28:03.110650445 -0400
+@@ -48,11 +48,11 @@
+ 
+ install-html: $(PROJ_OBJ_DIR)/html.tar.gz
+ 	$(Echo) Installing HTML documentation
+-	$(Verb) $(MKDIR) $(PROJ_docsdir)/html
+-	$(Verb) $(MKDIR) $(PROJ_docsdir)/html/img
+-	$(Verb) $(DataInstall) $(HTML) $(PROJ_docsdir)/html
+-	$(Verb) $(DataInstall) $(IMAGES) $(PROJ_docsdir)/html/img
+-	$(Verb) $(DataInstall) $(PROJ_OBJ_DIR)/html.tar.gz $(PROJ_docsdir)
++	$(Verb) $(MKDIR) $(DESTDIR)$(PROJ_docsdir)/html
++	$(Verb) $(MKDIR) $(DESTDIR)$(PROJ_docsdir)/html/img
++	$(Verb) $(DataInstall) $(HTML) $(DESTDIR)$(PROJ_docsdir)/html
++	$(Verb) $(DataInstall) $(IMAGES) $(DESTDIR)$(PROJ_docsdir)/html/img
++	$(Verb) $(DataInstall) $(PROJ_OBJ_DIR)/html.tar.gz $(DESTDIR)$(PROJ_docsdir)
+ 
+ $(PROJ_OBJ_DIR)/html.tar.gz: $(HTML)
+ 	$(Echo) Packaging HTML documentation
+@@ -63,11 +63,11 @@
+ 
+ install-doxygen: doxygen
+ 	$(Echo) Installing doxygen documentation
+-	$(Verb) $(MKDIR) $(PROJ_docsdir)/html/doxygen
+-	$(Verb) $(DataInstall) $(PROJ_OBJ_DIR)/doxygen.tar.gz $(PROJ_docsdir)
++	$(Verb) $(MKDIR) $(DESTDIR)$(PROJ_docsdir)/html/doxygen
++	$(Verb) $(DataInstall) $(PROJ_OBJ_DIR)/doxygen.tar.gz $(DESTDIR)$(PROJ_docsdir)
+ 	$(Verb) cd $(PROJ_OBJ_DIR)/doxygen && \
+ 	  $(FIND) . -type f -exec \
+-	    $(DataInstall) {} $(PROJ_docsdir)/html/doxygen \;
++	    $(DataInstall) {} $(DESTDIR)$(PROJ_docsdir)/html/doxygen \;
+ 
+ doxygen: regendoc $(PROJ_OBJ_DIR)/doxygen.tar.gz
+ 
+@@ -94,11 +94,11 @@
+ 
+ install-ocamldoc: ocamldoc
+ 	$(Echo) Installing ocamldoc documentation
+-	$(Verb) $(MKDIR) $(PROJ_docsdir)/ocamldoc/html
+-	$(Verb) $(DataInstall) $(PROJ_OBJ_DIR)/ocamldoc.tar.gz $(PROJ_docsdir)
++	$(Verb) $(MKDIR) $(DESTDIR)$(PROJ_docsdir)/ocamldoc/html
++	$(Verb) $(DataInstall) $(PROJ_OBJ_DIR)/ocamldoc.tar.gz $(DESTDIR)$(PROJ_docsdir)
+ 	$(Verb) cd $(PROJ_OBJ_DIR)/ocamldoc && \
+ 	  $(FIND) . -type f -exec \
+-	    $(DataInstall) {} $(PROJ_docsdir)/ocamldoc/html \;
++	    $(DataInstall) {} $(DESTDIR)$(PROJ_docsdir)/ocamldoc/html \;
+ 
+ ocamldoc: regen-ocamldoc $(PROJ_OBJ_DIR)/ocamldoc.tar.gz
+ 
+@@ -122,4 +122,4 @@
+ 
+ uninstall-local::
+ 	$(Echo) Uninstalling Documentation
+-	$(Verb) $(RM) -rf $(PROJ_docsdir)
++	$(Verb) $(RM) -rf $(DESTDIR)$(PROJ_docsdir)
+diff -ru llvm-2.6.orig/docs/tutorial/Makefile llvm-2.6/docs/tutorial/Makefile
+--- llvm-2.6.orig/docs/tutorial/Makefile	2008-03-30 16:32:18.000000000 -0400
++++ llvm-2.6/docs/tutorial/Makefile	2009-09-30 02:28:03.112652092 -0400
+@@ -12,7 +12,7 @@
+ 
+ HTML       := $(wildcard $(PROJ_SRC_DIR)/*.html)
+ EXTRA_DIST := $(HTML) index.html
+-HTML_DIR   := $(PROJ_docsdir)/html/tutorial
++HTML_DIR   := $(DESTDIR)$(PROJ_docsdir)/html/tutorial
+ 
+ install-local:: $(HTML)
+ 	$(Echo) Installing HTML Tutorial Documentation
+diff -ru llvm-2.6.orig/lib/VMCore/Makefile llvm-2.6/lib/VMCore/Makefile
+--- llvm-2.6.orig/lib/VMCore/Makefile	2009-01-09 11:44:42.000000000 -0500
++++ llvm-2.6/lib/VMCore/Makefile	2009-09-30 02:28:03.114651503 -0400
+@@ -29,5 +29,5 @@
+ 	    changed significantly. )
+ 
+ install-local:: $(GENFILE)
+-	$(Echo) Installing $(PROJ_includedir)/llvm/Intrinsics.gen
+-	$(Verb) $(DataInstall) $(GENFILE) $(PROJ_includedir)/llvm/Intrinsics.gen
++	$(Echo) Installing $(DESTDIR)$(PROJ_includedir)/llvm/Intrinsics.gen
++	$(Verb) $(DataInstall) $(GENFILE) $(DESTDIR)$(PROJ_includedir)/llvm/Intrinsics.gen
+diff -ru llvm-2.6.orig/Makefile.config.in llvm-2.6/Makefile.config.in
+--- llvm-2.6.orig/Makefile.config.in	2009-08-17 20:40:33.000000000 -0400
++++ llvm-2.6/Makefile.config.in	2009-09-30 02:28:03.099649281 -0400
+@@ -76,14 +76,14 @@
  
  LLVMMAKE := $(LLVM_SRC_ROOT)/make
  
@@ -56,11 +119,10 @@ index ecd0595..73656f7 100644
  
  # Determine if we're on a unix type operating system
  LLVM_ON_UNIX:=@LLVM_ON_UNIX@
-diff --git Makefile.rules Makefile.rules
-index 5556684..08965f3 100644
---- Makefile.rules
-+++ Makefile.rules
-@@ -720,7 +720,7 @@ ObjectsBC := $(BaseNameSources:%=$(ObjDir)/%.bc)
+diff -ru llvm-2.6.orig/Makefile.rules llvm-2.6/Makefile.rules
+--- llvm-2.6.orig/Makefile.rules	2009-09-12 18:25:41.000000000 -0400
++++ llvm-2.6/Makefile.rules	2009-09-30 02:28:03.104648788 -0400
+@@ -725,7 +725,7 @@
  # in the file so they get built before dependencies
  #---------------------------------------------------------
  
@@ -69,7 +131,7 @@ index 5556684..08965f3 100644
  	$(Verb) $(MKDIR) $@
  
  # To create other directories, as needed, and timestamp their creation
-@@ -842,22 +842,22 @@ install-local::
+@@ -847,22 +847,22 @@
  uninstall-local::
  	$(Echo) UnInstall circumvented with NO_INSTALL
  else
@@ -98,7 +160,7 @@ index 5556684..08965f3 100644
  	done
  endif
  
-@@ -944,7 +944,7 @@ endif
+@@ -949,7 +949,7 @@
  ifdef BYTECODE_DESTINATION
  ModuleDestDir := $(BYTECODE_DESTINATION)
  else
@@ -107,7 +169,7 @@ index 5556684..08965f3 100644
  endif
  
  ifdef NO_INSTALL
-@@ -1023,17 +1023,17 @@ install-local::
+@@ -1028,17 +1028,17 @@
  uninstall-local::
  	$(Echo) Uninstall circumvented with NO_INSTALL
  else
@@ -128,7 +190,7 @@ index 5556684..08965f3 100644
  endif
  endif
  
-@@ -1078,7 +1078,7 @@ endif
+@@ -1083,7 +1083,7 @@
  ifdef BYTECODE_DESTINATION
  BytecodeDestDir := $(BYTECODE_DESTINATION)
  else
@@ -137,7 +199,7 @@ index 5556684..08965f3 100644
  endif
  
  DestBytecodeLib = $(BytecodeDestDir)/lib$(LIBRARYNAME).bca
-@@ -1141,13 +1141,13 @@ install-local::
+@@ -1146,13 +1146,13 @@
  uninstall-local::
  	$(Echo) Uninstall circumvented with NO_INSTALL
  else
@@ -154,7 +216,7 @@ index 5556684..08965f3 100644
  	$(Verb) $(INSTALL) $(LibName.A) $(DestArchiveLib)
  
  uninstall-local::
-@@ -1225,11 +1225,11 @@ install-local::
+@@ -1230,11 +1230,11 @@
  uninstall-local::
  	$(Echo) Uninstall circumvented with NO_INSTALL
  else
@@ -168,7 +230,7 @@ index 5556684..08965f3 100644
  	$(Echo) Installing $(BuildMode) $(DestTool)
  	$(Verb) $(ProgInstall) $(ToolBuildPath) $(DestTool)
  
-@@ -1824,25 +1824,25 @@ uninstall-local::
+@@ -1829,25 +1829,25 @@
  else
  install-local::
  	$(Echo) Installing include files
@@ -198,7 +260,7 @@ index 5556684..08965f3 100644
  	  done ; \
  	fi
  endif
-@@ -1854,10 +1854,10 @@ uninstall-local::
+@@ -1859,10 +1859,10 @@
  	    $(RM) -f `find . -path '*/Internal' -prune -o '(' -type f \
  	      '!' '(' -name '*~' -o -name '.#*' \
          -o -name '*.in' ')' -print ')' | \
@@ -211,110 +273,10 @@ index 5556684..08965f3 100644
  	fi
  endif
  endif
-diff --git docs/CommandGuide/Makefile docs/CommandGuide/Makefile
-index cf77e6a..28835ac 100644
---- docs/CommandGuide/Makefile
-+++ docs/CommandGuide/Makefile
-@@ -71,9 +71,9 @@ EXTRA_DIST := $(POD) index.html
- clean-local::
- 	$(Verb) $(RM) -f pod2htm*.*~~ $(HTML) $(MAN) $(PS)
- 
--HTML_DIR := $(PROJ_docsdir)/html/CommandGuide
--MAN_DIR  := $(PROJ_mandir)/man1
--PS_DIR   := $(PROJ_docsdir)/ps
-+HTML_DIR := $(DESTDIR)$(PROJ_docsdir)/html/CommandGuide
-+MAN_DIR  := $(DESTDIR)$(PROJ_mandir)/man1
-+PS_DIR   := $(DESTDIR)$(PROJ_docsdir)/ps
- 
- install-local:: $(HTML) $(MAN) $(PS)
- 	$(Echo) Installing HTML CommandGuide Documentation
-diff --git docs/Makefile docs/Makefile
-index 310c4bd..30cd8a7 100644
---- docs/Makefile
-+++ docs/Makefile
-@@ -48,11 +48,11 @@ generated:: doxygen ocamldoc
- 
- install-html: $(PROJ_OBJ_DIR)/html.tar.gz
- 	$(Echo) Installing HTML documentation
--	$(Verb) $(MKDIR) $(PROJ_docsdir)/html
--	$(Verb) $(MKDIR) $(PROJ_docsdir)/html/img
--	$(Verb) $(DataInstall) $(HTML) $(PROJ_docsdir)/html
--	$(Verb) $(DataInstall) $(IMAGES) $(PROJ_docsdir)/html/img
--	$(Verb) $(DataInstall) $(PROJ_OBJ_DIR)/html.tar.gz $(PROJ_docsdir)
-+	$(Verb) $(MKDIR) $(DESTDIR)$(PROJ_docsdir)/html
-+	$(Verb) $(MKDIR) $(DESTDIR)$(PROJ_docsdir)/html/img
-+	$(Verb) $(DataInstall) $(HTML) $(DESTDIR)$(PROJ_docsdir)/html
-+	$(Verb) $(DataInstall) $(IMAGES) $(DESTDIR)$(PROJ_docsdir)/html/img
-+	$(Verb) $(DataInstall) $(PROJ_OBJ_DIR)/html.tar.gz $(DESTDIR)$(PROJ_docsdir)
- 
- $(PROJ_OBJ_DIR)/html.tar.gz: $(HTML)
- 	$(Echo) Packaging HTML documentation
-@@ -63,11 +63,11 @@ $(PROJ_OBJ_DIR)/html.tar.gz: $(HTML)
- 
- install-doxygen: doxygen
- 	$(Echo) Installing doxygen documentation
--	$(Verb) $(MKDIR) $(PROJ_docsdir)/html/doxygen
--	$(Verb) $(DataInstall) $(PROJ_OBJ_DIR)/doxygen.tar.gz $(PROJ_docsdir)
-+	$(Verb) $(MKDIR) $(DESTDIR)$(PROJ_docsdir)/html/doxygen
-+	$(Verb) $(DataInstall) $(PROJ_OBJ_DIR)/doxygen.tar.gz $(DESTDIR)$(PROJ_docsdir)
- 	$(Verb) cd $(PROJ_OBJ_DIR)/doxygen && \
- 	  $(FIND) . -type f -exec \
--	    $(DataInstall) {} $(PROJ_docsdir)/html/doxygen \;
-+	    $(DataInstall) {} $(DESTDIR)$(PROJ_docsdir)/html/doxygen \;
- 
- doxygen: regendoc $(PROJ_OBJ_DIR)/doxygen.tar.gz
- 
-@@ -94,11 +94,11 @@ $(LLVM_SRC_ROOT)/docs/userloc.html:
- 
- install-ocamldoc: ocamldoc
- 	$(Echo) Installing ocamldoc documentation
--	$(Verb) $(MKDIR) $(PROJ_docsdir)/ocamldoc/html
--	$(Verb) $(DataInstall) $(PROJ_OBJ_DIR)/ocamldoc.tar.gz $(PROJ_docsdir)
-+	$(Verb) $(MKDIR) $(DESTDIR)$(PROJ_docsdir)/ocamldoc/html
-+	$(Verb) $(DataInstall) $(PROJ_OBJ_DIR)/ocamldoc.tar.gz $(DESTDIR)$(PROJ_docsdir)
- 	$(Verb) cd $(PROJ_OBJ_DIR)/ocamldoc && \
- 	  $(FIND) . -type f -exec \
--	    $(DataInstall) {} $(PROJ_docsdir)/ocamldoc/html \;
-+	    $(DataInstall) {} $(DESTDIR)$(PROJ_docsdir)/ocamldoc/html \;
- 
- ocamldoc: regen-ocamldoc $(PROJ_OBJ_DIR)/ocamldoc.tar.gz
- 
-@@ -122,4 +122,4 @@ $(PROJ_OBJ_DIR)/ocamldoc.tar.gz:
- 
- uninstall-local::
- 	$(Echo) Uninstalling Documentation
--	$(Verb) $(RM) -rf $(PROJ_docsdir)
-+	$(Verb) $(RM) -rf $(DESTDIR)$(PROJ_docsdir)
-diff --git docs/tutorial/Makefile docs/tutorial/Makefile
-index 6169bb8..9082ad4 100644
---- docs/tutorial/Makefile
-+++ docs/tutorial/Makefile
-@@ -12,7 +12,7 @@ include $(LEVEL)/Makefile.common
- 
- HTML       := $(wildcard $(PROJ_SRC_DIR)/*.html)
- EXTRA_DIST := $(HTML) index.html
--HTML_DIR   := $(PROJ_docsdir)/html/tutorial
-+HTML_DIR   := $(DESTDIR)$(PROJ_docsdir)/html/tutorial
- 
- install-local:: $(HTML)
- 	$(Echo) Installing HTML Tutorial Documentation
-diff --git lib/VMCore/Makefile lib/VMCore/Makefile
-index e9d3dc8..c4817a5 100644
---- lib/VMCore/Makefile
-+++ lib/VMCore/Makefile
-@@ -29,5 +29,5 @@ $(GENFILE): $(ObjDir)/Intrinsics.gen.tmp
- 	    changed significantly. )
- 
- install-local:: $(GENFILE)
--	$(Echo) Installing $(PROJ_includedir)/llvm/Intrinsics.gen
--	$(Verb) $(DataInstall) $(GENFILE) $(PROJ_includedir)/llvm/Intrinsics.gen
-+	$(Echo) Installing $(DESTDIR)$(PROJ_includedir)/llvm/Intrinsics.gen
-+	$(Verb) $(DataInstall) $(GENFILE) $(DESTDIR)$(PROJ_includedir)/llvm/Intrinsics.gen
-diff --git tools/gccas/Makefile tools/gccas/Makefile
-index ff84d96..594f9e4 100644
---- tools/gccas/Makefile
-+++ tools/gccas/Makefile
-@@ -10,9 +10,9 @@ LEVEL = ../..
+diff -ru llvm-2.6.orig/tools/gccas/Makefile llvm-2.6/tools/gccas/Makefile
+--- llvm-2.6.orig/tools/gccas/Makefile	2007-12-29 15:07:17.000000000 -0500
++++ llvm-2.6/tools/gccas/Makefile	2009-09-30 02:28:03.116650426 -0400
+@@ -10,9 +10,9 @@
  
  include $(LEVEL)/Makefile.common
  
@@ -326,11 +288,10 @@ index ff84d96..594f9e4 100644
  	$(Echo) Installing gccas shell script.
  	$(Verb) sed "s#@TOOLDIR@#$(PROJ_bindir)#" $< > $@
  	$(Verb) chmod 0755 $@
-diff --git tools/gccld/Makefile tools/gccld/Makefile
-index b2d3f73..8ec0307 100644
---- tools/gccld/Makefile
-+++ tools/gccld/Makefile
-@@ -11,9 +11,9 @@ LEVEL = ../..
+diff -ru llvm-2.6.orig/tools/gccld/Makefile llvm-2.6/tools/gccld/Makefile
+--- llvm-2.6.orig/tools/gccld/Makefile	2007-12-29 15:07:17.000000000 -0500
++++ llvm-2.6/tools/gccld/Makefile	2009-09-30 02:28:03.117649993 -0400
+@@ -11,9 +11,9 @@
  
  include $(LEVEL)/Makefile.common
  
@@ -342,11 +303,10 @@ index b2d3f73..8ec0307 100644
  	$(Echo) Installing gccld shell script.
  	$(Verb) sed "s#@TOOLDIR@#$(PROJ_bindir)#" $< > $@
  	$(Verb) chmod 0755 $@
-diff --git tools/llvm-config/Makefile tools/llvm-config/Makefile
-index 6eedca0..8659681 100644
---- tools/llvm-config/Makefile
-+++ tools/llvm-config/Makefile
-@@ -87,6 +87,6 @@ clean-local::
+diff -ru llvm-2.6.orig/tools/llvm-config/Makefile llvm-2.6/tools/llvm-config/Makefile
+--- llvm-2.6.orig/tools/llvm-config/Makefile	2009-03-10 15:01:23.000000000 -0400
++++ llvm-2.6/tools/llvm-config/Makefile	2009-09-30 02:28:03.119650243 -0400
+@@ -87,6 +87,6 @@
  	  $(LibDeps) GenLibDeps.out
  install-local:: all-local
  	$(Echo) Installing llvm-config
@@ -355,7 +315,3 @@ index 6eedca0..8659681 100644
 +	$(Verb) $(MKDIR) $(DESTDIR)$(PROJ_bindir)
 +	$(Verb) $(ScriptInstall) $(ToolDir)/llvm-config $(DESTDIR)$(PROJ_bindir)
  
-
---------------1.6.4--
-
-

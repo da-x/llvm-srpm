@@ -158,7 +158,7 @@ HTML documentation for LLVM's OCaml binding.
 %setup -q -n llvm-%{version} -a1 %{?_with_gcc:-a2}
 mv clang-2.6 tools/clang
 
-%patch0 -p0 -b .destdir
+%patch0 -p1 -b .destdir
 pushd tools/clang
 %patch1 -p0 -b .destdir-clang
 popd
