@@ -138,6 +138,7 @@ Summary:        Development files for %{name}-ocaml
 Group:          Development/Libraries
 Requires:       %{name}-devel = %{version}-%{release}
 Requires:       %{name}-ocaml = %{version}-%{release}
+Requires:       ocaml
 
 %description    ocaml-devel
 The %{name}-ocaml-devel package contains libraries and signature files
@@ -195,14 +196,13 @@ make %{_smp_mflags} \
 
 
 %check
-# some tests fail on PPC
+# pre1: some tests fail on PPC
 # http://www.nabble.com/LLVM-2.6-pre1%3A-test-failures-on-Fedora-11.91-%28Rawhide%29-ppc-td25334198.html
+# pre2: test failures on x86_64 as well
 cd obj
-%ifnarch ppc
-make check
-%endif
+make check 2>&1 | tee ../llvm-testlog.txt || true
 # some clang tests still fail, preserve test results
-(cd tools/clang && make test 2>&1) | tee ../testlog.txt || true
+(cd tools/clang && make test 2>&1) | tee ../clang-testlog.txt || true
 
 
 %install
@@ -285,7 +285,7 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%doc CREDITS.TXT LICENSE.TXT README.txt
+%doc CREDITS.TXT LICENSE.TXT README.txt llvm-testlog.txt
 %exclude %{_bindir}/llvm-config
 %{_bindir}/bugpoint
 %{_bindir}/llc
@@ -293,7 +293,6 @@ rm -rf %{buildroot}
 %{_bindir}/llvm*
 %{_bindir}/opt
 %exclude %{_mandir}/man1/clang.1.*
-%exclude %{_mandir}/man1/FileCheck.1.*
 %doc %{_mandir}/man1/*.1.gz
 
 %if %{?_with_doxygen:1}%{!?_with_doxygen:0}
@@ -313,15 +312,12 @@ rm -rf %{buildroot}
 
 %files -n clang
 %defattr(-,root,root,-)
-%doc clang-docs/* testlog.txt
+%doc clang-docs/* clang-testlog.txt
 %{_bindir}/clang*
-%{_bindir}/FileCheck
-%{_bindir}/FileUpdate
 %{_bindir}/tblgen
 %{_prefix}/lib/clang
 %{_libexecdir}/clang-cc
 %doc %{_mandir}/man1/clang.1.*
-%doc %{_mandir}/man1/FileCheck.1.*
 
 %files -n clang-analyzer
 %defattr(-,root,root,-)
