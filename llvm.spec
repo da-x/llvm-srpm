@@ -289,7 +289,7 @@ rm -rf %{buildroot}
 %exclude %{_bindir}/llvm-config
 %{_bindir}/llvm*
 %{_bindir}/opt
-%conf %{_sysconfdir}/ld.so.conf.d/llvm-%{arch}.conf
+%config %{_sysconfdir}/ld.so.conf.d/llvm-%{arch}.conf
 %dir %{_libdir}/llvm
 %{_libdir}/llvm/*.so
 %exclude %{_mandir}/man1/clang.1.*
