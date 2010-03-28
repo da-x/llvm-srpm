@@ -4,22 +4,17 @@
 #   The doxygen docs are HUGE, so they are not built by default.
 
 Name:           llvm
-Version:        2.6
-Release:        0.6.pre2%{?dist}
+Version:        2.7
+Release:        0.1.pre1%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
 License:        NCSA
 URL:            http://llvm.org/
-Source0:        http://llvm.org/prereleases/%{version}/pre-release2/llvm-%{version}.tar.gz
-Source1:        http://llvm.org/prereleases/%{version}/pre-release2/clang-%{version}.tar.gz
-# http://llvm.org/bugs/show_bug.cgi?id=3153
-Patch0:         llvm-2.6-destdir.patch
-Patch1:         llvm-2.6-destdir-clang.patch
-# http://llvm.org/bugs/show_bug.cgi?id=4911
-Patch2:         llvm-2.5-tclsh_check.patch
+Source0:        http://llvm.org/pre-releases/%{version}/pre-release1/llvm-%{version}.tar.gz
+Source1:        http://llvm.org/pre-releases/%{version}/pre-release1/clang-%{version}.tar.gz
 # Data files should be installed with timestamps preserved
-Patch3:         llvm-2.6-timestamp.patch
+Patch0:         llvm-2.6-timestamp.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -84,6 +79,15 @@ clang: noun
 The goal of the Clang project is to create a new C, C++, Objective C
 and Objective C++ front-end for the LLVM compiler. Its tools are built
 as libraries and designed to be loosely-coupled and extendable.
+
+
+%package -n clang-devel
+Summary:        Header files for clang
+Group:          Development/Languages
+Requires:       clang = %{version}-%{release}
+
+%description -n clang-devel
+This package contains header files for the Clang compiler.
 
 
 %package -n clang-analyzer
@@ -157,14 +161,14 @@ HTML documentation for LLVM's OCaml binding.
 
 %prep
 %setup -q -n llvm-%{version} -a1 %{?_with_gcc:-a2}
-mv clang-2.6 tools/clang
+mv clang-%{version} tools/clang
 
-%patch0 -p1 -b .destdir
-pushd tools/clang
-%patch1 -p0 -b .destdir-clang
-popd
-%patch2 -p1 -b .tclsh_check
-%patch3 -p1 -b .timestamp
+%patch0 -p1 -b .timestamp
+
+# Encoding fix
+(cd tools/clang/docs && \
+    iconv -f ISO88591 -t UTF8 BlockImplementation.txt \
+    -o BlockImplementation.txt)
 
 
 %build
@@ -214,27 +218,23 @@ make install DESTDIR=%{buildroot} \
      PROJ_docsdir=/moredocs
 popd
 
+# Create ld.so.conf.d entry
+mkdir -p %{buildroot}%{_sysconfdir}/ld.so.conf.d
+cat >> %{buildroot}%{_sysconfdir}/ld.so.conf.d/llvm-%{arch}.conf << EOF
+%{_libdir}/llvm
+EOF
+
 # Static analyzer not installed by default:
 # http://clang-analyzer.llvm.org/installation#OtherPlatforms
-mkdir -p %{buildroot}%{_libdir}/clang-analyzer/libexec
-# link clang-cc for scan-build to find
-ln -s %{_libexecdir}/clang-cc %{buildroot}%{_libdir}/clang-analyzer/libexec/
+mkdir -p %{buildroot}%{_libdir}/clang-analyzer
 # create launchers
 for f in scan-{build,view}; do
-  ln -s %{_libdir}/clang-analyzer/$f %{buildroot}%{_bindir}/$f
+  ln -s %{_libdir}/clang-analyzer/$f/$f %{buildroot}%{_bindir}/$f
 done
 
-pushd tools/clang/utils
-cp -p ccc-analyzer %{buildroot}%{_libdir}/clang-analyzer/libexec/
+(cd tools/clang/tools && cp -pr scan-{build,view} \
+ %{buildroot}%{_libdir}/clang-analyzer/)
 
-for f in scan-build scanview.css sorttable.js; do
-  cp -p $f %{buildroot}%{_libdir}/clang-analyzer/
-done
-popd
-
-pushd tools/clang/tools/scan-view
-cp -pr * %{buildroot}%{_libdir}/clang-analyzer/
-popd
 
 # Move documentation back to build directory
 # 
@@ -251,16 +251,13 @@ done
 rm -rf tools/clang/docs/{doxygen*,Makefile*,*.graffle,tools}
 
 
-find %{buildroot} -name .dir -print0 | xargs -0r rm -f
+#find %{buildroot} -name .dir -print0 | xargs -0r rm -f
 file %{buildroot}/%{_bindir}/* | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
 file %{buildroot}/%{_libdir}/llvm/*.so | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
-chrpath -d %{buildroot}/%{_libexecdir}/clang-cc
+#chrpath -d %{buildroot}/%{_libexecdir}/clang-cc
 
 # Get rid of erroneously installed example files.
 rm %{buildroot}%{_libdir}/%{name}/*LLVMHello.*
-
-# Remove deprecated tools.
-rm %{buildroot}%{_bindir}/gcc{as,ld}
 
 # FIXME file this bug
 sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}/%{name}",' \
@@ -286,29 +283,24 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %doc CREDITS.TXT LICENSE.TXT README.txt llvm-testlog.txt
-%exclude %{_bindir}/llvm-config
 %{_bindir}/bugpoint
 %{_bindir}/llc
 %{_bindir}/lli
+%exclude %{_bindir}/llvm-config
 %{_bindir}/llvm*
 %{_bindir}/opt
+%conf %{_sysconfdir}/ld.so.conf.d/llvm-%{arch}.conf
+%dir %{_libdir}/llvm
+%{_libdir}/llvm/*.so
 %exclude %{_mandir}/man1/clang.1.*
-%doc %{_mandir}/man1/*.1.gz
-
-%if %{?_with_doxygen:1}%{!?_with_doxygen:0}
-%exclude %{_bindir}/llvm-[cg]++
-%exclude %{_bindir}/llvm-gcc
-%exclude %{_mandir}/man1/llvm-[cg]++.*
-%exclude %{_mandir}/man1/llvm-gcc.*
-%endif
-
+%doc %{_mandir}/man1/*.1.*
 
 %files devel
 %defattr(-,root,root,-)
 %{_bindir}/llvm-config
 %{_includedir}/%{name}
 %{_includedir}/%{name}-c
-%{_libdir}/%{name}
+%{_libdir}/%{name}/*.a
 
 %files -n clang
 %defattr(-,root,root,-)
@@ -316,8 +308,12 @@ rm -rf %{buildroot}
 %{_bindir}/clang*
 %{_bindir}/tblgen
 %{_prefix}/lib/clang
-%{_libexecdir}/clang-cc
 %doc %{_mandir}/man1/clang.1.*
+
+%files -n clang-devel
+%defattr(-,root,root,-)
+%{_includedir}/clang
+%{_includedir}/clang-c
 
 %files -n clang-analyzer
 %defattr(-,root,root,-)
@@ -357,6 +353,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sun Mar 28 2010 Michel Salim <salimma@fedoraproject.org> - 2.7-0.1.pre1
+- Update to first 2.7 pre-release
+
 * Fri Sep 18 2009 Michel Salim <salimma@fedoraproject.org> - 2.6-0.6.pre2
 - Update to 2.6 pre-release2
 - -devel subpackage now virtually provides -static
