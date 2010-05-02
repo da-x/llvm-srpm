@@ -5,14 +5,14 @@
 
 Name:           llvm
 Version:        2.7
-Release:        0.1.pre1%{?dist}
+Release:        1%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
 License:        NCSA
 URL:            http://llvm.org/
-Source0:        http://llvm.org/pre-releases/%{version}/pre-release1/llvm-%{version}.tar.gz
-Source1:        http://llvm.org/pre-releases/%{version}/pre-release1/clang-%{version}.tar.gz
+Source0:        http://llvm.org/releases/%{version}/llvm-%{version}.tgz
+Source1:        http://llvm.org/releases/%{version}/clang-%{version}.tgz
 # Data files should be installed with timestamps preserved
 Patch0:         llvm-2.6-timestamp.patch
 
@@ -66,7 +66,7 @@ Documentation for the LLVM compiler infrastructure.
 
 
 %package -n clang
-Summary:        A C language family frontend for LLVM
+Summary:        A C language family front-end for LLVM
 License:        NCSA
 Group:          Development/Languages
 
@@ -78,7 +78,7 @@ clang: noun
 
 The goal of the Clang project is to create a new C, C++, Objective C
 and Objective C++ front-end for the LLVM compiler. Its tools are built
-as libraries and designed to be loosely-coupled and extendable.
+as libraries and designed to be loosely-coupled and extensible.
 
 
 %package -n clang-devel
@@ -173,7 +173,7 @@ mv clang-%{version} tools/clang
 
 %build
 # Disabling assertions now, rec. by pure and needed for OpenGTL
-# no PIC on ix86: http://llvm.org/bugs/show_bug.cgi?id=3239
+# TESTFIX no PIC on ix86: http://llvm.org/bugs/show_bug.cgi?id=3801
 mkdir obj && cd obj
 ../configure \
   --prefix=%{_prefix} \
@@ -181,11 +181,7 @@ mkdir obj && cd obj
   --disable-assertions \
   --enable-debug-runtime \
   --enable-jit \
-%ifarch %{ix86}
-  --enable-pic=no
-%else
   --enable-shared
-%endif
 
 # FIXME file this
 # configure does not properly specify libdir
@@ -200,13 +196,10 @@ make %{_smp_mflags} \
 
 
 %check
-# pre1: some tests fail on PPC
-# http://www.nabble.com/LLVM-2.6-pre1%3A-test-failures-on-Fedora-11.91-%28Rawhide%29-ppc-td25334198.html
-# pre2: test failures on x86_64 as well
 cd obj
-make check 2>&1 | tee ../llvm-testlog.txt || true
-# some clang tests still fail, preserve test results
-(cd tools/clang && make test 2>&1) | tee ../clang-testlog.txt || true
+# no current unexpected failures. Use || true if they recur to force ignore
+make check 2>&1 | tee ../llvm-testlog.txt
+(cd tools/clang && make test 2>&1) | tee ../clang-testlog.txt
 
 
 %install
@@ -220,7 +213,7 @@ popd
 
 # Create ld.so.conf.d entry
 mkdir -p %{buildroot}%{_sysconfdir}/ld.so.conf.d
-cat >> %{buildroot}%{_sysconfdir}/ld.so.conf.d/llvm-%{arch}.conf << EOF
+cat >> %{buildroot}%{_sysconfdir}/ld.so.conf.d/llvm-%{_arch}.conf << EOF
 %{_libdir}/llvm
 EOF
 
@@ -289,7 +282,7 @@ rm -rf %{buildroot}
 %exclude %{_bindir}/llvm-config
 %{_bindir}/llvm*
 %{_bindir}/opt
-%config %{_sysconfdir}/ld.so.conf.d/llvm-%{arch}.conf
+%config(noreplace) %{_sysconfdir}/ld.so.conf.d/llvm-%{_arch}.conf
 %dir %{_libdir}/llvm
 %{_libdir}/llvm/*.so
 %exclude %{_mandir}/man1/clang.1.*
@@ -353,6 +346,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sun May  2 2010 Michel Salim <salimma@fedoraproject.org> - 2.7-1
+- Update to final 2.7 release
+
 * Sun Mar 28 2010 Michel Salim <salimma@fedoraproject.org> - 2.7-0.1.pre1
 - Update to first 2.7 pre-release
 
