@@ -127,7 +127,7 @@ BuildArch:      noarch
 Requires:       clang-doc = %{version}-%{release}
 
 
-%description apidoc
+%description -n clang-apidoc
 API documentation for the Clang compiler.
 
 
@@ -347,7 +347,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc apidoc/*
 
-%files clang-apidoc
+%files -n clang-apidoc
 %defattr(-,root,root,-)
 %doc clang-apidoc/*
 
