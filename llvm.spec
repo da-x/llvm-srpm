@@ -53,6 +53,7 @@ native programs that use the LLVM infrastructure.
 %package doc
 Summary:        Documentation for LLVM
 Group:          Documentation
+BuildArch:      noarch
 Requires:       %{name} = %{version}-%{release}
 
 %description doc
@@ -103,6 +104,7 @@ intended to run in tandem with a build of a project or code base.
 %package -n clang-doc
 Summary:        Documentation for Clang
 Group:          Documentation
+BuildArch:      noarch
 Requires:       %{name} = %{version}-%{release}
 
 %description -n clang-doc
