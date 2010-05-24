@@ -1,11 +1,6 @@
-# Build options:
-#
-# --with doxygen
-#   The doxygen docs are HUGE, so they are not built by default.
-
 Name:           llvm
 Version:        2.7
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -27,9 +22,8 @@ BuildRequires:  libtool-ltdl-devel
 BuildRequires:  ocaml-ocamldoc
 # for DejaGNU test suite
 BuildRequires:  dejagnu tcl-devel python
-%if %{?_with_doxygen:1}%{!?_with_doxygen:0}
+# for doxygen documentation
 BuildRequires:  doxygen graphviz
-%endif
 
 # LLVM is not supported on PPC64
 # http://llvm.org/bugs/show_bug.cgi?id=3729
@@ -115,16 +109,26 @@ Requires:       %{name} = %{version}-%{release}
 Documentation for the Clang compiler front-end.
 
 
-%if %{?_with_doxygen:1}%{!?_with_doxygen:0}
 %package apidoc
 Summary:        API documentation for LLVM
 Group:          Development/Languages
-Requires:       %{name}-docs = %{version}-%{release}
+BuildArch:      noarch
+Requires:       %{name}-doc = %{version}-%{release}
 
 
 %description apidoc
 API documentation for the LLVM compiler infrastructure.
-%endif
+
+
+%package -n clang-apidoc
+Summary:        API documentation for Clang
+Group:          Development/Languages
+BuildArch:      noarch
+Requires:       clang-doc = %{version}-%{release}
+
+
+%description apidoc
+API documentation for the Clang compiler.
 
 
 %package        ocaml
@@ -152,6 +156,7 @@ for developing applications that use %{name}-ocaml.
 %package ocaml-doc
 Summary:        Documentation for LLVM's OCaml binding
 Group:          Documentation
+BuildArch:      noarch
 Requires:       %{name}-ocaml = %{version}-%{release}
 
 %description ocaml-doc
@@ -174,10 +179,11 @@ mv clang-%{version} tools/clang
 %build
 # Disabling assertions now, rec. by pure and needed for OpenGTL
 # TESTFIX no PIC on ix86: http://llvm.org/bugs/show_bug.cgi?id=3801
-mkdir obj && cd obj
-../configure \
+%configure \
   --prefix=%{_prefix} \
   --libdir=%{_libdir}/%{name} \
+  --datadir=%{_libdir}/%{name} \
+  --enable-doxygen \
   --disable-assertions \
   --enable-debug-runtime \
   --enable-jit \
@@ -196,20 +202,15 @@ make %{_smp_mflags} \
 
 
 %check
-cd obj
 # no current unexpected failures. Use || true if they recur to force ignore
-make check 2>&1 | tee ../llvm-testlog.txt
-(cd tools/clang && make test 2>&1) | tee ../clang-testlog.txt
+make check 2>&1 | tee llvm-testlog.txt
+(cd tools/clang && make test 2>&1) | tee clang-testlog.txt
 
 
 %install
 rm -rf %{buildroot}
-pushd obj
-chmod -x examples/Makefile
-
 make install DESTDIR=%{buildroot} \
      PROJ_docsdir=/moredocs
-popd
 
 # Create ld.so.conf.d entry
 mkdir -p %{buildroot}%{_sysconfdir}/ld.so.conf.d
@@ -234,6 +235,10 @@ done
 mv %{buildroot}/moredocs .
 rm moredocs/*.tar.gz
 rm moredocs/ocamldoc/html/*.tar.gz
+
+# and separate the apidoc
+mv moredocs/html/doxygen apidoc
+mv tools/clang/docs/doxygen/html clang-apidoc
 
 # And prepare Clang documentation
 #
@@ -286,6 +291,7 @@ rm -rf %{buildroot}
 %dir %{_libdir}/llvm
 %{_libdir}/llvm/*.so
 %exclude %{_mandir}/man1/clang.1.*
+%exclude %{_mandir}/man1/llvmg??.1.*
 %doc %{_mandir}/man1/*.1.*
 
 %files devel
@@ -337,15 +343,22 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc moredocs/ocamldoc/html/*
 
-%if %{?_with_doxygen:1}%{!?_with_doxygen:0}
 %files apidoc
 %defattr(-,root,root,-)
-%doc docs/doxygen
-%endif
+%doc apidoc/*
+
+%files clang-apidoc
+%defattr(-,root,root,-)
+%doc clang-apidoc/*
 
 
 
 %changelog
+* Mon May 24 2010 Michel Salim <salimma@fedoraproject.org> - 2.7-2
+- Exclude llm-gcc manpages
+- Turn on apidoc generation
+- Build with srcdir=objdir, otherwise clang doxygen build fails
+
 * Sun May  2 2010 Michel Salim <salimma@fedoraproject.org> - 2.7-1
 - Update to final 2.7 release
 
