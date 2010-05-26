@@ -1,6 +1,11 @@
+# Build options:
+#
+# --with doxygen
+#   The doxygen docs are HUGE, so they are not built by default.
+
 Name:           llvm
 Version:        2.7
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -23,7 +28,9 @@ BuildRequires:  ocaml-ocamldoc
 # for DejaGNU test suite
 BuildRequires:  dejagnu tcl-devel python
 # for doxygen documentation
+%if 0%{?_with_doxygen}
 BuildRequires:  doxygen graphviz
+%endif
 
 # LLVM is not supported on PPC64
 # http://llvm.org/bugs/show_bug.cgi?id=3729
@@ -111,6 +118,7 @@ Requires:       %{name} = %{version}-%{release}
 Documentation for the Clang compiler front-end.
 
 
+%if 0%{?_with_doxygen}
 %package apidoc
 Summary:        API documentation for LLVM
 Group:          Development/Languages
@@ -131,6 +139,7 @@ Requires:       clang-doc = %{version}-%{release}
 
 %description -n clang-apidoc
 API documentation for the Clang compiler.
+%endif
 
 
 %package        ocaml
@@ -185,7 +194,9 @@ mv clang-%{version} tools/clang
   --prefix=%{_prefix} \
   --libdir=%{_libdir}/%{name} \
   --datadir=%{_libdir}/%{name} \
+%if 0%{?_with_doxygen}
   --enable-doxygen \
+%endif
   --disable-assertions \
   --enable-debug-runtime \
   --enable-jit \
@@ -239,8 +250,10 @@ rm moredocs/*.tar.gz
 rm moredocs/ocamldoc/html/*.tar.gz
 
 # and separate the apidoc
+%if 0%{?_with_doxygen}
 mv moredocs/html/doxygen apidoc
 mv tools/clang/docs/doxygen/html clang-apidoc
+%endif
 
 # And prepare Clang documentation
 #
@@ -345,6 +358,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc moredocs/ocamldoc/html/*
 
+%if 0%{?_with_doxygen}
 %files apidoc
 %defattr(-,root,root,-)
 %doc apidoc/*
@@ -352,10 +366,13 @@ rm -rf %{buildroot}
 %files -n clang-apidoc
 %defattr(-,root,root,-)
 %doc clang-apidoc/*
-
+%endif
 
 
 %changelog
+* Wed May 26 2010 Michel Salim <salimma@fedoraproject.org> - 2.7-3
+- Revert to disabling apidoc by default
+
 * Mon May 24 2010 Michel Salim <salimma@fedoraproject.org> - 2.7-2
 - Exclude llm-gcc manpages
 - Turn on apidoc generation
