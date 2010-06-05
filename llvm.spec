@@ -5,7 +5,7 @@
 
 Name:           llvm
 Version:        2.7
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -15,6 +15,8 @@ Source0:        http://llvm.org/releases/%{version}/llvm-%{version}.tgz
 Source1:        http://llvm.org/releases/%{version}/clang-%{version}.tgz
 # Data files should be installed with timestamps preserved
 Patch0:         llvm-2.6-timestamp.patch
+# http://llvm.org/bugs/show_bug.cgi?id=7307
+Patch1:         llvm-2.7-cxx_includes.patch
 
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -180,6 +182,7 @@ HTML documentation for LLVM's OCaml binding.
 mv clang-%{version} tools/clang
 
 %patch0 -p1 -b .timestamp
+%patch1 -p1 -b .cxx_includes
 
 # Encoding fix
 (cd tools/clang/docs && \
@@ -370,6 +373,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sat Jun  5 2010 Michel Salim <salimma@fedoraproject.org> - 2.7-4
+- Add F-12/x86_64 and F-13 C++ header paths
+
 * Wed May 26 2010 Michel Salim <salimma@fedoraproject.org> - 2.7-3
 - Revert to disabling apidoc by default
 
