@@ -5,7 +5,7 @@
 
 Name:           llvm
 Version:        2.7
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -64,6 +64,9 @@ Summary:        Documentation for LLVM
 Group:          Documentation
 BuildArch:      noarch
 Requires:       %{name} = %{version}-%{release}
+# might seem redundant, but needed to kill off the old arch-ed -doc
+# subpackage
+Obsoletes:      %{name}-doc < %{version}-%{release}
 
 %description doc
 Documentation for the LLVM compiler infrastructure.
@@ -373,6 +376,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Jun  7 2010 Michel Salim <salimma@fedoraproject.org> - 2.7-5
+- Make the new noarch -doc obsoletes older (arched) subpackages
+
 * Sat Jun  5 2010 Michel Salim <salimma@fedoraproject.org> - 2.7-4
 - Add F-12/x86_64 and F-13 C++ header paths
 
