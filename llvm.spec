@@ -3,9 +3,16 @@
 # --with doxygen
 #   The doxygen docs are HUGE, so they are not built by default.
 
+%ifarch s390 s390x
+  # No ocaml on these arches
+  %bcond_with ocaml
+%else
+  %bcond_without ocaml
+%endif
+
 Name:           llvm
 Version:        2.7
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -26,7 +33,9 @@ BuildRequires:  flex
 BuildRequires:  gcc-c++ >= 3.4
 BuildRequires:  groff
 BuildRequires:  libtool-ltdl-devel
+%if %{with ocaml}
 BuildRequires:  ocaml-ocamldoc
+%endif
 # for DejaGNU test suite
 BuildRequires:  dejagnu tcl-devel python
 # for doxygen documentation
@@ -147,6 +156,7 @@ API documentation for the Clang compiler.
 %endif
 
 
+%if %{with ocaml}
 %package        ocaml
 Summary:        OCaml binding for LLVM
 Group:          Development/Libraries
@@ -177,7 +187,7 @@ Requires:       %{name}-ocaml = %{version}-%{release}
 
 %description ocaml-doc
 HTML documentation for LLVM's OCaml binding.
-
+%endif
 
 
 %prep
@@ -252,8 +262,8 @@ done
 # Move documentation back to build directory
 # 
 mv %{buildroot}/moredocs .
-rm moredocs/*.tar.gz
-rm moredocs/ocamldoc/html/*.tar.gz
+rm -f moredocs/*.tar.gz
+rm -f moredocs/ocamldoc/html/*.tar.gz
 
 # and separate the apidoc
 %if 0%{?_with_doxygen}
@@ -349,6 +359,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc examples moredocs/html
 
+%if %{with ocaml}
 %files ocaml
 %defattr(-,root,root,-)
 %{_libdir}/ocaml/*.cma
@@ -363,6 +374,7 @@ rm -rf %{buildroot}
 %files ocaml-doc
 %defattr(-,root,root,-)
 %doc moredocs/ocamldoc/html/*
+%endif
 
 %if 0%{?_with_doxygen}
 %files apidoc
@@ -376,6 +388,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sat Jul 17 2010 Dan Horák <dan[at]danny.cz> - 2.7-6
+- conditionalize ocaml support
+
 * Mon Jun  7 2010 Michel Salim <salimma@fedoraproject.org> - 2.7-5
 - Make the new noarch -doc obsoletes older (arched) subpackages
 
