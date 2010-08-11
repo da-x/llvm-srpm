@@ -12,7 +12,7 @@
 
 Name:           llvm
 Version:        2.7
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -388,6 +388,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Aug 11 2010 David Malcolm <dmalcolm@redhat.com> - 2.7-7
+- recompiling .py files against Python 2.7 (rhbz#623332)
+
 * Sat Jul 17 2010 Dan Horák <dan[at]danny.cz> - 2.7-6
 - conditionalize ocaml support
 
