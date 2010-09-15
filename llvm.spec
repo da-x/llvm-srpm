@@ -3,7 +3,7 @@
 # --with doxygen
 #   The doxygen docs are HUGE, so they are not built by default.
 
-%ifarch s390 s390x
+%ifarch s390 s390x sparc64
   # No ocaml on these arches
   %bcond_with ocaml
 %else
@@ -12,7 +12,7 @@
 
 Name:           llvm
 Version:        2.7
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -388,6 +388,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Sep 15 2010 Dennis Gilmore <dennis@ausil.us> - 2.7-8
+- disable ocaml support on sparc64
+
 * Wed Aug 11 2010 David Malcolm <dmalcolm@redhat.com> - 2.7-7
 - recompiling .py files against Python 2.7 (rhbz#623332)
 
