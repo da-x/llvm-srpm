@@ -12,7 +12,7 @@
 
 Name:           llvm
 Version:        2.7
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -22,10 +22,6 @@ Source0:        http://llvm.org/releases/%{version}/llvm-%{version}.tgz
 Source1:        http://llvm.org/releases/%{version}/clang-%{version}.tgz
 # Data files should be installed with timestamps preserved
 Patch0:         llvm-2.6-timestamp.patch
-# http://llvm.org/bugs/show_bug.cgi?id=7307
-Patch1:         llvm-2.7-cxx_includes.patch
-
-BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -195,7 +191,6 @@ HTML documentation for LLVM's OCaml binding.
 mv clang-%{version} tools/clang
 
 %patch0 -p1 -b .timestamp
-%patch1 -p1 -b .cxx_includes
 
 # Encoding fix
 (cd tools/clang/docs && \
@@ -216,7 +211,9 @@ mv clang-%{version} tools/clang
   --disable-assertions \
   --enable-debug-runtime \
   --enable-jit \
-  --enable-shared
+  --enable-shared \
+  --with-cxx-include-root=$(echo /usr/include/c++/*) \
+  --with-cxx-include-arch=%{_arch}-%{_vendor}-%{_os}
 
 # FIXME file this
 # configure does not properly specify libdir
@@ -297,10 +294,6 @@ chmod -x %{buildroot}%{_libdir}/%{name}/*.a
 # remove documentation makefiles:
 # they require the build directory to work
 find examples -name 'Makefile' | xargs -0r rm -f
-
-
-%clean
-rm -rf %{buildroot}
 
 
 %post -p /sbin/ldconfig
@@ -388,6 +381,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Sep 20 2010 Michel Salim <salimma@fedoraproject.org> - 2.7-9
+- Dynamically determine C++ include path at compile time (# 630474)
+- Remove unneeded BuildRoot field and clean section
+
 * Wed Sep 15 2010 Dennis Gilmore <dennis@ausil.us> - 2.7-8
 - disable ocaml support on sparc64
 
