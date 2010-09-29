@@ -12,7 +12,7 @@
 
 Name:           llvm
 Version:        2.7
-Release:        9%{?dist}
+Release:        10%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -381,6 +381,9 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 
 %changelog
+* Wed Sep 29 2010 jkeating - 2.7-10
+- Rebuilt for gcc bug 634757
+
 * Mon Sep 20 2010 Michel Salim <salimma@fedoraproject.org> - 2.7-9
 - Dynamically determine C++ include path at compile time (# 630474)
 - Remove unneeded BuildRoot field and clean section
