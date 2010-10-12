@@ -11,8 +11,8 @@
 %endif
 
 Name:           llvm
-Version:        2.7
-Release:        10%{?dist}
+Version:        2.8
+Release:        1%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -193,9 +193,9 @@ mv clang-%{version} tools/clang
 %patch0 -p1 -b .timestamp
 
 # Encoding fix
-(cd tools/clang/docs && \
-    iconv -f ISO88591 -t UTF8 BlockImplementation.txt \
-    -o BlockImplementation.txt)
+#(cd tools/clang/docs && \
+#    iconv -f ISO88591 -t UTF8 BlockImplementation.txt \
+#    -o BlockImplementation.txt)
 
 
 %build
@@ -329,6 +329,7 @@ find examples -name 'Makefile' | xargs -0r rm -f
 %defattr(-,root,root,-)
 %doc clang-docs/* clang-testlog.txt
 %{_bindir}/clang*
+%{_bindir}/c-index-test
 %{_bindir}/tblgen
 %{_prefix}/lib/clang
 %doc %{_mandir}/man1/clang.1.*
@@ -381,6 +382,9 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 
 %changelog
+* Tue Oct 12 2010 Michel Salim <salimma@fedoraproject.org> - 2.8-1
+- Update to 2.8 release
+
 * Wed Sep 29 2010 jkeating - 2.7-10
 - Rebuilt for gcc bug 634757
 
