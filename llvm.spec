@@ -12,7 +12,7 @@
 
 Name:           llvm
 Version:        2.8
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -212,8 +212,8 @@ mv clang-%{version} tools/clang
   --enable-debug-runtime \
   --enable-jit \
   --enable-shared \
-  --with-c-include-dirs=$(echo /usr/lib/gcc/*/*/include) \
-  --with-cxx-include-root=$(echo /usr/include/c++/*) \
+  --with-c-include-dirs=%{_includedir}:$(echo %{_prefix}/lib/gcc/*/*/include) \
+  --with-cxx-include-root=$(echo %{_includedir}/c++/*) \
   --with-cxx-include-arch=%{_arch}-%{_vendor}-%{_os}
 
 # FIXME file this
@@ -383,6 +383,9 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 
 %changelog
+* Fri Oct 15 2010 Michel Salim <salimma@fedoraproject.org> - 2.8-3
+- Re-add omitted %%{_includedir}
+
 * Thu Oct 14 2010 Michel Salim <salimma@fedoraproject.org> - 2.8-2
 - Add correct C include directory at compile time (# 641500)
 
