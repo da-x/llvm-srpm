@@ -12,7 +12,7 @@
 
 Name:           llvm
 Version:        2.8
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -22,6 +22,10 @@ Source0:        http://llvm.org/releases/%{version}/llvm-%{version}.tgz
 Source1:        http://llvm.org/releases/%{version}/clang-%{version}.tgz
 # Data files should be installed with timestamps preserved
 Patch0:         llvm-2.6-timestamp.patch
+# rename alignof -> alignOf for C++0x support
+# http://llvm.org/bugs/show_bug.cgi?id=8423
+Patch1:         llvm-2.8-alignOf.patch
+Patch2:         clang-2.8-alignOf.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -191,6 +195,10 @@ HTML documentation for LLVM's OCaml binding.
 mv clang-%{version} tools/clang
 
 %patch0 -p1 -b .timestamp
+%patch1 -p0 -b .alignOf
+pushd tools/clang
+%patch2 -p0 -b .alignOf
+popd
 
 # Encoding fix
 #(cd tools/clang/docs && \
@@ -278,10 +286,10 @@ done
 rm -rf tools/clang/docs/{doxygen*,Makefile*,*.graffle,tools}
 
 
-#find %{buildroot} -name .dir -print0 | xargs -0r rm -f
+#find %%{buildroot} -name .dir -print0 | xargs -0r rm -f
 file %{buildroot}/%{_bindir}/* | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
 file %{buildroot}/%{_libdir}/llvm/*.so | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
-#chrpath -d %{buildroot}/%{_libexecdir}/clang-cc
+#chrpath -d %%{buildroot}/%%{_libexecdir}/clang-cc
 
 # Get rid of erroneously installed example files.
 rm %{buildroot}%{_libdir}/%{name}/*LLVMHello.*
@@ -383,6 +391,9 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 
 %changelog
+* Fri Nov 12 2010 Michel Salim <salimma@fedoraproject.org> - 2.8-4
+- Backport support for C++0x (# 648990)
+
 * Fri Oct 15 2010 Michel Salim <salimma@fedoraproject.org> - 2.8-3
 - Re-add omitted %%{_includedir}
 
