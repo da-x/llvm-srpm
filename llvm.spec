@@ -12,7 +12,7 @@
 
 Name:           llvm
 Version:        2.8
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -394,6 +394,9 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 
 %changelog
+* Mon Jan 10 2011 Richard W.M. Jones <rjones@redhat.com> - 2.8-6
+- Rebuild for OCaml 3.12 (http://fedoraproject.org/wiki/Features/OCaml3.12).
+
 * Sat Nov 27 2010 Michel Salim <salimma@fedoraproject.org> - 2.8-5
 - clang now requires gcc-c++ for linking and headers (bug #654560)
 
