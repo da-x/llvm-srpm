@@ -12,7 +12,7 @@
 
 Name:           llvm
 Version:        2.8
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -394,6 +394,9 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 
 %changelog
+* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.8-7
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
 * Mon Jan 10 2011 Richard W.M. Jones <rjones@redhat.com> - 2.8-6
 - Rebuild for OCaml 3.12 (http://fedoraproject.org/wiki/Features/OCaml3.12).
 
