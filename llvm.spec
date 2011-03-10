@@ -10,22 +10,21 @@
   %bcond_without ocaml
 %endif
 
+%global prerel rc1
+%global downloadurl http://llvm.org/%{?prerel:pre-}releases/%{version}
+
 Name:           llvm
-Version:        2.8
-Release:        7%{?dist}
+Version:        2.9
+Release:        0.1.%{prerel}%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
 License:        NCSA
 URL:            http://llvm.org/
-Source0:        http://llvm.org/releases/%{version}/llvm-%{version}.tgz
-Source1:        http://llvm.org/releases/%{version}/clang-%{version}.tgz
+Source0:        %{downloadurl}/llvm-%{version}%{?prerel}.src.tar.gz
+Source1:        %{downloadurl}/clang-%{version}%{?prerel}.src.tar.gz
 # Data files should be installed with timestamps preserved
 Patch0:         llvm-2.6-timestamp.patch
-# rename alignof -> alignOf for C++0x support
-# http://llvm.org/bugs/show_bug.cgi?id=8423
-Patch1:         llvm-2.8-alignOf.patch
-Patch2:         clang-2.8-alignOf.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -86,7 +85,7 @@ Summary:        A C language family front-end for LLVM
 License:        NCSA
 Group:          Development/Languages
 # clang requires gcc; clang++ gcc-c++
-Requires:	gcc-c++
+Requires:       gcc-c++
 
 %description -n clang
 clang: noun
@@ -193,13 +192,11 @@ HTML documentation for LLVM's OCaml binding.
 
 
 %prep
-%setup -q -n llvm-%{version} -a1 %{?_with_gcc:-a2}
-mv clang-%{version} tools/clang
+%setup -q -n llvm-%{version}%{?prerel} -a1 %{?_with_gcc:-a2}
+mv clang-%{version}%{?prerel} tools/clang
 
 %patch0 -p1 -b .timestamp
-%patch1 -p0 -b .alignOf
 pushd tools/clang
-%patch2 -p0 -b .alignOf
 popd
 
 # Encoding fix
@@ -341,7 +338,7 @@ find examples -name 'Makefile' | xargs -0r rm -f
 %defattr(-,root,root,-)
 %doc clang-docs/* clang-testlog.txt
 %{_bindir}/clang*
-%{_bindir}/c-index-test
+#%{_bindir}/c-index-test
 %{_bindir}/tblgen
 %{_prefix}/lib/clang
 %doc %{_mandir}/man1/clang.1.*
@@ -394,6 +391,9 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 
 %changelog
+* Thu Mar 10 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-0.1.rc1
+- Update to 2.9rc1
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.8-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
