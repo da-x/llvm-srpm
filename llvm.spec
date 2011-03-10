@@ -319,6 +319,7 @@ find examples -name 'Makefile' | xargs -0r rm -f
 %{_bindir}/lli
 %exclude %{_bindir}/llvm-config
 %{_bindir}/llvm*
+%{_bindir}/macho-dump
 %{_bindir}/opt
 %config(noreplace) %{_sysconfdir}/ld.so.conf.d/llvm-%{_arch}.conf
 %dir %{_libdir}/llvm
