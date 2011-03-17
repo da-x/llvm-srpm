@@ -15,7 +15,7 @@
 
 Name:           llvm
 Version:        2.9
-Release:        0.1.%{prerel}%{?dist}
+Release:        0.2.%{prerel}%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -222,7 +222,9 @@ popd
   --with-c-include-dirs=%{_includedir}:$(find %{_prefix}/lib/gcc/*/* \
       -maxdepth 0 -type d)/include \
   --with-cxx-include-root=$(find %{_includedir}/c++/* -maxdepth 0 -type d) \
-  --with-cxx-include-arch=%{_arch}-%{_vendor}-%{_os}
+  --with-cxx-include-arch=%{_arch}-%{_vendor}-%{_os} \
+  --with-cxx-include-32bit-dir=$(find %{_includedir}/c++/* -maxdepth 0 -type d)/%{_arch}-%{_vendor}-%{_os}/32/bits \
+  --with-cxx-include-64bit-dir=$(find %{_includedir}/c++/* -maxdepth 0 -type d)/%{_arch}-%{_vendor}-%{_os}/bits
 
 # FIXME file this
 # configure does not properly specify libdir
@@ -392,6 +394,9 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 
 %changelog
+* Thu Mar 18 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-0.2.rc1
+- clang++: also search for platform-specific include files (# 680644)
+
 * Thu Mar 10 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-0.1.rc1
 - Update to 2.9rc1
 
