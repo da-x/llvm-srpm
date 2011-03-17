@@ -314,7 +314,7 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 %files
 %defattr(-,root,root,-)
-%doc CREDITS.TXT LICENSE.TXT README.txt llvm-testlog.txt
+%doc CREDITS.TXT LICENSE.TXT README.txt
 %{_bindir}/bugpoint
 %{_bindir}/llc
 %{_bindir}/lli
@@ -338,7 +338,7 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 %files -n clang
 %defattr(-,root,root,-)
-%doc clang-docs/* clang-testlog.txt
+%doc clang-docs/*
 %{_bindir}/clang*
 #%{_bindir}/c-index-test
 %{_bindir}/tblgen
@@ -394,6 +394,7 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 %changelog
 * Thu Mar 18 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-0.2.rc1
+- Don't include test logs; breaks multilib (# 666195)
 - clang++: also search for platform-specific include files (# 680644)
 
 * Thu Mar 10 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-0.1.rc1
