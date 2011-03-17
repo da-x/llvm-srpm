@@ -316,10 +316,12 @@ chmod -x %{buildroot}%{_libdir}/%{name}/*.a
 find examples -name 'Makefile' | xargs -0r rm -f
 
 
-%post -p /sbin/ldconfig
+%post libs -p /sbin/ldconfig
+%post -n clang -p /sbin/ldconfig
 
 
-%postun -p /sbin/ldconfig
+%postun libs -p /sbin/ldconfig
+%postun -n clang -p /sbin/ldconfig
 
 
 %files
