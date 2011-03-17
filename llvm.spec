@@ -41,6 +41,7 @@ BuildRequires:  dejagnu tcl-devel python
 %if 0%{?_with_doxygen}
 BuildRequires:  doxygen graphviz
 %endif
+Requires:       llvm-libs = %{version}-%{release}
 
 # LLVM is not supported on PPC64
 # http://llvm.org/bugs/show_bug.cgi?id=3729
@@ -80,10 +81,19 @@ Obsoletes:      %{name}-doc < %{version}-%{release}
 Documentation for the LLVM compiler infrastructure.
 
 
+%package libs
+Summary:        LLVM shared libraries
+Group:          System Environment/Libraries
+
+%description libs
+Shared libraries for the LLVM compiler infrastructure.
+
+
 %package -n clang
 Summary:        A C language family front-end for LLVM
 License:        NCSA
 Group:          Development/Languages
+Requires:       llvm = %{version}-%{release}
 # clang requires gcc; clang++ gcc-c++
 Requires:       gcc-c++
 
@@ -322,9 +332,6 @@ find examples -name 'Makefile' | xargs -0r rm -f
 %{_bindir}/llvm*
 %{_bindir}/macho-dump
 %{_bindir}/opt
-%config(noreplace) %{_sysconfdir}/ld.so.conf.d/llvm-%{_arch}.conf
-%dir %{_libdir}/llvm
-%{_libdir}/llvm/*.so
 %exclude %{_mandir}/man1/clang.1.*
 %exclude %{_mandir}/man1/llvmg??.1.*
 %doc %{_mandir}/man1/*.1.*
@@ -336,12 +343,20 @@ find examples -name 'Makefile' | xargs -0r rm -f
 %{_includedir}/%{name}-c
 %{_libdir}/%{name}/*.a
 
+%files libs
+%defattr(-,root,root,-)
+%config(noreplace) %{_sysconfdir}/ld.so.conf.d/llvm-%{_arch}.conf
+%dir %{_libdir}/%{name}
+%exclude %{_libdir}/%{name}/libclang.so
+%{_libdir}/%{name}/*.so
+
 %files -n clang
 %defattr(-,root,root,-)
 %doc clang-docs/*
 %{_bindir}/clang*
 #%{_bindir}/c-index-test
 %{_bindir}/tblgen
+%{_libdir}/%{name}/libclang.so
 %{_prefix}/lib/clang
 %doc %{_mandir}/man1/clang.1.*
 
@@ -394,6 +409,7 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 %changelog
 * Thu Mar 18 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-0.2.rc1
+- Split shared libraries into separate subpackage
 - Don't include test logs; breaks multilib (# 666195)
 - clang++: also search for platform-specific include files (# 680644)
 
