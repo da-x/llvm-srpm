@@ -223,8 +223,8 @@ popd
       -maxdepth 0 -type d)/include \
   --with-cxx-include-root=$(find %{_includedir}/c++/* -maxdepth 0 -type d) \
   --with-cxx-include-arch=%{_arch}-%{_vendor}-%{_os} \
-  --with-cxx-include-32bit-dir=$(find %{_includedir}/c++/* -maxdepth 0 -type d)/%{_arch}-%{_vendor}-%{_os}/32/bits \
-  --with-cxx-include-64bit-dir=$(find %{_includedir}/c++/* -maxdepth 0 -type d)/%{_arch}-%{_vendor}-%{_os}/bits
+  --with-cxx-include-32bit-dir=32/bits \
+  --with-cxx-include-64bit-dir=bits
 
 # FIXME file this
 # configure does not properly specify libdir
