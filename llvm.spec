@@ -10,12 +10,12 @@
   %bcond_without ocaml
 %endif
 
-%global prerel rc1
+%global prerel rc2
 %global downloadurl http://llvm.org/%{?prerel:pre-}releases/%{version}
 
 Name:           llvm
 Version:        2.9
-Release:        0.2.%{prerel}%{?dist}
+Release:        0.1.%{prerel}%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -410,6 +410,9 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 
 %changelog
+* Fri Mar 25 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-0.1.rc2
+- Update to 2.9rc2
+
 * Thu Mar 18 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-0.2.rc1
 - Split shared libraries into separate subpackage
 - Don't include test logs; breaks multilib (# 666195)
