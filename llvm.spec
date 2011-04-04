@@ -15,7 +15,7 @@
 
 Name:           llvm
 Version:        2.9
-Release:        0.1.%{prerel}%{?dist}
+Release:        0.3.%{prerel}%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -410,7 +410,7 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 
 %changelog
-* Fri Mar 25 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-0.1.rc2
+* Fri Mar 25 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-0.3.rc2
 - Update to 2.9rc2
 
 * Thu Mar 18 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-0.2.rc1
