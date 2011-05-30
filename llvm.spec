@@ -15,7 +15,7 @@
 
 Name:           llvm
 Version:        2.9
-Release:        0.3.%{prerel}%{?dist}
+Release:        0.4.%{prerel}%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -42,10 +42,6 @@ BuildRequires:  dejagnu tcl-devel python
 BuildRequires:  doxygen graphviz
 %endif
 Requires:       llvm-libs = %{version}-%{release}
-
-# LLVM is not supported on PPC64
-# http://llvm.org/bugs/show_bug.cgi?id=3729
-ExcludeArch:    ppc64
 
 %description
 LLVM is a compiler infrastructure designed for compile-time,
@@ -410,6 +406,9 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 
 %changelog
+* Tue May 31 2011 Karsten Hopp <karsten@redhat.com> 2.9-0.4.rc2
+- enable ppc64 build
+
 * Fri Mar 25 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-0.3.rc2
 - Update to 2.9rc2
 
