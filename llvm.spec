@@ -10,27 +10,35 @@
   %bcond_without ocaml
 %endif
 
-%global prerel rc2
+#global prerel
 %global downloadurl http://llvm.org/%{?prerel:pre-}releases/%{version}
 
 Name:           llvm
 Version:        2.9
-Release:        0.4.%{prerel}%{?dist}
+Release:        1%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
 License:        NCSA
 URL:            http://llvm.org/
-Source0:        %{downloadurl}/llvm-%{version}%{?prerel}.src.tar.gz
-Source1:        %{downloadurl}/clang-%{version}%{?prerel}.src.tar.gz
+Source0:        %{downloadurl}/llvm-%{version}%{?prerel}.tgz
+Source1:        %{downloadurl}/clang-%{version}%{?prerel}.tgz
+# multilib fixes
+Source2:        llvm-Config-config.h
+Source3:        llvm-Config-llvm-config.h
+
 # Data files should be installed with timestamps preserved
 Patch0:         llvm-2.6-timestamp.patch
+# clang link failure if system GCC version is unknown
+# http://llvm.org/bugs/show_bug.cgi?id=8897
+Patch1:         clang-2.9-add_gcc_vers.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
 BuildRequires:  flex
 BuildRequires:  gcc-c++ >= 3.4
 BuildRequires:  groff
+BuildRequires:  libffi-devel
 BuildRequires:  libtool-ltdl-devel
 %if %{with ocaml}
 BuildRequires:  ocaml-ocamldoc
@@ -58,6 +66,8 @@ Requires:       %{name} = %{version}-%{release}
 Requires:       libstdc++-devel >= 3.4
 Provides:       llvm-static = %{version}-%{release}
 
+Requires(posttrans): /usr/sbin/alternatives
+Requires(postun):    /usr/sbin/alternatives
 
 %description devel
 This package contains library and header files needed to develop new
@@ -201,8 +211,12 @@ HTML documentation for LLVM's OCaml binding.
 %setup -q -n llvm-%{version}%{?prerel} -a1 %{?_with_gcc:-a2}
 mv clang-%{version}%{?prerel} tools/clang
 
+# llvm patches
 %patch0 -p1 -b .timestamp
+
+# clang patches
 pushd tools/clang
+%patch1 -p1 -b .add_gcc_ver
 popd
 
 # Encoding fix
@@ -224,6 +238,7 @@ popd
   --disable-assertions \
   --enable-debug-runtime \
   --enable-jit \
+  --enable-libffi \
   --enable-shared \
   --with-c-include-dirs=%{_includedir}:$(find %{_prefix}/lib/gcc/*/* \
       -maxdepth 0 -type d)/include \
@@ -235,7 +250,7 @@ popd
 # configure does not properly specify libdir
 sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}/%{name}|g' Makefile.config
 
-make %{_smp_mflags} \
+make %{_smp_mflags} REQUIRES_RTTI=1 \
 %ifarch ppc
   OPTIMIZE_OPTION="%{optflags} -fno-var-tracking-assignments"
 %else
@@ -243,16 +258,20 @@ make %{_smp_mflags} \
 %endif
 
 
-%check
-# no current unexpected failures. Use || true if they recur to force ignore
-make check 2>&1 | tee llvm-testlog.txt
-(cd tools/clang && make test 2>&1) | tee clang-testlog.txt
-
-
 %install
 rm -rf %{buildroot}
 make install DESTDIR=%{buildroot} \
      PROJ_docsdir=/moredocs
+
+# multilib fixes
+mv %{buildroot}%{_bindir}/llvm-config{,-%{__isa_bits}}
+
+pushd %{buildroot}%{_includedir}/llvm/Config
+mv config.h config-%{__isa_bits}.h
+cp -p %{SOURCE2} config.h
+mv llvm-config.h llvm-config-%{__isa_bits}.h
+cp -p %{SOURCE3} llvm-config.h
+popd
 
 # Create ld.so.conf.d entry
 mkdir -p %{buildroot}%{_sysconfdir}/ld.so.conf.d
@@ -303,13 +322,18 @@ rm %{buildroot}%{_libdir}/%{name}/*LLVMHello.*
 
 # FIXME file this bug
 sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}/%{name}",' \
-  %{buildroot}%{_bindir}/llvm-config
+  %{buildroot}%{_bindir}/llvm-config-%{__isa_bits}
 
 chmod -x %{buildroot}%{_libdir}/%{name}/*.a
 
 # remove documentation makefiles:
 # they require the build directory to work
 find examples -name 'Makefile' | xargs -0r rm -f
+
+
+%check
+make check
+(cd tools/clang && make test)
 
 
 %post libs -p /sbin/ldconfig
@@ -320,13 +344,32 @@ find examples -name 'Makefile' | xargs -0r rm -f
 %postun -n clang -p /sbin/ldconfig
 
 
+%posttrans devel
+# link llvm-config to the platform-specific file;
+# use ISA bits as priority so that 64-bit is preferred
+# over 32-bit if both are installed
+alternatives \
+  --install \
+  %{_bindir}/llvm-config \
+  llvm-config \
+  %{_bindir}/llvm-config-%{__isa_bits} \
+  %{__isa_bits}
+
+%postun devel
+if [ $1 -eq 0 ]; then
+  alternatives --remove llvm-config \
+    %{_bindir}/llvm-config-%{__isa_bits}
+fi
+exit 0
+
+
 %files
 %defattr(-,root,root,-)
 %doc CREDITS.TXT LICENSE.TXT README.txt
 %{_bindir}/bugpoint
 %{_bindir}/llc
 %{_bindir}/lli
-%exclude %{_bindir}/llvm-config
+%exclude %{_bindir}/llvm-config-%{__isa_bits}
 %{_bindir}/llvm*
 %{_bindir}/macho-dump
 %{_bindir}/opt
@@ -336,7 +379,7 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 %files devel
 %defattr(-,root,root,-)
-%{_bindir}/llvm-config
+%{_bindir}/llvm-config-%{__isa_bits}
 %{_includedir}/%{name}
 %{_includedir}/%{name}-c
 %{_libdir}/%{name}/*.a
@@ -406,6 +449,12 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 
 %changelog
+* Mon Aug  1 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-1
+- Update to 2.9
+- Depend on libffi to allow the LLVM interpreter to call external functions
+- Build with RTTI enabled, needed by e.g. Rubinius (# 722714)
+- Fix multilib installation
+
 * Tue May 31 2011 Karsten Hopp <karsten@redhat.com> 2.9-0.4.rc2
 - enable ppc64 build
 
