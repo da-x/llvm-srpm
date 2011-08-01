@@ -242,9 +242,11 @@ popd
   --enable-shared \
   --with-c-include-dirs=%{_includedir}:$(find %{_prefix}/lib/gcc/*/* \
       -maxdepth 0 -type d)/include \
+%if %{__isa_bits} == 64
+  --with-cxx-include-32bit-dir=32 \
+%endif
   --with-cxx-include-root=$(find %{_includedir}/c++/* -maxdepth 0 -type d) \
-  --with-cxx-include-arch=%{_arch}-%{_vendor}-%{_os} \
-  --with-cxx-include-32bit-dir=32
+  --with-cxx-include-arch=%{_target_cpu}-%{_vendor}-%{_os} \
 
 # FIXME file this
 # configure does not properly specify libdir
@@ -332,8 +334,10 @@ find examples -name 'Makefile' | xargs -0r rm -f
 
 
 %check
-make check
-(cd tools/clang && make test)
+# the Koji build server does not seem to have enough RAM
+# for the default 16 threads
+make check LIT_ARGS="-s -v -j8"
+make -C tools/clang/test
 
 
 %post libs -p /sbin/ldconfig
@@ -453,7 +457,8 @@ exit 0
 - Update to 2.9
 - Depend on libffi to allow the LLVM interpreter to call external functions
 - Build with RTTI enabled, needed by e.g. Rubinius (# 722714)
-- Fix multilib installation
+- Fix multilib installation (# 699416)
+- Fix incorrect platform-specific include path on i686
 
 * Tue May 31 2011 Karsten Hopp <karsten@redhat.com> 2.9-0.4.rc2
 - enable ppc64 build
