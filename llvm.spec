@@ -15,7 +15,7 @@
 
 Name:           llvm
 Version:        2.9
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -63,6 +63,7 @@ functionality.
 Summary:        Libraries and header files for LLVM
 Group:          Development/Languages
 Requires:       %{name} = %{version}-%{release}
+Requires:       libffi-devel
 Requires:       libstdc++-devel >= 3.4
 Provides:       llvm-static = %{version}-%{release}
 
@@ -453,6 +454,9 @@ exit 0
 
 
 %changelog
+* Wed Aug  3 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-2
+- Add runtime dependency of -devel on libffi-devel
+
 * Mon Aug  1 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-1
 - Update to 2.9
 - Depend on libffi to allow the LLVM interpreter to call external functions
