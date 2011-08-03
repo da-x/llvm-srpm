@@ -337,8 +337,8 @@ find examples -name 'Makefile' | xargs -0r rm -f
 %check
 # the Koji build server does not seem to have enough RAM
 # for the default 16 threads
-make check LIT_ARGS="-s -v -j8"
-make -C tools/clang/test
+make check LIT_ARGS="-v -j4"
+make -C tools/clang/test TESTARGS="-v -j4"
 
 
 %post libs -p /sbin/ldconfig
