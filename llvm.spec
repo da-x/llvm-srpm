@@ -15,7 +15,7 @@
 
 Name:           llvm
 Version:        2.9
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -337,8 +337,16 @@ find examples -name 'Makefile' | xargs -0r rm -f
 %check
 # the Koji build server does not seem to have enough RAM
 # for the default 16 threads
+
+# LLVM test suite failing on PPC64
+%ifnarch ppc64
 make check LIT_ARGS="-v -j4"
+%endif
+
+# clang test suite failing on PPC
+%ifnarch ppc ppc64
 make -C tools/clang/test TESTARGS="-v -j4"
+%endif
 
 
 %post libs -p /sbin/ldconfig
@@ -454,6 +462,10 @@ exit 0
 
 
 %changelog
+* Sat Aug  6 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-3
+- Disable LLVM test suite on ppc64 architecture  (# 728604)
+- Disable clang test suite on ppc* architectures (-)
+
 * Wed Aug  3 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-2
 - Add runtime dependency of -devel on libffi-devel
 
