@@ -15,7 +15,7 @@
 
 Name:           llvm
 Version:        2.9
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -32,6 +32,9 @@ Patch0:         llvm-2.6-timestamp.patch
 # clang link failure if system GCC version is unknown
 # http://llvm.org/bugs/show_bug.cgi?id=8897
 Patch1:         clang-2.9-add_gcc_vers.patch
+# Operator.h incompatibility with GCC 4.6 in C++0x mode
+# http://llvm.org/bugs/show_bug.cgi?id=9869
+Patch2:         llvm-2.9-PR9869_operator_destructor.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -214,6 +217,7 @@ mv clang-%{version}%{?prerel} tools/clang
 
 # llvm patches
 %patch0 -p1 -b .timestamp
+%patch2 -p2 -b .pr9869_operator_destructor
 
 # clang patches
 pushd tools/clang
@@ -462,6 +466,9 @@ exit 0
 
 
 %changelog
+* Fri Sep 30 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-4
+- Apply upstream patch for Operator.h C++0x incompatibility (# 737365)
+
 * Sat Aug  6 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-3
 - Disable LLVM test suite on ppc64 architecture  (# 728604)
 - Disable clang test suite on ppc* architectures (-)
