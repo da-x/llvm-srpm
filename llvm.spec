@@ -217,7 +217,7 @@ mv clang-%{version}%{?prerel} tools/clang
 
 # llvm patches
 %patch0 -p1 -b .timestamp
-%patch2 -p2 -b .pr9869_operator_destructor
+%patch2 -p1 -b .pr9869_operator_destructor
 
 # clang patches
 pushd tools/clang
