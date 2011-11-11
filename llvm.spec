@@ -10,19 +10,19 @@
   %bcond_without ocaml
 %endif
 
-#global prerel
-%global downloadurl http://llvm.org/%{?prerel:pre-}releases/%{version}
+%global prerel rc3
+%global downloadurl http://llvm.org/%{?prerel:pre-}releases/%{version}%{?prerel:/%{prerel}}
 
 Name:           llvm
-Version:        2.9
-Release:        5%{?dist}
+Version:        3.0
+Release:        0.1.%{prerel}%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
 License:        NCSA
 URL:            http://llvm.org/
-Source0:        %{downloadurl}/llvm-%{version}%{?prerel}.tgz
-Source1:        %{downloadurl}/clang-%{version}%{?prerel}.tgz
+Source0:        %{downloadurl}/llvm-%{version}%{?prerel}.src.tar.gz
+Source1:        %{downloadurl}/clang-%{version}%{?prerel}.src.tar.gz
 # multilib fixes
 Source2:        llvm-Config-config.h
 Source3:        llvm-Config-llvm-config.h
@@ -34,7 +34,7 @@ Patch0:         llvm-2.6-timestamp.patch
 Patch1:         clang-2.9-add_gcc_vers.patch
 # Operator.h incompatibility with GCC 4.6 in C++0x mode
 # http://llvm.org/bugs/show_bug.cgi?id=9869
-Patch2:         llvm-2.9-PR9869_operator_destructor.patch
+#Patch2:         llvm-2.9-PR9869_operator_destructor.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -212,17 +212,18 @@ HTML documentation for LLVM's OCaml binding.
 
 
 %prep
-%setup -q -n llvm-%{version}%{?prerel} -a1 %{?_with_gcc:-a2}
-mv clang-%{version}%{?prerel} tools/clang
+%setup -q -n llvm-%{version}%{?prerel:%{prerel}.src} -a1 %{?_with_gcc:-a2}
+rm tools/clang
+mv clang-%{version}%{?prerel:%{prerel}.src} tools/clang
 
 # llvm patches
 %patch0 -p1 -b .timestamp
-%patch2 -p1 -b .pr9869_operator_destructor
+#patch2 -p1 -b .pr9869_operator_destructor
 
 # clang patches
-pushd tools/clang
-%patch1 -p1 -b .add_gcc_ver
-popd
+#pushd tools/clang
+#patch1 -p1 -b .add_gcc_ver
+#popd
 
 # Encoding fix
 #(cd tools/clang/docs && \
@@ -244,14 +245,14 @@ popd
   --enable-debug-runtime \
   --enable-jit \
   --enable-libffi \
-  --enable-shared \
-  --with-c-include-dirs=%{_includedir}:$(find %{_prefix}/lib/gcc/*/* \
-      -maxdepth 0 -type d)/include \
-%if %{__isa_bits} == 64
-  --with-cxx-include-32bit-dir=32 \
-%endif
-  --with-cxx-include-root=$(find %{_includedir}/c++/* -maxdepth 0 -type d) \
-  --with-cxx-include-arch=%{_target_cpu}-%{_vendor}-%{_os} \
+  --enable-shared
+#  --with-c-include-dirs=%{_includedir}:$(find %{_prefix}/lib/gcc/*/* \
+#      -maxdepth 0 -type d)/include \
+#%if %{__isa_bits} == 64
+#  --with-cxx-include-32bit-dir=32 \
+#%endif
+#  --with-cxx-include-root=$(find %{_includedir}/c++/* -maxdepth 0 -type d) \
+#  --with-cxx-include-arch=%{_target_cpu}-%{_vendor}-%{_os} \
 
 # FIXME file this
 # configure does not properly specify libdir
@@ -267,6 +268,11 @@ make %{_smp_mflags} REQUIRES_RTTI=1 \
 
 %install
 rm -rf %{buildroot}
+# workaround for http://llvm.org/bugs/show_bug.cgi?id=11177
+%if %{with ocaml}
+cp -p bindings/ocaml/llvm/META.llvm bindings/ocaml/llvm/Release/
+%endif
+
 make install DESTDIR=%{buildroot} \
      PROJ_docsdir=/moredocs
 
@@ -313,7 +319,7 @@ mv tools/clang/docs/doxygen/html clang-apidoc
 # And prepare Clang documentation
 #
 mkdir clang-docs
-for f in LICENSE.TXT NOTES.txt README.txt TODO.txt; do
+for f in LICENSE.TXT NOTES.txt README.txt; do # TODO.txt; do
   ln tools/clang/$f clang-docs/
 done
 rm -rf tools/clang/docs/{doxygen*,Makefile*,*.graffle,tools}
@@ -397,7 +403,6 @@ exit 0
 %{_bindir}/macho-dump
 %{_bindir}/opt
 %exclude %{_mandir}/man1/clang.1.*
-%exclude %{_mandir}/man1/llvmg??.1.*
 %doc %{_mandir}/man1/*.1.*
 
 %files devel
@@ -418,8 +423,7 @@ exit 0
 %defattr(-,root,root,-)
 %doc clang-docs/*
 %{_bindir}/clang*
-#%{_bindir}/c-index-test
-%{_bindir}/tblgen
+%{_bindir}/c-index-test
 %{_libdir}/%{name}/libclang.so
 %{_prefix}/lib/clang
 %doc %{_mandir}/man1/clang.1.*
@@ -448,6 +452,7 @@ exit 0
 %defattr(-,root,root,-)
 %{_libdir}/ocaml/*.cma
 %{_libdir}/ocaml/*.cmi
+%{_libdir}/ocaml/META.llvm
 
 %files ocaml-devel
 %defattr(-,root,root,-)
@@ -472,6 +477,9 @@ exit 0
 
 
 %changelog
+* Fri Nov 11 2011 Michel Salim <salimma@fedoraproject.org> - 3.0-0.1.rc3
+- Update to 3.0rc3
+
 * Tue Oct 11 2011 Dan Horák <dan[at]danny.cz> - 2.9-5
 - don't fail the build on failing tests on ppc(64) and s390(x)
 
