@@ -10,12 +10,18 @@
   %bcond_without ocaml
 %endif
 
+%if 0%{?rhel} >= 7
+%global with_clang 0
+%else
+%global with_clang 1
+%endif
+
 %global prerel rc3
 %global downloadurl http://llvm.org/%{?prerel:pre-}releases/%{version}%{?prerel:/%{prerel}}
 
 Name:           llvm
 Version:        3.0
-Release:        0.1.%{prerel}%{?dist}
+Release:        0.2.%{prerel}%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -99,6 +105,7 @@ Group:          System Environment/Libraries
 Shared libraries for the LLVM compiler infrastructure.
 
 
+%if %{with_clang}
 %package -n clang
 Summary:        A C language family front-end for LLVM
 License:        NCSA
@@ -151,6 +158,7 @@ Requires:       %{name} = %{version}-%{release}
 
 %description -n clang-doc
 Documentation for the Clang compiler front-end.
+%endif
 
 
 %if 0%{?_with_doxygen}
@@ -165,6 +173,7 @@ Requires:       %{name}-doc = %{version}-%{release}
 API documentation for the LLVM compiler infrastructure.
 
 
+%if %{with_clang}
 %package -n clang-apidoc
 Summary:        API documentation for Clang
 Group:          Development/Languages
@@ -174,6 +183,7 @@ Requires:       clang-doc = %{version}-%{release}
 
 %description -n clang-apidoc
 API documentation for the Clang compiler.
+%endif
 %endif
 
 
@@ -212,9 +222,11 @@ HTML documentation for LLVM's OCaml binding.
 
 
 %prep
-%setup -q -n llvm-%{version}%{?prerel:%{prerel}.src} -a1 %{?_with_gcc:-a2}
-rm tools/clang
+%setup -q -n llvm-%{version}%{?prerel:%{prerel}.src} %{?with_clang:-a1} %{?_with_gcc:-a2}
+rm -r -f tools/clang
+%if %{with_clang}
 mv clang-%{version}%{?prerel:%{prerel}.src} tools/clang
+%endif
 
 # llvm patches
 %patch0 -p1 -b .timestamp
@@ -240,6 +252,9 @@ mv clang-%{version}%{?prerel:%{prerel}.src} tools/clang
   --datadir=%{_libdir}/%{name} \
 %if 0%{?_with_doxygen}
   --enable-doxygen \
+%endif
+%if 0%{?rhel} >= 7
+  --enable-targets=host \
 %endif
   --disable-assertions \
   --enable-debug-runtime \
@@ -292,6 +307,7 @@ cat >> %{buildroot}%{_sysconfdir}/ld.so.conf.d/llvm-%{_arch}.conf << EOF
 %{_libdir}/llvm
 EOF
 
+%if %{with_clang}
 # Static analyzer not installed by default:
 # http://clang-analyzer.llvm.org/installation#OtherPlatforms
 mkdir -p %{buildroot}%{_libdir}/clang-analyzer
@@ -302,7 +318,7 @@ done
 
 (cd tools/clang/tools && cp -pr scan-{build,view} \
  %{buildroot}%{_libdir}/clang-analyzer/)
-
+%endif
 
 # Move documentation back to build directory
 # 
@@ -318,11 +334,13 @@ mv tools/clang/docs/doxygen/html clang-apidoc
 
 # And prepare Clang documentation
 #
+%if %{with_clang}
 mkdir clang-docs
 for f in LICENSE.TXT NOTES.txt README.txt; do # TODO.txt; do
   ln tools/clang/$f clang-docs/
 done
 rm -rf tools/clang/docs/{doxygen*,Makefile*,*.graffle,tools}
+%endif
 
 
 #find %%{buildroot} -name .dir -print0 | xargs -0r rm -f
@@ -356,6 +374,7 @@ make check LIT_ARGS="-v -j4" \
  %{nil}
 %endif
 
+%if %{with_clang}
 # clang test suite failing on PPC and s390(x)
 make -C tools/clang/test TESTARGS="-v -j4" \
 %ifarch ppc ppc64 s390 s390x
@@ -363,14 +382,16 @@ make -C tools/clang/test TESTARGS="-v -j4" \
 %else
  %{nil}
 %endif
+%endif
 
 
 %post libs -p /sbin/ldconfig
-%post -n clang -p /sbin/ldconfig
-
-
 %postun libs -p /sbin/ldconfig
+
+%if %{with_clang}
+%post -n clang -p /sbin/ldconfig
 %postun -n clang -p /sbin/ldconfig
+%endif
 
 
 %posttrans devel
@@ -402,7 +423,9 @@ exit 0
 %{_bindir}/llvm*
 %{_bindir}/macho-dump
 %{_bindir}/opt
+%if %{with_clang}
 %exclude %{_mandir}/man1/clang.1.*
+%endif
 %doc %{_mandir}/man1/*.1.*
 
 %files devel
@@ -416,9 +439,12 @@ exit 0
 %defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/ld.so.conf.d/llvm-%{_arch}.conf
 %dir %{_libdir}/%{name}
+%if %{with_clang}
 %exclude %{_libdir}/%{name}/libclang.so
+%endif
 %{_libdir}/%{name}/*.so
 
+%if %{with_clang}
 %files -n clang
 %defattr(-,root,root,-)
 %doc clang-docs/*
@@ -442,6 +468,7 @@ exit 0
 %files -n clang-doc
 %defattr(-,root,root,-)
 %doc tools/clang/docs/*
+%endif
 
 %files doc
 %defattr(-,root,root,-)
@@ -470,13 +497,17 @@ exit 0
 %defattr(-,root,root,-)
 %doc apidoc/*
 
+%if %{with_clang}
 %files -n clang-apidoc
 %defattr(-,root,root,-)
 %doc clang-apidoc/*
 %endif
-
+%endif
 
 %changelog
+* Mon Dec 05 2011 Adam Jackson <ajax@redhat.com> 3.0-0.2.rc3
+- RHEL customization: disable clang, --enable-targets=host
+
 * Fri Nov 11 2011 Michel Salim <salimma@fedoraproject.org> - 3.0-0.1.rc3
 - Update to 3.0rc3
 
