@@ -16,19 +16,19 @@
 %global with_clang 1
 %endif
 
-%global prerel rc3
+#global prerel rcX
 %global downloadurl http://llvm.org/%{?prerel:pre-}releases/%{version}%{?prerel:/%{prerel}}
 
 Name:           llvm
 Version:        3.0
-Release:        0.2.%{prerel}%{?dist}
+Release:        1%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
 License:        NCSA
 URL:            http://llvm.org/
-Source0:        %{downloadurl}/llvm-%{version}%{?prerel}.src.tar.gz
-Source1:        %{downloadurl}/clang-%{version}%{?prerel}.src.tar.gz
+Source0:        %{downloadurl}/llvm-%{version}%{?prerel:%{prerel}.src}.tar.gz
+Source1:        %{downloadurl}/clang-%{version}%{?prerel:%{prerel}.src}.tar.gz
 # multilib fixes
 Source2:        llvm-Config-config.h
 Source3:        llvm-Config-llvm-config.h
@@ -222,10 +222,10 @@ HTML documentation for LLVM's OCaml binding.
 
 
 %prep
-%setup -q -n llvm-%{version}%{?prerel:%{prerel}.src} %{?with_clang:-a1} %{?_with_gcc:-a2}
+%setup -q -n llvm-%{version}%{?prerel}.src %{?with_clang:-a1} %{?_with_gcc:-a2}
 rm -r -f tools/clang
 %if %{with_clang}
-mv clang-%{version}%{?prerel:%{prerel}.src} tools/clang
+mv clang-%{version}%{?prerel}.src tools/clang
 %endif
 
 # llvm patches
@@ -505,6 +505,9 @@ exit 0
 %endif
 
 %changelog
+* Sun Dec 11 2011 Michel Salim <salimma@fedoraproject.org> - 3.0-1
+- Update to final 3.0 release
+
 * Mon Dec 05 2011 Adam Jackson <ajax@redhat.com> 3.0-0.2.rc3
 - RHEL customization: disable clang, --enable-targets=host
 
