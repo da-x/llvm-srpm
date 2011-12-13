@@ -12,6 +12,7 @@
 
 %if 0%{?rhel} >= 7
 %global with_clang 0
+ExcludeArch: s390 s390x
 %else
 %global with_clang 1
 %endif
@@ -21,7 +22,7 @@
 
 Name:           llvm
 Version:        3.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -505,6 +506,9 @@ exit 0
 %endif
 
 %changelog
+* Tue Dec 13 2011 Adam Jackson <ajax@redhat.com> 3.0-2
+- ExcludeArch: s390* in RHEL since the native backend has disappeared in 3.0
+
 * Sun Dec 11 2011 Michel Salim <salimma@fedoraproject.org> - 3.0-1
 - Update to final 3.0 release
 
