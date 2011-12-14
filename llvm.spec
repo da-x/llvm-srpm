@@ -12,7 +12,7 @@
 
 %if 0%{?rhel} >= 7
 %global with_clang 0
-ExcludeArch: s390 s390x
+ExcludeArch: s390 s390x ppc ppc64
 %else
 %global with_clang 1
 %endif
@@ -22,7 +22,7 @@ ExcludeArch: s390 s390x
 
 Name:           llvm
 Version:        3.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -506,6 +506,9 @@ exit 0
 %endif
 
 %changelog
+* Wed Dec 14 2011 Adam Jackson <ajax@redhat.com> 3.0-3
+- Also ExcludeArch: ppc* in RHEL
+
 * Tue Dec 13 2011 Adam Jackson <ajax@redhat.com> 3.0-2
 - ExcludeArch: s390* in RHEL since the native backend has disappeared in 3.0
 
