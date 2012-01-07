@@ -22,7 +22,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -506,6 +506,9 @@ exit 0
 %endif
 
 %changelog
+* Sat Jan 07 2012 Richard W.M. Jones <rjones@redhat.com> - 3.0-4
+- Rebuild for OCaml 3.12.1.
+
 * Wed Dec 14 2011 Adam Jackson <ajax@redhat.com> 3.0-3
 - Also ExcludeArch: ppc* in RHEL
 
