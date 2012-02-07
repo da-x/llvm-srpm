@@ -22,7 +22,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.0
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -60,7 +60,7 @@ BuildRequires:  dejagnu tcl-devel python
 %if 0%{?_with_doxygen}
 BuildRequires:  doxygen graphviz
 %endif
-Requires:       llvm-libs = %{version}-%{release}
+Requires:       llvm-libs%{?_isa} = %{version}-%{release}
 
 %description
 LLVM is a compiler infrastructure designed for compile-time,
@@ -73,7 +73,7 @@ functionality.
 %package devel
 Summary:        Libraries and header files for LLVM
 Group:          Development/Languages
-Requires:       %{name} = %{version}-%{release}
+Requires:       %{name}%{?_isa} = %{version}-%{release}
 Requires:       libffi-devel
 Requires:       libstdc++-devel >= 3.4
 Provides:       llvm-static = %{version}-%{release}
@@ -112,7 +112,7 @@ Shared libraries for the LLVM compiler infrastructure.
 Summary:        A C language family front-end for LLVM
 License:        NCSA
 Group:          Development/Languages
-Requires:       llvm = %{version}-%{release}
+Requires:       llvm%{?_isa} = %{version}-%{release}
 # clang requires gcc; clang++ gcc-c++
 Requires:       gcc-c++
 
@@ -130,7 +130,7 @@ as libraries and designed to be loosely-coupled and extensible.
 %package -n clang-devel
 Summary:        Header files for clang
 Group:          Development/Languages
-Requires:       clang = %{version}-%{release}
+Requires:       clang%{?_isa} = %{version}-%{release}
 
 %description -n clang-devel
 This package contains header files for the Clang compiler.
@@ -140,7 +140,7 @@ This package contains header files for the Clang compiler.
 Summary:        A source code analysis framework
 License:        NCSA
 Group:          Development/Languages
-Requires:       clang = %{version}-%{release}
+Requires:       clang%{?_isa} = %{version}-%{release}
 # not picked up automatically since files are currently not instaled
 # in standard Python hierarchies yet
 Requires:       python
@@ -193,7 +193,7 @@ API documentation for the Clang compiler.
 %package        ocaml
 Summary:        OCaml binding for LLVM
 Group:          Development/Libraries
-Requires:       %{name} = %{version}-%{release}
+Requires:       %{name}%{?_isa} = %{version}-%{release}
 Requires:       ocaml-runtime
 
 %description    ocaml
@@ -203,8 +203,8 @@ OCaml binding for LLVM.
 %package        ocaml-devel
 Summary:        Development files for %{name}-ocaml
 Group:          Development/Libraries
-Requires:       %{name}-devel = %{version}-%{release}
-Requires:       %{name}-ocaml = %{version}-%{release}
+Requires:       %{name}-devel%{?_isa} = %{version}-%{release}
+Requires:       %{name}-ocaml%{?_isa} = %{version}-%{release}
 Requires:       ocaml
 
 %description    ocaml-devel
@@ -356,10 +356,10 @@ find examples -name 'Makefile' | xargs -0r rm -f
 # the Koji build server does not seem to have enough RAM
 # for the default 16 threads
 
-# LLVM test suite failing on PPC64 and s390(x)
+# LLVM test suite failing on ARM, PPC64 and s390(x)
 make check LIT_ARGS="-v -j4" \
-%ifarch ppc64 s390 s390x
- || :
+%ifarch %{arm} ppc64 s390 s390x
+     | tee llvm-testlog-%{_arch}.txt
 %else
  %{nil}
 %endif
@@ -370,7 +370,7 @@ make check LIT_ARGS="-v -j4" \
 # unexpected failures on all platforms with GCC 4.7.0.
 # capture logs
 make -C tools/clang/test TESTARGS="-v -j4" \
-     | tee clang-testlog.txt
+     | tee clang-testlog-%{_arch}.txt
 #ifarch ppc ppc64 s390 s390x
 # || :
 #else
@@ -410,6 +410,9 @@ exit 0
 %files
 %defattr(-,root,root,-)
 %doc CREDITS.TXT LICENSE.TXT README.txt
+%ifarch %{arm} ppc64 s390 s390x
+%doc llvm-testlog-%{_arch}.txt
+%endif
 %{_bindir}/bugpoint
 %{_bindir}/llc
 %{_bindir}/lli
@@ -441,7 +444,7 @@ exit 0
 %if %{with_clang}
 %files -n clang
 %defattr(-,root,root,-)
-%doc clang-docs/* clang-testlog.txt
+%doc clang-docs/* clang-testlog-%{_arch}.txt
 %{_bindir}/clang*
 %{_bindir}/c-index-test
 %{_libdir}/%{name}/libclang.so
@@ -499,6 +502,11 @@ exit 0
 %endif
 
 %changelog
+* Tue Feb  7 2012 Michel Salim <salimma@fedoraproject.org> - 3.0-6
+- Make subpackage dependencies arch-specific
+- Make LLVM test failures non-fatal on ARM architectures as well (# 770208)
+- Save LLVM test log on platforms where it fails
+
 * Sun Feb  5 2012 Michel Salim <salimma@fedoraproject.org> - 3.0-5
 - Clang test suite yields unexpected failures with GCC 4.7.0. Make
   this non-fatal and save the results
