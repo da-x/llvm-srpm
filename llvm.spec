@@ -277,6 +277,10 @@ make %{_smp_mflags} REQUIRES_RTTI=1 VERBOSE=1 \
 
 %install
 rm -rf %{buildroot}
+# workaround for http://llvm.org/bugs/show_bug.cgi?id=11177
+%if %{with ocaml}
+cp -p bindings/ocaml/llvm/META.llvm bindings/ocaml/llvm/Release/
+%endif
 
 make install DESTDIR=%{buildroot} \
      PROJ_docsdir=/moredocs
