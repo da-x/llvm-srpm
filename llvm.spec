@@ -24,9 +24,9 @@ ExcludeArch: s390 s390x ppc ppc64
 # arch list from binutils spec
 %global gold_arches %ix86 x86_64
 %ifarch %gold_arches
-%bcond_with gold
-%else
 %bcond_without gold
+%else
+%bcond_with gold
 %endif
 
 Name:           llvm
