@@ -20,9 +20,18 @@ ExcludeArch: s390 s390x ppc ppc64
 #global prerel rcX
 %global downloadurl http://llvm.org/%{?prerel:pre-}releases/%{version}%{?prerel:/%{prerel}}
 
+# gold linker support
+# arch list from binutils spec
+%global gold_arches %ix86 x86_64
+%ifarch %gold_arches
+%bcond_with gold
+%else
+%bcond_without gold
+%endif
+
 Name:           llvm
 Version:        3.0
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -50,6 +59,9 @@ BuildRequires:  gcc-c++ >= 3.4
 BuildRequires:  groff
 BuildRequires:  libffi-devel
 BuildRequires:  libtool-ltdl-devel
+%if %{with gold}
+BuildRequires:  binutils-devel
+%endif
 %if %{with ocaml}
 BuildRequires:  ocaml-ocamldoc
 %endif
@@ -247,12 +259,14 @@ sed -i 's|/lib /usr/lib $lt_ld_extra|/%{_lib} %{_libdir} $lt_ld_extra|' \
 
 %build
 # Disabling assertions now, rec. by pure and needed for OpenGTL
-# TESTFIX no PIC on ix86: http://llvm.org/bugs/show_bug.cgi?id=3801
 %configure \
   --prefix=%{_prefix} \
   --libdir=%{_libdir}/%{name} \
 %if 0%{?_with_doxygen}
   --enable-doxygen \
+%endif
+%if %{with gold}
+  --with-binutils-include=%{_includedir} \
 %endif
 %if 0%{?rhel} >= 7
   --enable-targets=host \
@@ -506,6 +520,9 @@ exit 0
 %endif
 
 %changelog
+* Fri Feb 24 2012 Michel Salim <salimma@fedoraproject.org> - 3.0-7
+- Build LLVMgold plugin on supported architectures
+
 * Tue Feb  7 2012 Michel Salim <salimma@fedoraproject.org> - 3.0-6
 - Make subpackage dependencies arch-specific
 - Make LLVM test failures non-fatal on ARM architectures as well (# 770208)
