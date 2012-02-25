@@ -31,7 +31,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.0
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -43,14 +43,17 @@ Source1:        %{downloadurl}/clang-%{version}%{?prerel:%{prerel}.src}.tar.gz
 Source2:        llvm-Config-config.h
 Source3:        llvm-Config-llvm-config.h
 
+
 # Data files should be installed with timestamps preserved
 Patch0:         llvm-2.6-timestamp.patch
 # clang link failure if system GCC version is unknown
 # http://llvm.org/bugs/show_bug.cgi?id=8897
 Patch1:         clang-2.9-add_gcc_vers.patch
-# Operator.h incompatibility with GCC 4.6 in C++0x mode
-# http://llvm.org/bugs/show_bug.cgi?id=9869
-#Patch2:         llvm-2.9-PR9869_operator_destructor.patch
+# LLVMgold should link against LTO as a normal library
+# http://lists.cs.uiuc.edu/pipermail/llvmdev/2011-November/045433.html
+# patch is applied upstream, but has to be rewritten due to post-3.0
+# Makefile clean-ups
+Patch2:         llvm-3.0-link_llvmgold_to_lto.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -244,7 +247,7 @@ mv clang-%{version}%{?prerel}.src tools/clang
 
 # llvm patches
 %patch0 -p1 -b .timestamp
-#patch2 -p1 -b .pr9869_operator_destructor
+%patch2 -p1 -b .link_llvmgold_to_lto
 
 # clang patches
 #pushd tools/clang
@@ -520,6 +523,9 @@ exit 0
 %endif
 
 %changelog
+* Sat Feb 25 2012 Michel Salim <salimma@fedoraproject.org> - 3.0-8
+- Apply upstream patch to properly link LLVMgold against LTO
+
 * Fri Feb 24 2012 Michel Salim <salimma@fedoraproject.org> - 3.0-7
 - Build LLVMgold plugin on supported architectures
 
