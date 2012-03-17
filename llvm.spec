@@ -31,7 +31,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.0
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -286,7 +286,7 @@ sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}/%{name}|g' Makefile.config
 
 make %{_smp_mflags} REQUIRES_RTTI=1 VERBOSE=1 \
 %ifarch ppc
-  OPTIMIZE_OPTION="%{optflags} -fno-var-tracking-assignments"
+  OPTIMIZE_OPTION="%{optflags} -fno-var-tracking-assignments -UPPC"
 %else
   OPTIMIZE_OPTION="%{optflags}"
 %endif
@@ -523,6 +523,11 @@ exit 0
 %endif
 
 %changelog
+* Sat Mar 17 2012 Karsten Hopp <karsten@redhat.com> 3.0-9
+- undefine PPC on ppc as a temporary workaround for 
+  http://llvm.org/bugs/show_bug.cgi?id=10969 and 
+  RHBZ#769803
+
 * Sat Feb 25 2012 Michel Salim <salimma@fedoraproject.org> - 3.0-8
 - Apply upstream patch to properly link LLVMgold against LTO
 
