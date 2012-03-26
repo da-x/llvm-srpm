@@ -31,7 +31,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.0
-Release:        9%{?dist}
+Release:        10%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -261,6 +261,10 @@ sed -i 's|/lib /usr/lib $lt_ld_extra|/%{_lib} %{_libdir} $lt_ld_extra|' \
 
 
 %build
+# Build without -ftree-pre as a workaround for clang segfaulting on x86_64.
+# https://bugzilla.redhat.com/show_bug.cgi?id=791365
+%global optflags %(echo %{optflags} | sed 's/-O2 /-O2 -fno-tree-pre /')
+
 # Disabling assertions now, rec. by pure and needed for OpenGTL
 %configure \
   --prefix=%{_prefix} \
@@ -523,6 +527,10 @@ exit 0
 %endif
 
 %changelog
+* Mon Mar 26 2012 Kalev Lember <kalevlember@gmail.com> - 3.0-10
+- Build without -ftree-pre as a workaround for clang segfaulting
+  on x86_64 (#791365)
+
 * Sat Mar 17 2012 Karsten Hopp <karsten@redhat.com> 3.0-9
 - undefine PPC on ppc as a temporary workaround for 
   http://llvm.org/bugs/show_bug.cgi?id=10969 and 
