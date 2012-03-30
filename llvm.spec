@@ -2,6 +2,11 @@
 #
 # --with doxygen
 #   The doxygen docs are HUGE, so they are not built by default.
+%bcond_with doxygen
+
+# clang header paths are hard-coded at compile time
+# and need adjustment whenever there's a new GCC version
+%global gcc_version %(gcc -dumpversion)
 
 %ifarch s390 s390x sparc64
   # No ocaml on these arches
@@ -11,10 +16,10 @@
 %endif
 
 %if 0%{?rhel} >= 7
-%global with_clang 0
+%bcond_with clang
 ExcludeArch: s390 s390x ppc ppc64
 %else
-%global with_clang 1
+%bcond_without clang
 %endif
 
 #global prerel rcX
@@ -31,7 +36,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.0
-Release:        10%{?dist}
+Release:        11%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -46,14 +51,11 @@ Source3:        llvm-Config-llvm-config.h
 
 # Data files should be installed with timestamps preserved
 Patch0:         llvm-2.6-timestamp.patch
-# clang link failure if system GCC version is unknown
-# http://llvm.org/bugs/show_bug.cgi?id=8897
-Patch1:         clang-2.9-add_gcc_vers.patch
 # LLVMgold should link against LTO as a normal library
 # http://lists.cs.uiuc.edu/pipermail/llvmdev/2011-November/045433.html
 # patch is applied upstream, but has to be rewritten due to post-3.0
 # Makefile clean-ups
-Patch2:         llvm-3.0-link_llvmgold_to_lto.patch
+Patch1:         llvm-3.0-link_llvmgold_to_lto.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -72,7 +74,7 @@ BuildRequires:  zip
 # for DejaGNU test suite
 BuildRequires:  dejagnu tcl-devel python
 # for doxygen documentation
-%if 0%{?_with_doxygen}
+%if %{with doxygen}
 BuildRequires:  doxygen graphviz
 %endif
 Requires:       llvm-libs%{?_isa} = %{version}-%{release}
@@ -122,14 +124,15 @@ Group:          System Environment/Libraries
 Shared libraries for the LLVM compiler infrastructure.
 
 
-%if %{with_clang}
+%if %{with clang}
 %package -n clang
 Summary:        A C language family front-end for LLVM
 License:        NCSA
 Group:          Development/Languages
 Requires:       llvm%{?_isa} = %{version}-%{release}
-# clang requires gcc; clang++ gcc-c++
-Requires:       gcc-c++
+# clang requires gcc, clang++ requires libstdc++-devel
+Requires:       gcc
+Requires:       libstdc++-devel = %{gcc_version}
 
 %description -n clang
 clang: noun
@@ -178,7 +181,7 @@ Documentation for the Clang compiler front-end.
 %endif
 
 
-%if 0%{?_with_doxygen}
+%if %{with doxygen}
 %package apidoc
 Summary:        API documentation for LLVM
 Group:          Development/Languages
@@ -190,7 +193,7 @@ Requires:       %{name}-doc = %{version}-%{release}
 API documentation for the LLVM compiler infrastructure.
 
 
-%if %{with_clang}
+%if %{with clang}
 %package -n clang-apidoc
 Summary:        API documentation for Clang
 Group:          Development/Languages
@@ -239,24 +242,22 @@ HTML documentation for LLVM's OCaml binding.
 
 
 %prep
-%setup -q -n llvm-%{version}%{?prerel}.src %{?with_clang:-a1} %{?_with_gcc:-a2}
+%setup -q -n llvm-%{version}%{?prerel}.src %{?with_clang:-a1}
 rm -r -f tools/clang
-%if %{with_clang}
+%if %{with clang}
 mv clang-%{version}%{?prerel}.src tools/clang
 %endif
 
 # llvm patches
 %patch0 -p1 -b .timestamp
-%patch2 -p1 -b .link_llvmgold_to_lto
+%patch1 -p1 -b .link_llvmgold_to_lto
 
 # clang patches
 #pushd tools/clang
-#patch1 -p1 -b .add_gcc_ver
 #popd
 
 # fix ld search path
-# TODO: remove /%{_lib} after usrmove migration is final
-sed -i 's|/lib /usr/lib $lt_ld_extra|/%{_lib} %{_libdir} $lt_ld_extra|' \
+sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' \
     ./configure
 
 
@@ -269,7 +270,7 @@ sed -i 's|/lib /usr/lib $lt_ld_extra|/%{_lib} %{_libdir} $lt_ld_extra|' \
 %configure \
   --prefix=%{_prefix} \
   --libdir=%{_libdir}/%{name} \
-%if 0%{?_with_doxygen}
+%if %{with doxygen}
   --enable-doxygen \
 %endif
 %if %{with gold}
@@ -322,7 +323,7 @@ cat >> %{buildroot}%{_sysconfdir}/ld.so.conf.d/llvm-%{_arch}.conf << EOF
 %{_libdir}/llvm
 EOF
 
-%if %{with_clang}
+%if %{with clang}
 # Static analyzer not installed by default:
 # http://clang-analyzer.llvm.org/installation#OtherPlatforms
 mkdir -p %{buildroot}%{_libdir}/clang-analyzer
@@ -342,14 +343,14 @@ rm -f moredocs/*.tar.gz
 rm -f moredocs/ocamldoc/html/*.tar.gz
 
 # and separate the apidoc
-%if 0%{?_with_doxygen}
+%if %{with doxygen}
 mv moredocs/html/doxygen apidoc
 mv tools/clang/docs/doxygen/html clang-apidoc
 %endif
 
 # And prepare Clang documentation
 #
-%if %{with_clang}
+%if %{with clang}
 mkdir clang-docs
 for f in LICENSE.TXT NOTES.txt README.txt; do # TODO.txt; do
   ln tools/clang/$f clang-docs/
@@ -389,7 +390,7 @@ make check LIT_ARGS="-v -j4" \
  %{nil}
 %endif
 
-%if %{with_clang}
+%if %{with clang}
 # clang test suite failing on PPC and s390(x)
 # FIXME:
 # unexpected failures on all platforms with GCC 4.7.0.
@@ -407,7 +408,7 @@ make -C tools/clang/test TESTARGS="-v -j4" \
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
 
-%if %{with_clang}
+%if %{with clang}
 %post -n clang -p /sbin/ldconfig
 %postun -n clang -p /sbin/ldconfig
 %endif
@@ -445,7 +446,7 @@ exit 0
 %{_bindir}/llvm*
 %{_bindir}/macho-dump
 %{_bindir}/opt
-%if %{with_clang}
+%if %{with clang}
 %exclude %{_mandir}/man1/clang.1.*
 %endif
 %doc %{_mandir}/man1/*.1.*
@@ -461,12 +462,12 @@ exit 0
 %defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/ld.so.conf.d/llvm-%{_arch}.conf
 %dir %{_libdir}/%{name}
-%if %{with_clang}
+%if %{with clang}
 %exclude %{_libdir}/%{name}/libclang.so
 %endif
 %{_libdir}/%{name}/*.so
 
-%if %{with_clang}
+%if %{with clang}
 %files -n clang
 %defattr(-,root,root,-)
 %doc clang-docs/* clang-testlog-%{_arch}.txt
@@ -514,12 +515,12 @@ exit 0
 %doc moredocs/ocamldoc/html/*
 %endif
 
-%if 0%{?_with_doxygen}
+%if %{with doxygen}
 %files apidoc
 %defattr(-,root,root,-)
 %doc apidoc/*
 
-%if %{with_clang}
+%if %{with clang}
 %files -n clang-apidoc
 %defattr(-,root,root,-)
 %doc clang-apidoc/*
@@ -527,6 +528,12 @@ exit 0
 %endif
 
 %changelog
+* Fri Mar 30 2012 Michel Alexandre Salim <michel@hermione.localdomain> - 3.0-11
+- Replace overly-broad dependency on gcc-c++ with gcc and libstdc++-devel
+- Pin clang's dependency on libstdc++-devel to the version used for building
+- Standardize on bcond for conditional build options
+- Remove /lib from search path, everything is now in /usr/lib*
+
 * Mon Mar 26 2012 Kalev Lember <kalevlember@gmail.com> - 3.0-10
 - Build without -ftree-pre as a workaround for clang segfaulting
   on x86_64 (#791365)
