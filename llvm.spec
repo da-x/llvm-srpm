@@ -6,7 +6,7 @@
 
 # clang header paths are hard-coded at compile time
 # and need adjustment whenever there's a new GCC version
-%global gcc_version %(gcc -dumpversion)
+%global gcc_version 4.7.0
 
 %ifarch s390 s390x sparc64
   # No ocaml on these arches
