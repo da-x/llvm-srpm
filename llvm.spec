@@ -36,7 +36,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.0
-Release:        11%{?dist}
+Release:        12%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -528,6 +528,9 @@ exit 0
 %endif
 
 %changelog
+* Sun May  6 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 3.0-12
+- Bump build
+
 * Fri Mar 30 2012 Michel Alexandre Salim <michel@hermione.localdomain> - 3.0-11
 - Replace overly-broad dependency on gcc-c++ with gcc and libstdc++-devel
 - Pin clang's dependency on libstdc++-devel to the version used for building
