@@ -36,7 +36,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.0
-Release:        12%{?dist}
+Release:        13%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -279,6 +279,14 @@ sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' \
 %if 0%{?rhel} >= 7
   --enable-targets=host \
 %endif
+%ifarch armv7hl armv7l
+  --with-cpu=cortex-a8 \
+  --with-tune=cortex-a8 \
+  --with-arch=armv7-a \
+  --with-float=hard \
+  --with-fpu=vfpv3-d16 \
+  --with-abi=aapcs-linux \
+%endif
   --disable-assertions \
   --enable-debug-runtime \
   --enable-jit \
@@ -298,7 +306,6 @@ make %{_smp_mflags} REQUIRES_RTTI=1 VERBOSE=1 \
 
 
 %install
-rm -rf %{buildroot}
 # workaround for http://llvm.org/bugs/show_bug.cgi?id=11177
 %if %{with ocaml}
 cp -p bindings/ocaml/llvm/META.llvm bindings/ocaml/llvm/Release/
@@ -528,6 +535,9 @@ exit 0
 %endif
 
 %changelog
+* Fri May 25 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 3.0-13
+- Add compiler build options for ARM hardfp
+
 * Sun May  6 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 3.0-12
 - Bump build
 
