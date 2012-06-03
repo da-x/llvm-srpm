@@ -35,15 +35,15 @@ ExcludeArch: s390 s390x ppc ppc64
 %endif
 
 Name:           llvm
-Version:        3.0
-Release:        13%{?dist}
+Version:        3.1
+Release:        1%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
 License:        NCSA
 URL:            http://llvm.org/
-Source0:        %{downloadurl}/llvm-%{version}%{?prerel:%{prerel}.src}.tar.gz
-Source1:        %{downloadurl}/clang-%{version}%{?prerel:%{prerel}.src}.tar.gz
+Source0:        %{downloadurl}/llvm-%{version}%{?prerel:%{prerel}}.src.tar.gz
+Source1:        %{downloadurl}/clang-%{version}%{?prerel:%{prerel}}.src.tar.gz
 # multilib fixes
 Source2:        llvm-Config-config.h
 Source3:        llvm-Config-llvm-config.h
@@ -51,11 +51,14 @@ Source3:        llvm-Config-llvm-config.h
 
 # Data files should be installed with timestamps preserved
 Patch0:         llvm-2.6-timestamp.patch
-# LLVMgold should link against LTO as a normal library
-# http://lists.cs.uiuc.edu/pipermail/llvmdev/2011-November/045433.html
-# patch is applied upstream, but has to be rewritten due to post-3.0
-# Makefile clean-ups
-Patch1:         llvm-3.0-link_llvmgold_to_lto.patch
+
+# r600 llvm and clang patches
+Patch600: 0001-r600-Add-some-intrinsic-definitions.patch
+Patch601: 0002-r600-Add-get_global_size-and-get_local_size-intrinsi.patch
+
+Patch610: 0001-Add-r600-TargetInfo.patch
+Patch611: 0002-r600-Add-some-target-builtins.patch
+Patch612: 0003-r600-Add-read_global_size-and-read_local_size-builti.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -250,11 +253,18 @@ mv clang-%{version}%{?prerel}.src tools/clang
 
 # llvm patches
 %patch0 -p1 -b .timestamp
-%patch1 -p1 -b .link_llvmgold_to_lto
+#patch1 -p1 -b .link_llvmgold_to_lto
+
+# r600 llvm patch
+%patch600 -p1 -b .r600
+%patch601 -p1 -b .r601
 
 # clang patches
-#pushd tools/clang
-#popd
+pushd tools/clang
+%patch610 -p1 -b .r610
+%patch611 -p1 -b .r611
+%patch612 -p1 -b .r612
+popd
 
 # fix ld search path
 sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' \
@@ -535,6 +545,9 @@ exit 0
 %endif
 
 %changelog
+* Sun Jun 03 2012 Dave Airlie <airlied@redhat.com> 3.1-1
+- rebase to 3.1 + add r600 patches from Tom Stellar
+
 * Fri May 25 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 3.0-13
 - Add compiler build options for ARM hardfp
 
