@@ -36,7 +36,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -549,6 +549,9 @@ exit 0
 %endif
 
 %changelog
+* Fri Jun  8 2012 Michel Salim <salimma@fedoraproject.org> - 3.1-2
+- Rebuild for ocaml 4.00.0 beta
+
 * Sun Jun 03 2012 Dave Airlie <airlied@redhat.com> 3.1-1
 - rebase to 3.1 + add r600 patches from Tom Stellar
 
