@@ -6,7 +6,7 @@
 
 # clang header paths are hard-coded at compile time
 # and need adjustment whenever there's a new GCC version
-%global gcc_version 4.7.0
+%global gcc_version 4.7.1
 
 %ifarch s390 s390x sparc64
   # No ocaml on these arches
@@ -36,7 +36,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.1
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -549,6 +549,9 @@ exit 0
 %endif
 
 %changelog
+* Wed Jul  4 2012 Michel Salim <salimma@fedoraproject.org> - 3.1-5
+- Actually set runtime dependency on libstdc++ 4.7.1
+
 * Mon Jul  2 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 3.1-4
 - Rebuild for new libstdc++ bump
 
