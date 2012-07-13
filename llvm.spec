@@ -36,7 +36,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.1
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -61,7 +61,7 @@ Patch611: 0002-r600-Add-some-target-builtins.patch
 Patch612: 0003-r600-Add-read_global_size-and-read_local_size-builti.patch
 
 # ocaml
-Patch700: llvm-fix-ocaml.patch
+Patch700: llvm-fix-ghc.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -269,7 +269,7 @@ pushd tools/clang
 %patch612 -p1 -b .r612
 popd
 
-%patch700 -p0 -b .ocaml
+%patch700 -p0 -b .ghc
 
 # fix ld search path
 sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' \
@@ -554,6 +554,9 @@ exit 0
 %endif
 
 %changelog
+* Fri Jul 13 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 3.1-7
+- Rename patch as it actually fixes Haskell
+
 * Thu Jul 12 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 3.1-6
 - Add patch to fix building OCAML on ARM
 
