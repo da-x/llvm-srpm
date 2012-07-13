@@ -36,7 +36,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.1
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -59,6 +59,9 @@ Patch601: 0002-r600-Add-get_global_size-and-get_local_size-intrinsi.patch
 Patch610: 0001-Add-r600-TargetInfo.patch
 Patch611: 0002-r600-Add-some-target-builtins.patch
 Patch612: 0003-r600-Add-read_global_size-and-read_local_size-builti.patch
+
+# ocaml
+Patch700: llvm-fix-ocaml.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -265,6 +268,8 @@ pushd tools/clang
 %patch611 -p1 -b .r611
 %patch612 -p1 -b .r612
 popd
+
+%patch700 -p0 -b .ocaml
 
 # fix ld search path
 sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' \
@@ -549,6 +554,9 @@ exit 0
 %endif
 
 %changelog
+* Thu Jul 12 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 3.1-6
+- Add patch to fix building OCAML on ARM
+
 * Wed Jul  4 2012 Michel Salim <salimma@fedoraproject.org> - 3.1-5
 - Actually set runtime dependency on libstdc++ 4.7.1
 
