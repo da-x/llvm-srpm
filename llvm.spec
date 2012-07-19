@@ -36,7 +36,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.1
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -554,6 +554,9 @@ exit 0
 %endif
 
 %changelog
+* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.1-8
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Fri Jul 13 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 3.1-7
 - Rename patch as it actually fixes Haskell
 
