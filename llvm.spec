@@ -36,7 +36,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.1
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -263,11 +263,13 @@ mv clang-%{version}%{?prerel}.src tools/clang
 %patch601 -p1 -b .r601
 
 # clang patches
+%if %{with clang}
 pushd tools/clang
 %patch610 -p1 -b .r610
 %patch611 -p1 -b .r611
 %patch612 -p1 -b .r612
 popd
+%endif
 
 %patch700 -p0 -b .ghc
 
@@ -554,6 +556,9 @@ exit 0
 %endif
 
 %changelog
+* Tue Aug 14 2012 Dan Horák <dan[at]danny.cz> - 3.1-9
+- Apply clang patches only when clang is being built
+
 * Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.1-8
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
