@@ -6,7 +6,7 @@
 
 # clang header paths are hard-coded at compile time
 # and need adjustment whenever there's a new GCC version
-%global gcc_version 4.7.1
+%global gcc_version 4.7.2
 
 %ifarch s390 s390x sparc64
   # No ocaml on these arches
@@ -36,7 +36,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.1
-Release:        9%{?dist}
+Release:        10%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -556,6 +556,9 @@ exit 0
 %endif
 
 %changelog
+* Mon Sep 24 2012 Michel Salim <salimma@fedoraproject.org> - 3.1-10
+- Rebuild for GCC 4.7.2
+
 * Tue Aug 14 2012 Dan Horák <dan[at]danny.cz> - 3.1-9
 - Apply clang patches only when clang is being built
 
