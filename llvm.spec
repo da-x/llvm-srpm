@@ -36,7 +36,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.1
-Release:        12%{?dist}
+Release:        13%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -556,6 +556,9 @@ exit 0
 %endif
 
 %changelog
+* Wed Jan 23 2013 Jens Petersen <petersen@redhat.com> - 3.1-13
+- rebuild for F19 ARM ldconfig issue (#893294)
+
 * Mon Oct 29 2012 Richard W.M. Jones <rjones@redhat.com> - 3.1-12
 - Rebuild for OCaml 4.00.1.
 
