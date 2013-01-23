@@ -1,0 +1,11 @@
+--- llvm-3.1.src/docs/CommandGuide/lit.pod~	2012-03-27 03:01:14.000000000 +0900
++++ llvm-3.1.src/docs/CommandGuide/lit.pod	2013-01-23 12:47:30.297510832 +0900
+@@ -386,8 +386,6 @@
+ ********************
+ PASS: D (4 of 4)
+ 
+-=back
+-
+ =head2 LIT EXAMPLE TESTS
+ 
+ The B<lit> distribution contains several example implementations of test suites

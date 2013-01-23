@@ -60,8 +60,11 @@ Patch610: 0001-Add-r600-TargetInfo.patch
 Patch611: 0002-r600-Add-some-target-builtins.patch
 Patch612: 0003-r600-Add-read_global_size-and-read_local_size-builti.patch
 
-# ocaml
+# ghc
 Patch700: llvm-fix-ghc.patch
+
+# doc
+Patch800: llvm-3.1-docs-lit.pod-back-without-over.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -272,6 +275,8 @@ popd
 %endif
 
 %patch700 -p0 -b .ghc
+
+%patch800 -p1 -b .r800
 
 # fix ld search path
 sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' \
@@ -557,7 +562,7 @@ exit 0
 
 %changelog
 * Wed Jan 23 2013 Jens Petersen <petersen@redhat.com> - 3.1-13
-- rebuild for F19 ARM ldconfig issue (#893294)
+- fix pod parsing error in lit.pod: "=back without =over"
 
 * Mon Oct 29 2012 Richard W.M. Jones <rjones@redhat.com> - 3.1-12
 - Rebuild for OCaml 4.00.1.
