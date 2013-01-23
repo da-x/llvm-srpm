@@ -64,7 +64,7 @@ Patch612: 0003-r600-Add-read_global_size-and-read_local_size-builti.patch
 Patch700: llvm-fix-ghc.patch
 
 # doc
-Patch800: llvm-3.1-docs-lit.pod-back-without-over.patch
+Patch800: llvm-3.1-docs-pod-markup-fixes.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -562,7 +562,7 @@ exit 0
 
 %changelog
 * Wed Jan 23 2013 Jens Petersen <petersen@redhat.com> - 3.1-13
-- fix pod parsing error in lit.pod: "=back without =over"
+- fix some docs pod markup errors to build with new perl-Pod-Parser
 
 * Mon Oct 29 2012 Richard W.M. Jones <rjones@redhat.com> - 3.1-12
 - Rebuild for OCaml 4.00.1.
