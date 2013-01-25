@@ -6,7 +6,7 @@
 
 # clang header paths are hard-coded at compile time
 # and need adjustment whenever there's a new GCC version
-%global gcc_version 4.7.2
+%global gcc_version 4.8.0
 
 %ifarch s390 s390x sparc64
   # No ocaml on these arches
@@ -36,7 +36,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.1
-Release:        13%{?dist}
+Release:        14%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -561,6 +561,9 @@ exit 0
 %endif
 
 %changelog
+* Fri Jan 25 2013 Kalev Lember <kalevlember@gmail.com> - 3.1-14
+- Rebuilt for GCC 4.8.0
+
 * Wed Jan 23 2013 Jens Petersen <petersen@redhat.com> - 3.1-13
 - fix some docs pod markup errors to build with new perl-Pod-Parser
 
