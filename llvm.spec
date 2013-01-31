@@ -86,6 +86,8 @@ BuildRequires:  dejagnu tcl-devel python
 %if %{with doxygen}
 BuildRequires:  doxygen graphviz
 %endif
+# pod2man moved to perl-podlators in F19
+BuildRequires:  %{_bindir}/pod2man
 Requires:       llvm-libs%{?_isa} = %{version}-%{release}
 
 %description
@@ -565,6 +567,7 @@ exit 0
 %changelog
 * Thu Jan 31 2013 Jens Petersen <petersen@redhat.com> - 3.1-15
 - move lvm-config manpage to devel subpackage (#855882)
+- pod2man moved to perl-podlators in F19
 
 * Fri Jan 25 2013 Kalev Lember <kalevlember@gmail.com> - 3.1-14
 - Rebuilt for GCC 4.8.0
