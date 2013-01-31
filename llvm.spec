@@ -36,7 +36,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.1
-Release:        14%{?dist}
+Release:        15%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -483,6 +483,7 @@ exit 0
 %exclude %{_mandir}/man1/clang.1.*
 %endif
 %doc %{_mandir}/man1/*.1.*
+%exclude %{_mandir}/man1/llvm-config.1.*
 
 %files devel
 %defattr(-,root,root,-)
@@ -490,6 +491,7 @@ exit 0
 %{_includedir}/%{name}
 %{_includedir}/%{name}-c
 %{_libdir}/%{name}/*.a
+%doc %{_mandir}/man1/llvm-config.1.*
 
 %files libs
 %defattr(-,root,root,-)
@@ -561,6 +563,9 @@ exit 0
 %endif
 
 %changelog
+* Thu Jan 31 2013 Jens Petersen <petersen@redhat.com> - 3.1-15
+- move lvm-config manpage to devel subpackage (#855882)
+
 * Fri Jan 25 2013 Kalev Lember <kalevlember@gmail.com> - 3.1-14
 - Rebuilt for GCC 4.8.0
 
