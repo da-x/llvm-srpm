@@ -36,7 +36,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.1
-Release:        15%{?dist}
+Release:        16%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -69,7 +69,8 @@ Patch800: llvm-3.1-docs-pod-markup-fixes.patch
 BuildRequires:  bison
 BuildRequires:  chrpath
 BuildRequires:  flex
-BuildRequires:  gcc-c++ >= 3.4
+BuildRequires:  gcc = %{gcc_version}
+BuildRequires:  gcc-c++ = %{gcc_version}
 BuildRequires:  groff
 BuildRequires:  libffi-devel
 BuildRequires:  libtool-ltdl-devel
@@ -315,7 +316,8 @@ sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' \
   --enable-debug-runtime \
   --enable-jit \
   --enable-libffi \
-  --enable-shared
+  --enable-shared \
+  --with-c-include-dirs=%{_includedir}:$(echo %{_prefix}/lib/gcc/%{_target_cpu}*/%{gcc_version}/include)
 
 # FIXME file this
 # configure does not properly specify libdir
@@ -565,6 +567,11 @@ exit 0
 %endif
 
 %changelog
+* Mon Feb  4 2013 Jens Petersen <petersen@redhat.com> - 3.1-16
+- bring back configuration for gcc arch include dir (#893817)
+  which was dropped in 3.0-0.1.rc3
+- BR gcc and gcc-c++ with gcc_version
+
 * Thu Jan 31 2013 Jens Petersen <petersen@redhat.com> - 3.1-15
 - move lvm-config manpage to devel subpackage (#855882)
 - pod2man moved to perl-podlators in F19
