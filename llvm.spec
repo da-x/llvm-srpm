@@ -568,7 +568,7 @@ exit 0
 
 %changelog
 * Mon Feb  4 2013 Jens Petersen <petersen@redhat.com> - 3.1-16
-- bring back configuration for gcc arch include dir (#893817)
+- bring back configuration for gcc arch include dir (Yury Zaytsev, #893817)
   which was dropped in 3.0-0.1.rc3
 - BR gcc and gcc-c++ with gcc_version
 
