@@ -6,7 +6,7 @@
 
 # clang header paths are hard-coded at compile time
 # and need adjustment whenever there's a new GCC version
-%global gcc_version 4.8.0
+%global gcc_version %(gcc -dumpversion)
 
 %ifarch s390 s390x sparc64
   # No ocaml on these arches
@@ -35,8 +35,8 @@ ExcludeArch: s390 s390x ppc ppc64
 %endif
 
 Name:           llvm
-Version:        3.1
-Release:        16%{?dist}
+Version:        3.2
+Release:        1%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -48,23 +48,14 @@ Source1:        %{downloadurl}/clang-%{version}%{?prerel:%{prerel}}.src.tar.gz
 Source2:        llvm-Config-config.h
 Source3:        llvm-Config-llvm-config.h
 
-
 # Data files should be installed with timestamps preserved
 Patch0:         llvm-2.6-timestamp.patch
 
-# r600 llvm and clang patches
-Patch600: 0001-r600-Add-some-intrinsic-definitions.patch
-Patch601: 0002-r600-Add-get_global_size-and-get_local_size-intrinsi.patch
+Patch10:        llvm-3.2-clang-driver-secondary-arch-triplets.patch
 
-Patch610: 0001-Add-r600-TargetInfo.patch
-Patch611: 0002-r600-Add-some-target-builtins.patch
-Patch612: 0003-r600-Add-read_global_size-and-read_local_size-builti.patch
-
-# ghc
-Patch700: llvm-fix-ghc.patch
-
-# doc
-Patch800: llvm-3.1-docs-pod-markup-fixes.patch
+# diff generated against http://cgit.freedesktop.org/~tstellar/llvm/
+# (includes committed http://people.freedesktop.org/~tstellar/llvm/3.2/bug-fixes/)
+Patch600:        llvm-3.2-R600-tstellar-git-b53ed46.patch.gz
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -262,24 +253,11 @@ mv clang-%{version}%{?prerel}.src tools/clang
 
 # llvm patches
 %patch0 -p1 -b .timestamp
-#patch1 -p1 -b .link_llvmgold_to_lto
 
-# r600 llvm patch
-%patch600 -p1 -b .r600
-%patch601 -p1 -b .r601
+# clang triplets
+%patch10 -p1 -b .orig
 
-# clang patches
-%if %{with clang}
-pushd tools/clang
-%patch610 -p1 -b .r610
-%patch611 -p1 -b .r611
-%patch612 -p1 -b .r612
-popd
-%endif
-
-%patch700 -p0 -b .ghc
-
-%patch800 -p1 -b .r800
+%patch600 -p1 -b .orig
 
 # fix ld search path
 sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' \
@@ -291,6 +269,9 @@ sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' \
 # https://bugzilla.redhat.com/show_bug.cgi?id=791365
 %global optflags %(echo %{optflags} | sed 's/-O2 /-O2 -fno-tree-pre /')
 
+# building with clang failing
+export CC=gcc
+export CXX=c++
 # Disabling assertions now, rec. by pure and needed for OpenGTL
 %configure \
   --prefix=%{_prefix} \
@@ -317,7 +298,8 @@ sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' \
   --enable-jit \
   --enable-libffi \
   --enable-shared \
-  --with-c-include-dirs=%{_includedir}:$(echo %{_prefix}/lib/gcc/%{_target_cpu}*/%{gcc_version}/include)
+  --with-c-include-dirs=%{_includedir}:$(echo %{_prefix}/lib/gcc/%{_target_cpu}*/%{gcc_version}/include) \
+  --enable-experimental-targets=R600
 
 # FIXME file this
 # configure does not properly specify libdir
@@ -487,7 +469,6 @@ exit 0
 %exclude %{_mandir}/man1/clang.1.*
 %endif
 %doc %{_mandir}/man1/*.1.*
-%exclude %{_mandir}/man1/llvm-config.1.*
 
 %files devel
 %defattr(-,root,root,-)
@@ -495,7 +476,6 @@ exit 0
 %{_includedir}/%{name}
 %{_includedir}/%{name}-c
 %{_libdir}/%{name}/*.a
-%doc %{_mandir}/man1/llvm-config.1.*
 
 %files libs
 %defattr(-,root,root,-)
@@ -567,6 +547,16 @@ exit 0
 %endif
 
 %changelog
+* Wed Feb 13 2013 Jens Petersen <petersen@redhat.com> - 3.2-1
+- update to 3.2
+- update R600 patches to Tom Stellard's git tree
+- llvm-fix-ghc.patch is upstream
+- llvm-3.1-docs-pod-markup-fixes.patch no longer needed
+- add llvm-3.2-clang-driver-secondary-arch-triplets.patch (#803433)
+- build with gcc/g++ even if clang is installed
+- use gcc -dumpversion again to set gcc_version
+- llvm-config.1 manpage is no longer
+
 * Mon Feb  4 2013 Jens Petersen <petersen@redhat.com> - 3.1-16
 - bring back configuration for gcc arch include dir (Yury Zaytsev, #893817)
   which was dropped in 3.0-0.1.rc3

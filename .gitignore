@@ -2,3 +2,6 @@
 /clang-3.0.tar.gz
 /clang-3.1.src.tar.gz
 /llvm-3.1.src.tar.gz
+/llvm-3.2-R600-tstellar-git-b53ed46.patch.gz
+/llvm-3.2.src.tar.gz
+/clang-3.2.src.tar.gz

@@ -1,0 +1,26 @@
+--- llvm-3.2.src/tools/clang/lib/Driver/ToolChains.cpp~	2012-12-17 00:59:27.000000000 +0900
++++ llvm-3.2.src/tools/clang/lib/Driver/ToolChains.cpp	2013-02-12 19:18:00.755164292 +0900
+@@ -1054,10 +1054,12 @@
+   static const char *const ARMLibDirs[] = { "/lib" };
+   static const char *const ARMTriples[] = {
+     "arm-linux-gnueabi",
+-    "arm-linux-androideabi"
++    "arm-linux-androideabi",
++    "armv5tel-redhat-linux-gnueabi",
+   };
+   static const char *const ARMHFTriples[] = {
+     "arm-linux-gnueabihf",
++    "armv7hl-redhat-linux-gnueabi",
+   };
+ 
+   static const char *const X86_64LibDirs[] = { "/lib64", "/lib" };
+@@ -1104,7 +1106,8 @@
+     "powerpc-linux-gnu",
+     "powerpc-unknown-linux-gnu",
+     "powerpc-suse-linux",
+-    "powerpc-montavista-linuxspe"
++    "powerpc-montavista-linuxspe",
++    "ppc64-redhat-linux",
+   };
+   static const char *const PPC64LibDirs[] = { "/lib64", "/lib" };
+   static const char *const PPC64Triples[] = {
