@@ -6,7 +6,7 @@
 
 # clang header paths are hard-coded at compile time
 # and need adjustment whenever there's a new GCC version
-%global gcc_version %(gcc -dumpversion)
+%global gcc_version 4.8.0
 
 %ifarch s390 s390x sparc64
   # No ocaml on these arches
@@ -60,8 +60,8 @@ Patch600:        llvm-3.2-R600-tstellar-git-b53ed46.patch.gz
 BuildRequires:  bison
 BuildRequires:  chrpath
 BuildRequires:  flex
-BuildRequires:  gcc
-BuildRequires:  gcc-c++
+BuildRequires:  gcc = %{gcc_version}
+BuildRequires:  gcc-c++ = %{gcc_version}
 BuildRequires:  groff
 BuildRequires:  libffi-devel
 BuildRequires:  libtool-ltdl-devel
@@ -554,7 +554,6 @@ exit 0
 - llvm-3.1-docs-pod-markup-fixes.patch no longer needed
 - add llvm-3.2-clang-driver-secondary-arch-triplets.patch (#803433)
 - build with gcc/g++ even if clang is installed
-- use gcc -dumpversion again to set gcc_version
 - llvm-config.1 manpage is no longer
 
 * Mon Feb  4 2013 Jens Petersen <petersen@redhat.com> - 3.1-16
