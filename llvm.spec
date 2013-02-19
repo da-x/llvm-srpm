@@ -60,8 +60,8 @@ Patch600:        llvm-3.2-R600-tstellar-git-b53ed46.patch.gz
 BuildRequires:  bison
 BuildRequires:  chrpath
 BuildRequires:  flex
-BuildRequires:  gcc = %{gcc_version}
-BuildRequires:  gcc-c++ = %{gcc_version}
+BuildRequires:  gcc
+BuildRequires:  gcc-c++
 BuildRequires:  groff
 BuildRequires:  libffi-devel
 BuildRequires:  libtool-ltdl-devel
@@ -134,7 +134,7 @@ License:        NCSA
 Group:          Development/Languages
 Requires:       llvm%{?_isa} = %{version}-%{release}
 # clang requires gcc, clang++ requires libstdc++-devel
-Requires:       gcc
+Requires:       gcc = %{gcc_version}
 Requires:       libstdc++-devel = %{gcc_version}
 
 %description -n clang
