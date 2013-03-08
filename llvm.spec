@@ -6,7 +6,11 @@
 
 # clang header paths are hard-coded at compile time
 # and need adjustment whenever there's a new GCC version
+%if 0%{?fedora} == 18
+%global gcc_version 4.7.2
+%else
 %global gcc_version 4.8.0
+%endif
 
 %ifarch s390 s390x sparc64
   # No ocaml on these arches
@@ -15,12 +19,7 @@
   %bcond_without ocaml
 %endif
 
-%if 0%{?rhel} >= 7
-%bcond_with clang
-ExcludeArch: s390 s390x ppc ppc64
-%else
 %bcond_without clang
-%endif
 
 #global prerel rcX
 %global downloadurl http://llvm.org/%{?prerel:pre-}releases/%{version}%{?prerel:/%{prerel}}
@@ -36,7 +35,7 @@ ExcludeArch: s390 s390x ppc ppc64
 
 Name:           llvm
 Version:        3.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -53,9 +52,22 @@ Patch0:         llvm-2.6-timestamp.patch
 
 Patch10:        llvm-3.2-clang-driver-secondary-arch-triplets.patch
 
-# diff generated against http://cgit.freedesktop.org/~tstellar/llvm/
-# (includes committed http://people.freedesktop.org/~tstellar/llvm/3.2/bug-fixes/)
-Patch600:        llvm-3.2-R600-tstellar-git-b53ed46.patch.gz
+# hack llvm-config to print -lLLVM-3.2svn instead of ALL THE THINGS
+#
+# you really, really, really want not to use the static libs, otherwise
+# if you ever end up with two (static) copies of llvm in the same process
+# things will go boom quite nicely
+# 
+# this isn't enabled yet because it makes the ocaml bindings fail the
+# test suite.  i don't even.
+Patch20:	llvm-3.2-llvm-config-dso-hack.patch
+
+# from http://people.freedesktop.org/~tstellar/llvm/3.2/ as of 7 March 2013
+# ref: http://lists.freedesktop.org/archives/mesa-dev/2013-March/035561.html
+Patch600:	R600-Mesa-9.1.patch.gz
+Patch601:	0001-LegalizeDAG-Allow-type-promotion-for-scalar-stores.patch
+Patch602:	0002-LegalizeDAG-Allow-promotion-of-scalar-loads.patch
+Patch603:	0003-DAGCombiner-Avoid-generating-illegal-vector-INT_TO_F.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -96,7 +108,6 @@ Group:          Development/Languages
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 Requires:       libffi-devel
 Requires:       libstdc++-devel >= 3.4
-Provides:       llvm-static = %{version}-%{release}
 
 Requires(posttrans): /usr/sbin/alternatives
 Requires(postun):    /usr/sbin/alternatives
@@ -125,6 +136,16 @@ Group:          System Environment/Libraries
 
 %description libs
 Shared libraries for the LLVM compiler infrastructure.
+
+
+%package static
+Summary:	LLVM static libraries
+Group:		Development/Languages
+Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
+
+%description static
+Static libraries for the LLVM compiler infrastructure.  Not recommended
+for general consumption.
 
 
 %if %{with clang}
@@ -257,7 +278,13 @@ mv clang-%{version}%{?prerel}.src tools/clang
 # clang triplets
 %patch10 -p1 -b .orig
 
+# fix llvm-config --libs
+#patch20 -p1 -b .orig
+
 %patch600 -p1 -b .orig
+%patch601 -p1 -b .orig
+%patch602 -p1 -b .orig
+%patch603 -p1 -b .orig
 
 # fix ld search path
 sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' \
@@ -281,9 +308,6 @@ export CXX=c++
 %endif
 %if %{with gold}
   --with-binutils-include=%{_includedir} \
-%endif
-%if 0%{?rhel} >= 7
-  --enable-targets=host \
 %endif
 %ifarch armv7hl armv7l
   --with-cpu=cortex-a8 \
@@ -475,7 +499,6 @@ exit 0
 %{_bindir}/llvm-config-%{__isa_bits}
 %{_includedir}/%{name}
 %{_includedir}/%{name}-c
-%{_libdir}/%{name}/*.a
 
 %files libs
 %defattr(-,root,root,-)
@@ -485,6 +508,10 @@ exit 0
 %exclude %{_libdir}/%{name}/libclang.so
 %endif
 %{_libdir}/%{name}/*.so
+
+%files static
+%defattr(-,root,root,-)
+%{_libdir}/%{name}/*.a
 
 %if %{with clang}
 %files -n clang
@@ -547,6 +574,11 @@ exit 0
 %endif
 
 %changelog
+* Fri Mar 08 2013 Adam Jackson <ajax@redhat.com> 3.2-2
+- Update R600 patches
+- Move static libs to -static subpackage
+- Prep for F18 backport
+
 * Wed Feb 13 2013 Jens Petersen <petersen@redhat.com> - 3.2-1
 - update to 3.2
 - update R600 patches to Tom Stellard's git tree
