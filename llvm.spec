@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -51,6 +51,7 @@ Source3:        llvm-Config-llvm-config.h
 Patch0:         llvm-2.6-timestamp.patch
 
 Patch10:        llvm-3.2-clang-driver-secondary-arch-triplets.patch
+Patch11:        clang-hardfloat-hack.patch
 
 # hack llvm-config to print -lLLVM-3.2svn instead of ALL THE THINGS
 #
@@ -277,6 +278,7 @@ mv clang-%{version}%{?prerel}.src tools/clang
 
 # clang triplets
 %patch10 -p1 -b .orig
+%patch11 -p1 -b .orig
 
 # fix llvm-config --libs
 #patch20 -p1 -b .orig
@@ -574,6 +576,9 @@ exit 0
 %endif
 
 %changelog
+* Sun Mar 31 2013 Dennis Gilmore <dennis@ausil.us> - 3.2-3
+- add a hack to clang defaulting arm to hardfloat
+
 * Fri Mar 08 2013 Adam Jackson <ajax@redhat.com> 3.2-2
 - Update R600 patches
 - Move static libs to -static subpackage
