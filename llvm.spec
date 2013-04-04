@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.2
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -50,7 +50,6 @@ Source3:        llvm-Config-llvm-config.h
 # Data files should be installed with timestamps preserved
 Patch0:         llvm-2.6-timestamp.patch
 
-Patch10:        llvm-3.2-clang-driver-secondary-arch-triplets.patch
 Patch11:        clang-hardfloat-hack.patch
 
 # hack llvm-config to print -lLLVM-3.2svn instead of ALL THE THINGS
@@ -276,8 +275,7 @@ mv clang-%{version}%{?prerel}.src tools/clang
 # llvm patches
 %patch0 -p1 -b .timestamp
 
-# clang triplets
-%patch10 -p1 -b .orig
+# arm hard float
 %patch11 -p1 -b .orig
 
 # fix llvm-config --libs
@@ -576,6 +574,10 @@ exit 0
 %endif
 
 %changelog
+* Thu Apr  4 2013 Jens Petersen <petersen@redhat.com> - 3.2-4
+- fix bogus date for 2.9-0.2.rc1
+- drop insufficient llvm-3.2-clang-driver-secondary-arch-triplets.patch
+
 * Sun Mar 31 2013 Dennis Gilmore <dennis@ausil.us> - 3.2-3
 - add a hack to clang defaulting arm to hardfloat
 
@@ -725,7 +727,7 @@ exit 0
 * Fri Mar 25 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-0.3.rc2
 - Update to 2.9rc2
 
-* Thu Mar 18 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-0.2.rc1
+* Thu Mar 17 2011 Michel Salim <salimma@fedoraproject.org> - 2.9-0.2.rc1
 - Split shared libraries into separate subpackage
 - Don't include test logs; breaks multilib (# 666195)
 - clang++: also search for platform-specific include files (# 680644)
