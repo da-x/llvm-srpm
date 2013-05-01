@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.2
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -61,6 +61,9 @@ Patch11:        clang-hardfloat-hack.patch
 # this isn't enabled yet because it makes the ocaml bindings fail the
 # test suite.  i don't even.
 Patch20:	llvm-3.2-llvm-config-dso-hack.patch
+
+# hack the link flags for the shared libs for speed and memory usage
+Patch21:	llvm-3.2-symbolic-shlib.patch
 
 # from http://people.freedesktop.org/~tstellar/llvm/3.2/ as of 7 March 2013
 # ref: http://lists.freedesktop.org/archives/mesa-dev/2013-March/035561.html
@@ -280,6 +283,7 @@ mv clang-%{version}%{?prerel}.src tools/clang
 
 # fix llvm-config --libs
 #patch20 -p1 -b .orig
+%patch21 -p1 -b .orig
 
 %patch600 -p1 -b .orig
 %patch601 -p1 -b .orig
@@ -574,6 +578,9 @@ exit 0
 %endif
 
 %changelog
+* Wed May 01 2013 Adam Jackson <ajax@redhat.com> 3.2-5
+- Tweak ld flags for memory usage and performance
+
 * Thu Apr  4 2013 Jens Petersen <petersen@redhat.com> - 3.2-4
 - fix bogus date for 2.9-0.2.rc1
 - drop insufficient llvm-3.2-clang-driver-secondary-arch-triplets.patch
