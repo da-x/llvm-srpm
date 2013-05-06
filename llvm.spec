@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.2
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -327,6 +327,7 @@ export CXX=c++
   --enable-libffi \
   --enable-shared \
   --with-c-include-dirs=%{_includedir}:$(echo %{_prefix}/lib/gcc/%{_target_cpu}*/%{gcc_version}/include) \
+  --enable-targets=x86,powerpc,arm,cpp,nvptx \
   --enable-experimental-targets=R600
 
 # FIXME file this
@@ -578,6 +579,9 @@ exit 0
 %endif
 
 %changelog
+* Mon May 06 2013 Adam Jackson <ajax@redhat.com> 3.2-6
+- Only build codegen backends for arches that actually exist in Fedora
+
 * Wed May 01 2013 Adam Jackson <ajax@redhat.com> 3.2-5
 - Tweak ld flags for memory usage and performance
 
