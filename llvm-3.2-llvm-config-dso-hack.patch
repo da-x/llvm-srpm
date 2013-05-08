@@ -7,7 +7,7 @@ diff -up llvm-3.2.src/tools/llvm-config/llvm-config.cpp.jx llvm-3.2.src/tools/ll
  
 -  if (PrintLibs || PrintLibNames || PrintLibFiles) {
 +  if (PrintLibs) {
-+    OS << "-lLLVM-3.2svn";
++    OS << "-lLLVM-3.3svn";
 +  } else if (PrintLibNames || PrintLibFiles) {
      // If no components were specified, default to "all".
      if (Components.empty())

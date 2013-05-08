@@ -6,3 +6,6 @@
 /llvm-3.2.src.tar.gz
 /clang-3.2.src.tar.gz
 /R600-Mesa-9.1.patch.gz
+/clang-20130507.tar.xz
+/compiler-rt-20130507.tar.xz
+/llvm-20130507.tar.xz
