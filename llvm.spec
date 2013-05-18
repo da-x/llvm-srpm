@@ -39,7 +39,7 @@
 
 Name:           llvm
 Version:        3.3
-Release:        0.2.%{gitdate}%{?dist}
+Release:        0.3.%{gitdate}%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -327,7 +327,7 @@ export CXX=c++
   --enable-libffi \
   --enable-shared \
   --with-c-include-dirs=%{_includedir}:$(echo %{_prefix}/lib/gcc/%{_target_cpu}*/%{gcc_version}/include) \
-  --enable-targets=x86,powerpc,arm,cpp,nvptx,systemz \
+  --enable-targets=x86,powerpc,arm,aarch64,cpp,nvptx,systemz \
   --enable-experimental-targets=R600
 
 # FIXME file this
@@ -573,6 +573,9 @@ exit 0
 %endif
 
 %changelog
+* Sat May 18 2013 Peter Robinson <pbrobinson@fedoraproject.org> 3.3-0.3.20130507
+- Enable aarch64 target
+
 * Tue May 07 2013 Adam Jackson <ajax@redhat.com> 3.3-0.1.20130507
 - Bump to LLVM 3.3svn
 - Enable s390 backend
