@@ -23,7 +23,7 @@
 %bcond_with crt
 %bcond_without clang
 
-#global prerel rcX
+%global prerel rc2
 %global downloadurl http://llvm.org/%{?prerel:pre-}releases/%{version}%{?prerel:/%{prerel}}
 
 %global gitdate 20130507
@@ -39,16 +39,16 @@
 
 Name:           llvm
 Version:        3.3
-Release:        0.3.%{gitdate}%{?dist}
+Release:        0.4.%{prerel}%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
 License:        NCSA
 URL:            http://llvm.org/
-#Source0:        %{downloadurl}/llvm-%{version}%{?prerel:%{prerel}}.src.tar.gz
-#Source1:        %{downloadurl}/clang-%{version}%{?prerel:%{prerel}}.src.tar.gz
-Source0:	llvm-%{gitdate}.tar.xz
-Source1:	clang-%{gitdate}.tar.xz
+Source0:        %{downloadurl}/llvm-%{version}%{?prerel:%{prerel}}-source.tar.gz
+Source1:        %{downloadurl}/cfe-%{version}%{?prerel:%{prerel}}-source.tar.gz
+#Source0:	llvm-%{gitdate}.tar.xz
+#Source1:	clang-%{gitdate}.tar.xz
 Source2:	compiler-rt-%{gitdate}.tar.xz
 # multilib fixes
 Source10:        llvm-Config-config.h
@@ -275,14 +275,10 @@ HTML documentation for LLVM's OCaml binding.
 
 %prep
 #setup -q -n llvm-%{version}%{?prerel}.src %{?with_clang:-a1} %{?with_crt:-a2}
-%setup -q -n llvm-%{gitdate} %{?with_clang:-a1} %{?with_crt:-a2}
-rm -r -f tools/clang
-rm -r -f llvm/projects/compiler-rt
+%setup -q -n llvm.src %{?with_clang:-a1} %{?with_crt:-a2}
+rm -f tools/clang
 %if %{with clang}
-mv clang-*/ tools/clang
-%endif
-%if %{with crt}
-mv compiler-rt-*/ projects/compiler-rt
+mv cfe.src tools/clang
 %endif
 
 # llvm patches
@@ -573,6 +569,9 @@ exit 0
 %endif
 
 %changelog
+* Tue May 28 2013 Adam Jackson <ajax@redhat.com> 3.3-0.4.rc2
+- llvm 3.3-rc2
+
 * Sat May 18 2013 Peter Robinson <pbrobinson@fedoraproject.org> 3.3-0.3.20130507
 - Enable aarch64 target
 
