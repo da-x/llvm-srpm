@@ -9,7 +9,7 @@
 %if 0%{?fedora} == 18
 %global gcc_version 4.7.2
 %else
-%global gcc_version 4.8.0
+%global gcc_version 4.8.1
 %endif
 
 %ifarch s390 s390x sparc64
@@ -39,7 +39,7 @@
 
 Name:           llvm
 Version:        3.3
-Release:        0.4.%{prerel}%{?dist}
+Release:        0.5.%{prerel}%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -569,6 +569,9 @@ exit 0
 %endif
 
 %changelog
+* Tue Jun 04 2013 Adam Jackson <ajax@redhat.com> 3.3-0.5.rc2
+- Rebuild for gcc 4.8.1
+
 * Tue May 28 2013 Adam Jackson <ajax@redhat.com> 3.3-0.4.rc2
 - llvm 3.3-rc2
 
