@@ -23,7 +23,7 @@
 %bcond_with crt
 %bcond_without clang
 
-%global prerel rc2
+%global prerel rc3
 %global downloadurl http://llvm.org/%{?prerel:pre-}releases/%{version}%{?prerel:/%{prerel}}
 
 %global gitdate 20130507
@@ -39,14 +39,14 @@
 
 Name:           llvm
 Version:        3.3
-Release:        0.5.%{prerel}%{?dist}
+Release:        0.6.%{prerel}%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
 License:        NCSA
 URL:            http://llvm.org/
-Source0:        %{downloadurl}/llvm-%{version}%{?prerel:%{prerel}}-source.tar.gz
-Source1:        %{downloadurl}/cfe-%{version}%{?prerel:%{prerel}}-source.tar.gz
+Source0:        %{downloadurl}/llvm-source-%{version}%{?prerel:%{prerel}}.tar.gz
+Source1:        %{downloadurl}/cfe-source-%{version}%{?prerel:%{prerel}}.tar.gz
 #Source0:	llvm-%{gitdate}.tar.xz
 #Source1:	clang-%{gitdate}.tar.xz
 Source2:	compiler-rt-%{gitdate}.tar.xz
@@ -569,6 +569,9 @@ exit 0
 %endif
 
 %changelog
+* Mon Jun 10 2013 Adam Jackson <ajax@redhat.com> 3.3-0.6.rc3
+- llvm 3.3-rc3
+
 * Tue Jun 04 2013 Adam Jackson <ajax@redhat.com> 3.3-0.5.rc2
 - Rebuild for gcc 4.8.1
 
