@@ -39,7 +39,7 @@
 
 Name:           llvm
 Version:        3.3
-Release:        0.6.%{prerel}%{?dist}
+Release:        0.7.%{prerel}%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -569,6 +569,9 @@ exit 0
 %endif
 
 %changelog
+* Wed Jul 17 2013 Petr Pisar <ppisar@redhat.com> - 3.3-0.7.rc3
+- Perl 5.18 rebuild
+
 * Mon Jun 10 2013 Adam Jackson <ajax@redhat.com> 3.3-0.6.rc3
 - llvm 3.3-rc3
 
