@@ -39,7 +39,7 @@
 
 Name:           llvm
 Version:        3.3
-Release:        0.8.%{prerel}%{?dist}
+Release:        0.9.%{prerel}%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -569,6 +569,9 @@ exit 0
 %endif
 
 %changelog
+* Sat Sep 14 2013 Petr Pisar <ppisar@redhat.com> - 3.3-0.9.rc3
+- Rebuild for OCaml 4.01.0.
+
 * Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.3-0.8.rc3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 
