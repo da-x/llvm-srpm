@@ -1,87 +1,57 @@
-# Build options:
-#
-# --with doxygen
-#   The doxygen docs are HUGE, so they are not built by default.
+# Components skipped by default:
 %bcond_with doxygen
 
-# clang header paths are hard-coded at compile time
-# and need adjustment whenever there's a new GCC version
-%if 0%{?fedora} == 18
-%global gcc_version 4.7.2
-%else
-%global gcc_version 4.8.2
-%endif
-
-%ifarch s390 s390x sparc64
-  # No ocaml on these arches
-  %bcond_with ocaml
-%else
-  %bcond_without ocaml
-%endif
-
-# compiler-rt not actually working yet
-%bcond_with crt
+# Components built by default:
 %bcond_without clang
+%bcond_without crt
+%bcond_without lldb
 
-%global prerel rc3
-%global downloadurl http://llvm.org/%{?prerel:pre-}releases/%{version}%{?prerel:/%{prerel}}
-
-%global gitdate 20130507
-
-# gold linker support
-# arch list from binutils spec
-%global gold_arches %ix86 x86_64
-%ifarch %gold_arches
-%bcond_without gold
+# Components enabled if supported by target arch:
+%ifnarch s390 s390x sparc64
+  %bcond_without ocaml
 %else
-%bcond_with gold
+  %bcond_with ocaml
 %endif
+%ifarch %ix86 x86_64
+  %bcond_without gold
+%else
+  %bcond_with gold
+%endif
+
+# Documentation install path
+%if 0%{fedora} < 20
+  %global llvmdocdir() %{_docdir}/%1-%{version}
+%else
+  %global llvmdocdir() %{_docdir}/%1
+%endif
+
+%global downloadurl http://llvm.org/releases/%{version}
 
 Name:           llvm
 Version:        3.3
-Release:        0.10.%{prerel}%{?dist}
+Release:        1%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
 License:        NCSA
 URL:            http://llvm.org/
-Source0:        %{downloadurl}/llvm-source-%{version}%{?prerel:%{prerel}}.tar.gz
-Source1:        %{downloadurl}/cfe-source-%{version}%{?prerel:%{prerel}}.tar.gz
-#Source0:	llvm-%{gitdate}.tar.xz
-#Source1:	clang-%{gitdate}.tar.xz
-Source2:	compiler-rt-%{gitdate}.tar.xz
+
+# source archives
+Source0:        %{downloadurl}/llvm-%{version}.src.tar.gz
+Source1:        %{downloadurl}/cfe-%{version}.src.tar.gz
+Source2:        %{downloadurl}/compiler-rt-%{version}.src.tar.gz
+Source3:        %{downloadurl}/lldb-%{version}.src.tar.gz
+
 # multilib fixes
-Source10:        llvm-Config-config.h
-Source11:        llvm-Config-llvm-config.h
+Source10:       llvm-Config-config.h
+Source11:       llvm-Config-llvm-config.h
 
-# snapshot scripts
-Source100:	make-llvm-snapshot.sh
-Source101:	make-clang-snapshot.sh
-Source102:	make-compiler-rt-snapshot.sh
-
-# Data files should be installed with timestamps preserved
-Patch0:         llvm-2.6-timestamp.patch
-
-Patch11:        clang-hardfloat-hack.patch
-
-# hack llvm-config to print -lLLVM-3.* instead of ALL THE THINGS
-#
-# you really, really, really want not to use the static libs, otherwise
-# if you ever end up with two (static) copies of llvm in the same process
-# things will go boom quite nicely
-# 
-# this isn't enabled yet because it makes the ocaml bindings fail the
-# test suite.  i don't even.
-Patch20:	llvm-3.2-llvm-config-dso-hack.patch
-
-# hack the link flags for the shared libs for speed and memory usage
-Patch21:	llvm-3.2-symbolic-shlib.patch
+# patches
+Patch1:         0001-data-install-preserve-timestamps.patch
+Patch2:         0002-linker-flags-speedup-memory.patch
 
 BuildRequires:  bison
-BuildRequires:  chrpath
 BuildRequires:  flex
-BuildRequires:  gcc = %{gcc_version}
-BuildRequires:  gcc-c++ = %{gcc_version}
 BuildRequires:  groff
 BuildRequires:  libffi-devel
 BuildRequires:  libtool-ltdl-devel
@@ -130,8 +100,7 @@ Summary:        Documentation for LLVM
 Group:          Documentation
 BuildArch:      noarch
 Requires:       %{name} = %{version}-%{release}
-# might seem redundant, but needed to kill off the old arch-ed -doc
-# subpackage
+# might seem redundant, but needed to kill off the old arch-ed -doc subpackage
 Obsoletes:      %{name}-doc < %{version}-%{release}
 
 %description doc
@@ -163,8 +132,7 @@ License:        NCSA
 Group:          Development/Languages
 Requires:       llvm%{?_isa} = %{version}-%{release}
 # clang requires gcc, clang++ requires libstdc++-devel
-Requires:       gcc = %{gcc_version}
-Requires:       libstdc++-devel = %{gcc_version}
+Requires:       libstdc++-devel
 
 %description -n clang
 clang: noun
@@ -201,17 +169,24 @@ framework and a standalone tool that finds bugs in C and Objective-C
 programs. The standalone tool is invoked from the command-line, and is
 intended to run in tandem with a build of a project or code base.
 
-
-%package -n clang-doc
-Summary:        Documentation for Clang
-Group:          Documentation
-BuildArch:      noarch
-Requires:       %{name} = %{version}-%{release}
-
-%description -n clang-doc
-Documentation for the Clang compiler front-end.
 %endif
 
+%if %{with lldb}
+%package -n lldb
+Summary:        Next generation high-performance debugger
+License:        NCSA
+Group:          Development/Languages
+Requires:       llvm%{?_isa} = %{version}-%{release}
+BuildRequires:  swig
+BuildRequires:  libedit-devel
+BuildRequires:  python-devel
+
+%description -n lldb
+LLDB is a next generation, high-performance debugger. It is built as a set
+of reusable components which highly leverage existing libraries in the
+larger LLVM Project, such as the Clang expression parser and LLVM
+disassembler.
+%endif
 
 %if %{with doxygen}
 %package apidoc
@@ -274,40 +249,68 @@ HTML documentation for LLVM's OCaml binding.
 
 
 %prep
-#setup -q -n llvm-%{version}%{?prerel}.src %{?with_clang:-a1} %{?with_crt:-a2}
-%setup -q -n llvm.src %{?with_clang:-a1} %{?with_crt:-a2}
-rm -f tools/clang
+%setup -q -n llvm-%{version}.src %{?with_clang:-a1} %{?with_crt:-a2} %{?with_lldb:-a3}
+rm -rf tools/clang tools/lldb projects/compiler-rt
 %if %{with clang}
-mv cfe.src tools/clang
+mv cfe-%{version}.src tools/clang
+%endif
+%if %{with crt}
+mv compiler-rt-%{version}.src projects/compiler-rt
+%endif
+%if %{with lldb}
+mv lldb-%{version}.src tools/lldb
 %endif
 
-# llvm patches
-%patch0 -p1 -b .timestamp
-
-# arm hard float
-%patch11 -p1 -b .orig
-
-# fix llvm-config --libs
-#patch20 -p1 -b .orig
-%patch21 -p1 -b .orig
+%patch1 -p1
+%patch2 -p1
 
 # fix ld search path
-sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' \
-    ./configure
+sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' ./configure
 
 %build
 # clang is lovely and all, but fedora builds with gcc
 export CC=gcc
 export CXX=c++
 %configure \
-  --prefix=%{_prefix} \
   --libdir=%{_libdir}/%{name} \
+  --disable-polly \
+  --disable-libcpp \
+  --enable-cxx11 \
+  --enable-clang-arcmt \
+  --enable-clang-static-analyzer \
+  --enable-clang-rewriter \
+  --enable-optimized \
+  --disable-profiling \
+  --disable-assertions \
+  --disable-werror \
+  --disable-expensive-checks \
+  --enable-debug-runtime \
+  --enable-keep-symbols \
+  --enable-jit \
+  --enable-docs \
 %if %{with doxygen}
   --enable-doxygen \
+%else
+  --disable-doxygen \
 %endif
-%if %{with gold}
-  --with-binutils-include=%{_includedir} \
+  --enable-threads \
+  --enable-pthreads \
+  --enable-zlib \
+  --enable-pic \
+  --enable-shared \
+  --disable-embed-stdcxx \
+  --enable-timestamps \
+  --enable-backtraces \
+  --enable-targets=x86,powerpc,arm,aarch64,cpp,nvptx,systemz \
+  --enable-experimental-targets=R600 \
+%if %{with ocaml}
+  --enable-bindings=ocaml \
+%else
+  --enable-bindings=none \
 %endif
+  --enable-libffi \
+  --enable-ltdl-install \
+  \
 %ifarch armv7hl armv7l
   --with-cpu=cortex-a8 \
   --with-tune=cortex-a8 \
@@ -316,15 +319,12 @@ export CXX=c++
   --with-fpu=vfpv3-d16 \
   --with-abi=aapcs-linux \
 %endif
-  --disable-assertions \
-  --enable-debug-runtime \
-  --enable-optimized \
-  --enable-jit \
-  --enable-libffi \
-  --enable-shared \
-  --with-c-include-dirs=%{_includedir}:$(echo %{_prefix}/lib/gcc/%{_target_cpu}*/%{gcc_version}/include) \
-  --enable-targets=x86,powerpc,arm,aarch64,cpp,nvptx,systemz \
-  --enable-experimental-targets=R600
+  \
+%if %{with gold}
+  --with-binutils-include=%{_includedir} \
+%endif
+  --with-c-include-dirs=%{_includedir}:$(echo %{_prefix}/lib/gcc/%{_target_cpu}*/*/include) \
+  --with-optimize-option=-O3
 
 # FIXME file this
 # configure does not properly specify libdir
@@ -332,7 +332,7 @@ sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}/%{name}|g' Makefile.config
 
 # FIXME upstream need to fix this
 # llvm-config.cpp hardcodes lib in it
-sed -i 's|ActiveLibDir = ActivePrefix + "/lib"|ActiveLibDir = ActivePrefix + "/%{_lib}/%{name}"|g' tools/llvm-config/llvm-config.cpp
+sed -i 's|/lib\>|/%{_lib}/%{name}|g' tools/llvm-config/llvm-config.cpp
 
 make %{_smp_mflags} REQUIRES_RTTI=1 VERBOSE=1 \
 %ifarch ppc
@@ -343,13 +343,7 @@ make %{_smp_mflags} REQUIRES_RTTI=1 VERBOSE=1 \
 
 
 %install
-# workaround for http://llvm.org/bugs/show_bug.cgi?id=11177
-%if %{with ocaml}
-cp -p bindings/ocaml/llvm/META.llvm bindings/ocaml/llvm/Release/
-%endif
-
-make install DESTDIR=%{buildroot} \
-     PROJ_docsdir=/moredocs
+make install DESTDIR=%{buildroot} PROJ_docsdir=/moredocs
 
 # multilib fixes
 mv %{buildroot}%{_bindir}/llvm-config{,-%{__isa_bits}}
@@ -376,50 +370,69 @@ for f in scan-{build,view}; do
   ln -s %{_libdir}/clang-analyzer/$f/$f %{buildroot}%{_bindir}/$f
 done
 
-(cd tools/clang/tools && cp -pr scan-{build,view} \
- %{buildroot}%{_libdir}/clang-analyzer/)
+(cd tools/clang/tools && cp -pr scan-{build,view} %{buildroot}%{_libdir}/clang-analyzer/)
 %endif
-
-# Move documentation back to build directory
-# 
-mv %{buildroot}/moredocs .
-rm -f moredocs/*.tar.gz
-rm -f moredocs/ocamldoc/html/*.tar.gz
-
-# and separate the apidoc
-%if %{with doxygen}
-mv moredocs/html/doxygen apidoc
-mv tools/clang/docs/doxygen/html clang-apidoc
-%endif
-
-# And prepare Clang documentation
-#
-%if %{with clang}
-mkdir clang-docs
-for f in LICENSE.TXT NOTES.txt README.txt; do # TODO.txt; do
-  ln tools/clang/$f clang-docs/
-done
-rm -rf tools/clang/docs/{doxygen*,Makefile*,*.graffle,tools}
-%endif
-
-
-#find %%{buildroot} -name .dir -print0 | xargs -0r rm -f
-file %{buildroot}/%{_bindir}/* | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
-file %{buildroot}/%{_libdir}/llvm/*.so | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
-#chrpath -d %%{buildroot}/%%{_libexecdir}/clang-cc
 
 # Get rid of erroneously installed example files.
 rm %{buildroot}%{_libdir}/%{name}/*LLVMHello.*
 
-# FIXME file this bug
-sed -i 's,ABS_RUN_DIR/lib",ABS_RUN_DIR/%{_lib}/%{name}",' \
-  %{buildroot}%{_bindir}/llvm-config-%{__isa_bits}
+# remove executable bit from static libraries
+find %{buildroot}%{_libdir} -name "*.a" -type f -print0 | xargs -0 chmod -x
 
-chmod -x %{buildroot}%{_libdir}/%{name}/*.a
+# Install man page for LLDB
+%if %{with lldb}
+mkdir -p %{buildroot}%{_mandir}/man1
+cp tools/lldb/docs/lldb.1 %{buildroot}%{_mandir}/man1/
+%endif
 
-# remove documentation makefiles:
-# they require the build directory to work
-find examples -name 'Makefile' | xargs -0r rm -f
+# Install documentation documentation
+find %{buildroot}/moredocs/ -name "*.tar.gz" -print0 | xargs -0 rm -rf
+mkdir -p %{buildroot}%{_docdir}
+
+# llvm
+mkdir -p %{buildroot}%{llvmdocdir llvm}
+for f in CREDITS.TXT LICENSE.TXT README.txt; do
+	cp $f %{buildroot}%{llvmdocdir llvm}
+done
+
+# llvm-doc
+mkdir -p %{buildroot}%{llvmdocdir llvm-doc}
+cp -ar examples %{buildroot}%{llvmdocdir llvm-doc}/examples
+find %{buildroot}%{llvmdocdir llvm-doc} -name Makefile -o -name CMakeLists.txt -o -name LLVMBuild.txt -print0 | xargs -0 rm -f
+
+# llvm-apidoc
+%if %{with doxygen}
+mv %{buildroot}/moredocs/html/doxygen %{buildroot}%{llvmdocdir llvm-apidoc}
+%endif
+
+# llvm-ocaml-doc
+%if %{with ocaml}
+mv %{buildroot}/moredocs/ocamldoc/html %{buildroot}%{llvmdocdir llvm-ocaml-doc}
+%endif
+
+# clang
+%if %{with clang}
+mkdir -p %{buildroot}%{llvmdocdir clang}
+for f in LICENSE.TXT NOTES.txt README.txt CODE_OWNERS.TXT; do
+  cp tools/clang/$f %{buildroot}%{llvmdocdir clang}/
+done
+%endif
+
+# clang-apidoc
+%if %{with clang}
+%if %{with doxygen}
+cp -ar tools/clang/docs/doxygen/html %{buildroot}%{llvmdocdir clang-apidoc}
+%endif
+%endif
+
+# lldb
+%if %{with lldb}
+mkdir -p %{buildroot}%{llvmdocdir lldb}
+cp tools/lldb/LICENSE.TXT %{buildroot}%{llvmdocdir lldb}/
+%endif
+
+# delete the rest of installed documentation (because it's bad)
+rm -rf %{buildroot}/moredocs
 
 
 %check
@@ -430,14 +443,16 @@ find examples -name 'Makefile' | xargs -0r rm -f
 # broken makefiles in the doc dirs.
 
 # LLVM test suite failing on ARM, PPC64 and s390(x)
-make -k check LIT_ARGS="-v -j4" | tee llvm-testlog-%{_arch}.txt || :
+mkdir -p %{buildroot}%{llvmdocdir llvm-devel}
+make -k check LIT_ARGS="-v -j4" | tee %{buildroot}%{llvmdocdir llvm-devel}/testlog-%{_arch}.txt || :
 
 %if %{with clang}
 # clang test suite failing on PPC and s390(x)
 # FIXME:
 # unexpected failures on all platforms with GCC 4.7.0.
 # capture logs
-make -C tools/clang/test TESTARGS="-v -j4" | tee clang-testlog-%{_arch}.txt || :
+mkdir -p %{buildroot}%{llvmdocdir clang-devel}
+make -C tools/clang/test TESTARGS="-v -j4" | tee %{buildroot}%{llvmdocdir clang-devel}/testlog-%{_arch}.txt || :
 %endif
 
 
@@ -475,7 +490,7 @@ exit 0
 
 %files
 %defattr(-,root,root,-)
-%doc CREDITS.TXT LICENSE.TXT README.txt
+%doc %{llvmdocdir llvm}/
 %{_bindir}/bugpoint
 %{_bindir}/llc
 %{_bindir}/lli
@@ -486,11 +501,14 @@ exit 0
 %if %{with clang}
 %exclude %{_mandir}/man1/clang.1.*
 %endif
+%if %{with lldb}
+%exclude %{_mandir}/man1/lldb.1.*
+%endif
 %doc %{_mandir}/man1/*.1.*
 
 %files devel
 %defattr(-,root,root,-)
-%doc llvm-testlog-%{_arch}.txt
+%doc %{llvmdocdir llvm-devel}/
 %{_bindir}/llvm-config-%{__isa_bits}
 %{_includedir}/%{name}
 %{_includedir}/%{name}-c
@@ -502,6 +520,9 @@ exit 0
 %if %{with clang}
 %exclude %{_libdir}/%{name}/libclang.so
 %endif
+%if %{with lldb}
+%exclude %{_libdir}/%{name}/liblldb.so
+%endif
 %{_libdir}/%{name}/*.so
 
 %files static
@@ -511,7 +532,7 @@ exit 0
 %if %{with clang}
 %files -n clang
 %defattr(-,root,root,-)
-%doc clang-docs/* clang-testlog-%{_arch}.txt
+%doc %{llvmdocdir clang}/
 %{_bindir}/clang*
 %{_bindir}/c-index-test
 %{_libdir}/%{name}/libclang.so
@@ -520,6 +541,7 @@ exit 0
 
 %files -n clang-devel
 %defattr(-,root,root,-)
+%doc %{llvmdocdir clang-devel}/
 %{_includedir}/clang
 %{_includedir}/clang-c
 
@@ -528,15 +550,21 @@ exit 0
 %{_bindir}/scan-build
 %{_bindir}/scan-view
 %{_libdir}/clang-analyzer
+%endif
 
-%files -n clang-doc
+%if %{with lldb}
+%files -n lldb
 %defattr(-,root,root,-)
-%doc tools/clang/docs/*
+%doc %{llvmdocdir lldb}/
+%{_bindir}/lldb
+%{_bindir}/lldb-platform
+%{_libdir}/%{name}/liblldb.so
+%doc %{_mandir}/man1/lldb.1.*
 %endif
 
 %files doc
 %defattr(-,root,root,-)
-%doc examples moredocs/html
+%doc %{llvmdocdir llvm-doc}/
 
 %if %{with ocaml}
 %files ocaml
@@ -553,22 +581,28 @@ exit 0
 
 %files ocaml-doc
 %defattr(-,root,root,-)
-%doc moredocs/ocamldoc/html/*
+%doc %{llvmdocdir llvm-ocaml-doc}/
 %endif
 
 %if %{with doxygen}
 %files apidoc
 %defattr(-,root,root,-)
-%doc apidoc/*
+%doc %{llvmdocdir llvm-apidoc}/
 
 %if %{with clang}
 %files -n clang-apidoc
 %defattr(-,root,root,-)
-%doc clang-apidoc/*
+%doc %{llvmdocdir clang-apidoc}/
 %endif
 %endif
 
 %changelog
+* Tue Nov 12 2013 Jan Vcelak <jvcelak@fedoraproject.org> 3.3-1
+- upgrade to 3.3 release
+- add compiler-rt, enables address sanitizer (#949489)
+- add LLDB - debugger from LLVM project (#1009406)
+- clean up documentation
+
 * Thu Oct 17 2013 Jakub Jelinek <jakub@redhat.com> - 3.3-0.10.rc3
 - Rebuild for gcc 4.8.2
 
