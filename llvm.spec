@@ -29,7 +29,7 @@
 
 Name:           llvm
 Version:        3.3
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -49,6 +49,7 @@ Source11:       llvm-Config-llvm-config.h
 # patches
 Patch1:         0001-data-install-preserve-timestamps.patch
 Patch2:         0002-linker-flags-speedup-memory.patch
+Patch3:         0003-fix-clear-cache-declaration.patch
 
 BuildRequires:  bison
 BuildRequires:  flex
@@ -263,6 +264,7 @@ mv lldb-%{version}.src tools/lldb
 
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 # fix ld search path
 sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' ./configure
@@ -597,6 +599,9 @@ exit 0
 %endif
 
 %changelog
+* Thu Nov 21 2013 Jan Vcelak <jvcelak@fedoraproject.org> 3.3-2
+- fix build failure, missing __clear_cache() declaration
+
 * Tue Nov 12 2013 Jan Vcelak <jvcelak@fedoraproject.org> 3.3-1
 - upgrade to 3.3 release
 - add compiler-rt, enables address sanitizer (#949489)
