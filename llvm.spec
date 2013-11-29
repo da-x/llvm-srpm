@@ -161,7 +161,8 @@ This package contains header files for the Clang compiler.
 Summary:        A source code analysis framework
 License:        NCSA
 Group:          Development/Languages
-Requires:       clang%{?_isa} = %{version}-%{release}
+BuildArch:      noarch
+Requires:       clang = %{version}-%{release}
 # not picked up automatically since files are currently not instaled
 # in standard Python hierarchies yet
 Requires:       python
@@ -367,13 +368,14 @@ EOF
 %if %{with clang}
 # Static analyzer not installed by default:
 # http://clang-analyzer.llvm.org/installation#OtherPlatforms
-mkdir -p %{buildroot}%{_libdir}/clang-analyzer
-# create launchers
+mkdir -p %{buildroot}%{_libexecdir}/clang-analyzer
+(cd tools/clang/tools && cp -pr scan-{build,view} %{buildroot}%{_libexecdir}/clang-analyzer/)
+# add clang into scan-build search path
+ln -s ../../../bin/clang %{buildroot}%{_libexecdir}/clang-analyzer/scan-build/clang
+# launchers in /bin
 for f in scan-{build,view}; do
-  ln -s %{_libdir}/clang-analyzer/$f/$f %{buildroot}%{_bindir}/$f
+  ln -s %{_libexecdir}/clang-analyzer/$f/$f %{buildroot}%{_bindir}/$f
 done
-
-(cd tools/clang/tools && cp -pr scan-{build,view} %{buildroot}%{_libdir}/clang-analyzer/)
 %endif
 
 # Get rid of erroneously installed example files.
@@ -552,7 +554,7 @@ exit 0
 %defattr(-,root,root,-)
 %{_bindir}/scan-build
 %{_bindir}/scan-view
-%{_libdir}/clang-analyzer
+%{_libexecdir}/clang-analyzer
 %endif
 
 %if %{with lldb}
@@ -602,6 +604,8 @@ exit 0
 %changelog
 * Sat Nov 30 2013 Jan Vcelak <jvcelak@fedoraproject.org> 3.3-3
 - properly obsolete clang-doc subpackage (#1035268)
+- clang-analyzer: fix scan-build search for compiler (#982645)
+- clang-analyzer: switch package architecture to noarch
 
 * Thu Nov 21 2013 Jan Vcelak <jvcelak@fedoraproject.org> 3.3-2
 - fix build failure, missing __clear_cache() declaration
