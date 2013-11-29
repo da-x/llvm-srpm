@@ -29,7 +29,7 @@
 
 Name:           llvm
 Version:        3.3
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -134,6 +134,8 @@ Group:          Development/Languages
 Requires:       llvm%{?_isa} = %{version}-%{release}
 # clang requires gcc, clang++ requires libstdc++-devel
 Requires:       libstdc++-devel
+# remove clang-doc pacakge
+Obsoletes:      clang-doc < %{version}-%{release}
 
 %description -n clang
 clang: noun
@@ -206,7 +208,6 @@ API documentation for the LLVM compiler infrastructure.
 Summary:        API documentation for Clang
 Group:          Development/Languages
 BuildArch:      noarch
-Requires:       clang-doc = %{version}-%{release}
 
 
 %description -n clang-apidoc
@@ -599,6 +600,9 @@ exit 0
 %endif
 
 %changelog
+* Sat Nov 30 2013 Jan Vcelak <jvcelak@fedoraproject.org> 3.3-3
+- properly obsolete clang-doc subpackage (#1035268)
+
 * Thu Nov 21 2013 Jan Vcelak <jvcelak@fedoraproject.org> 3.3-2
 - fix build failure, missing __clear_cache() declaration
 
