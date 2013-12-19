@@ -363,10 +363,24 @@ EOF
 %if %{with clang}
 # Static analyzer not installed by default:
 # http://clang-analyzer.llvm.org/installation#OtherPlatforms
-mkdir -p %{buildroot}%{_libexecdir}/clang-analyzer
-(cd tools/clang/tools && cp -pr scan-{build,view} %{buildroot}%{_libexecdir}/clang-analyzer/)
-# add clang into scan-build search path
+
+# scan-view
+mkdir -p %{buildroot}%{_libexecdir}/clang-analyzer/
+cp -pr tools/clang/tools/scan-view %{buildroot}%{_libexecdir}/clang-analyzer/
+
+# scan-build
+mkdir -p %{buildroot}%{_libexecdir}/clang-analyzer/scan-build
+for file in c++-analyzer ccc-analyzer scan-build scanview.css sorttable.js; do
+  cp -p tools/clang/tools/scan-build/$file %{buildroot}%{_libexecdir}/clang-analyzer/scan-build/
+done
+
+# scan-build manual page
+mkdir -p %{buildroot}%{_mandir}/man1
+cp -p tools/clang/tools/scan-build/scan-build.1 %{buildroot}%{_mandir}/man1/
+
+# scan-build requires clang in search path
 ln -s ../../../bin/clang %{buildroot}%{_libexecdir}/clang-analyzer/scan-build/clang
+
 # launchers in /bin
 for f in scan-{build,view}; do
   ln -s %{_libexecdir}/clang-analyzer/$f/$f %{buildroot}%{_bindir}/$f
@@ -508,6 +522,7 @@ exit 0
 %{_bindir}/opt
 %if %{with clang}
 %exclude %{_mandir}/man1/clang.1.*
+%exclude %{_mandir}/man1/scan-build.1.*
 %endif
 %if %{with lldb}
 %exclude %{_mandir}/man1/lldb.1.*
@@ -555,6 +570,7 @@ exit 0
 
 %files -n clang-analyzer
 %defattr(-,root,root,-)
+%{_mandir}/man1/scan-build.1.*
 %{_bindir}/scan-build
 %{_bindir}/scan-view
 %{_libexecdir}/clang-analyzer
@@ -608,6 +624,7 @@ exit 0
 * Fri Dec 20 2013 Jan Vcelak <jvcelak@fedoraproject.org> 3.3-4
 - remove RPATHs
 - run ldconfig when installing lldb (#1044431)
+- fix: scan-build manual page is installed into wrong location (#1038829)
 
 * Sat Nov 30 2013 Jan Vcelak <jvcelak@fedoraproject.org> 3.3-3
 - properly obsolete clang-doc subpackage (#1035268)
