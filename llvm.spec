@@ -448,6 +448,10 @@ cp tools/lldb/LICENSE.TXT %{buildroot}%{llvmdocdir lldb}/
 # delete the rest of installed documentation (because it's bad)
 rm -rf %{buildroot}/moredocs
 
+# install CMake modules
+mkdir -p %{buildroot}%{_datadir}/llvm/cmake/
+cp -p cmake/modules/*.cmake %{buildroot}%{_datadir}/llvm/cmake/
+
 # remove RPATHs
 file %{buildroot}/%{_bindir}/* | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
 file %{buildroot}/%{_libdir}/llvm/*.so | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
@@ -513,6 +517,7 @@ exit 0
 %files
 %defattr(-,root,root,-)
 %doc %{llvmdocdir llvm}/
+%dir %{_datadir}/llvm
 %{_bindir}/bugpoint
 %{_bindir}/llc
 %{_bindir}/lli
@@ -535,6 +540,7 @@ exit 0
 %{_bindir}/llvm-config-%{__isa_bits}
 %{_includedir}/%{name}
 %{_includedir}/%{name}-c
+%{_datadir}/llvm/cmake
 
 %files libs
 %defattr(-,root,root,-)
@@ -626,6 +632,7 @@ exit 0
 - run ldconfig when installing lldb (#1044431)
 - fix: scan-build manual page is installed into wrong location (#1038829)
 - fix: requirements for llvm-ocaml-devel packages (#975914)
+- add LLVM cmake modules into llvm-devel (#914713)
 
 * Sat Nov 30 2013 Jan Vcelak <jvcelak@fedoraproject.org> 3.3-3
 - properly obsolete clang-doc subpackage (#1035268)
