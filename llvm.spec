@@ -232,7 +232,7 @@ OCaml binding for LLVM.
 %package        ocaml-devel
 Summary:        Development files for %{name}-ocaml
 Group:          Development/Libraries
-Requires:       %{name}-devel%{?_isa} = %{version}-%{release}
+Requires:       %{name}-static%{?_isa} = %{version}-%{release}
 Requires:       %{name}-ocaml%{?_isa} = %{version}-%{release}
 Requires:       ocaml
 
@@ -625,6 +625,7 @@ exit 0
 - remove RPATHs
 - run ldconfig when installing lldb (#1044431)
 - fix: scan-build manual page is installed into wrong location (#1038829)
+- fix: requirements for llvm-ocaml-devel packages (#975914)
 
 * Sat Nov 30 2013 Jan Vcelak <jvcelak@fedoraproject.org> 3.3-3
 - properly obsolete clang-doc subpackage (#1035268)
