@@ -29,7 +29,7 @@
 
 Name:           llvm
 Version:        3.3
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -52,6 +52,7 @@ Patch2:         0002-linker-flags-speedup-memory.patch
 Patch3:         0003-fix-clear-cache-declaration.patch
 
 BuildRequires:  bison
+BuildRequires:  chrpath
 BuildRequires:  flex
 BuildRequires:  groff
 BuildRequires:  libffi-devel
@@ -268,8 +269,10 @@ mv lldb-%{version}.src tools/lldb
 %patch2 -p1
 %patch3 -p1
 
-# fix ld search path
+# fix library paths
 sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' ./configure
+sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}/%{name}|g' Makefile.config.in
+sed -i 's|/lib\>|/%{_lib}/%{name}|g' tools/llvm-config/llvm-config.cpp
 
 %build
 # clang is lovely and all, but fedora builds with gcc
@@ -329,14 +332,6 @@ export CXX=c++
 %endif
   --with-c-include-dirs=%{_includedir}:$(echo %{_prefix}/lib/gcc/%{_target_cpu}*/*/include) \
   --with-optimize-option=-O3
-
-# FIXME file this
-# configure does not properly specify libdir
-sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}/%{name}|g' Makefile.config
-
-# FIXME upstream need to fix this
-# llvm-config.cpp hardcodes lib in it
-sed -i 's|/lib\>|/%{_lib}/%{name}|g' tools/llvm-config/llvm-config.cpp
 
 make %{_smp_mflags} REQUIRES_RTTI=1 VERBOSE=1 \
 %ifarch ppc
@@ -439,6 +434,9 @@ cp tools/lldb/LICENSE.TXT %{buildroot}%{llvmdocdir lldb}/
 # delete the rest of installed documentation (because it's bad)
 rm -rf %{buildroot}/moredocs
 
+# remove RPATHs
+file %{buildroot}/%{_bindir}/* | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
+file %{buildroot}/%{_libdir}/llvm/*.so | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
 
 %check
 # the Koji build server does not seem to have enough RAM
@@ -602,6 +600,9 @@ exit 0
 %endif
 
 %changelog
+* Fri Dec 20 2013 Jan Vcelak <jvcelak@fedoraproject.org> 3.3-4
+- remove RPATHs
+
 * Sat Nov 30 2013 Jan Vcelak <jvcelak@fedoraproject.org> 3.3-3
 - properly obsolete clang-doc subpackage (#1035268)
 - clang-analyzer: fix scan-build search for compiler (#982645)
