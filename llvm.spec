@@ -467,6 +467,11 @@ make -C tools/clang/test TESTARGS="-v -j4" | tee %{buildroot}%{llvmdocdir clang-
 %postun -n clang -p /sbin/ldconfig
 %endif
 
+%if %{with lldb}
+%post -n lldb -p /sbin/ldconfig
+%postun -n lldb -p /sbin/ldconfig
+%endif
+
 
 %posttrans devel
 # link llvm-config to the platform-specific file;
@@ -602,6 +607,7 @@ exit 0
 %changelog
 * Fri Dec 20 2013 Jan Vcelak <jvcelak@fedoraproject.org> 3.3-4
 - remove RPATHs
+- run ldconfig when installing lldb (#1044431)
 
 * Sat Nov 30 2013 Jan Vcelak <jvcelak@fedoraproject.org> 3.3-3
 - properly obsolete clang-doc subpackage (#1035268)
