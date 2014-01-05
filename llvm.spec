@@ -19,7 +19,7 @@
 %endif
 
 # Documentation install path
-%if 0%{fedora} < 20
+%if 0%{?fedora} < 20
   %global llvmdocdir() %{_docdir}/%1-%{version}
 %else
   %global llvmdocdir() %{_docdir}/%1
