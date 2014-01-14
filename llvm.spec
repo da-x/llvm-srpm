@@ -25,11 +25,12 @@
   %global llvmdocdir() %{_docdir}/%1
 %endif
 
-%global downloadurl http://llvm.org/releases/%{version}
+#global prerel rc3
+%global downloadurl http://llvm.org/%{?prerel:pre-}releases/%{version}%{?prerel:/%{prerel}}
 
 Name:           llvm
-Version:        3.3
-Release:        4%{?dist}
+Version:        3.4
+Release:        1%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -37,10 +38,12 @@ License:        NCSA
 URL:            http://llvm.org/
 
 # source archives
-Source0:        %{downloadurl}/llvm-%{version}.src.tar.gz
-Source1:        %{downloadurl}/cfe-%{version}.src.tar.gz
-Source2:        %{downloadurl}/compiler-rt-%{version}.src.tar.gz
-Source3:        %{downloadurl}/lldb-%{version}.src.tar.gz
+Source0:        %{downloadurl}/llvm-%{version}%{?prerel}.src.tar.gz
+Source1:        %{downloadurl}/clang-%{version}%{?prerel}.src.tar.gz
+Source2:        %{downloadurl}/compiler-rt-%{version}%{?prerel}.src.tar.gz
+%if %{with lldb}
+Source3:        %{downloadurl}/lldb-%{version}%{?prerel}.src.tar.gz
+%endif
 
 # multilib fixes
 Source10:       llvm-Config-config.h
@@ -49,7 +52,6 @@ Source11:       llvm-Config-llvm-config.h
 # patches
 Patch1:         0001-data-install-preserve-timestamps.patch
 Patch2:         0002-linker-flags-speedup-memory.patch
-Patch3:         0003-fix-clear-cache-declaration.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -253,21 +255,20 @@ HTML documentation for LLVM's OCaml binding.
 
 
 %prep
-%setup -q -n llvm-%{version}.src %{?with_clang:-a1} %{?with_crt:-a2} %{?with_lldb:-a3}
+%setup -q %{?with_clang:-a1} %{?with_crt:-a2} %{?with_lldb:-a3}
 rm -rf tools/clang tools/lldb projects/compiler-rt
 %if %{with clang}
-mv cfe-%{version}.src tools/clang
+mv clang-%{version} tools/clang
 %endif
 %if %{with crt}
-mv compiler-rt-%{version}.src projects/compiler-rt
+mv compiler-rt-%{version} projects/compiler-rt
 %endif
 %if %{with lldb}
-mv lldb-%{version}.src tools/lldb
+mv lldb-%{version} tools/lldb
 %endif
 
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
 
 # fix library paths
 sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' ./configure
@@ -521,6 +522,7 @@ exit 0
 %{_bindir}/bugpoint
 %{_bindir}/llc
 %{_bindir}/lli
+%{_bindir}/lli-child-target
 %exclude %{_bindir}/llvm-config-%{__isa_bits}
 %{_bindir}/llvm*
 %{_bindir}/macho-dump
@@ -601,7 +603,7 @@ exit 0
 %defattr(-,root,root,-)
 %{_libdir}/ocaml/*.cma
 %{_libdir}/ocaml/*.cmi
-%{_libdir}/ocaml/META.llvm
+%{_libdir}/ocaml/META.llvm*
 
 %files ocaml-devel
 %defattr(-,root,root,-)
@@ -627,6 +629,9 @@ exit 0
 %endif
 
 %changelog
+* Tue Jan 14 2014 Dave Airlie <airlied@redhat.com> 3.4-1
+- update to llvm 3.4 release
+
 * Fri Dec 20 2013 Jan Vcelak <jvcelak@fedoraproject.org> 3.3-4
 - remove RPATHs
 - run ldconfig when installing lldb (#1044431)
