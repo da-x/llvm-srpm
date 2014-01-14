@@ -65,6 +65,7 @@ BuildRequires:  binutils-devel
 %if %{with ocaml}
 BuildRequires:  ocaml-ocamldoc
 %endif
+BuildRequires:  ncurses-devel
 BuildRequires:  zip
 # for DejaGNU test suite
 BuildRequires:  dejagnu tcl-devel python
@@ -90,7 +91,7 @@ Group:          Development/Languages
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 Requires:       libffi-devel
 Requires:       libstdc++-devel >= 3.4
-
+Requires:       ncurses-devel
 Requires(posttrans): /usr/sbin/alternatives
 Requires(postun):    /usr/sbin/alternatives
 
