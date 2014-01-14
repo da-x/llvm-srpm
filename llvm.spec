@@ -30,7 +30,7 @@
 
 Name:           llvm
 Version:        3.4
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -643,6 +643,9 @@ exit 0
 %endif
 
 %changelog
+* Tue Jan 14 2014 Dave Airlie <airlied@redhat.com> 3.4-2
+- add ncurses-devel BR and Requires
+
 * Tue Jan 14 2014 Dave Airlie <airlied@redhat.com> 3.4-1
 - update to llvm 3.4 release
 
