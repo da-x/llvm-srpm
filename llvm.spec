@@ -193,6 +193,14 @@ LLDB is a next generation, high-performance debugger. It is built as a set
 of reusable components which highly leverage existing libraries in the
 larger LLVM Project, such as the Clang expression parser and LLVM
 disassembler.
+
+%package -n lldb-devel
+Summary:        Header files for LLDB
+Group:          Development/Languages
+Requires:       lldb%{?_isa} = %{version}-%{release}
+
+%description -n lldb-devel
+This package contains header files for the LLDB debugger.
 %endif
 
 %if %{with doxygen}
@@ -592,6 +600,10 @@ exit 0
 %{_bindir}/lldb-platform
 %{_libdir}/%{name}/liblldb.so
 %doc %{_mandir}/man1/lldb.1.*
+
+%files -n lldb-devel
+%defattr(-,root,root,-)
+%{_includedir}/lldb
 %endif
 
 %files doc
@@ -603,6 +615,7 @@ exit 0
 %defattr(-,root,root,-)
 %{_libdir}/ocaml/*.cma
 %{_libdir}/ocaml/*.cmi
+%{_libdir}/ocaml/dll*.so
 %{_libdir}/ocaml/META.llvm*
 
 %files ocaml-devel
