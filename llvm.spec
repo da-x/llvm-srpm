@@ -4,7 +4,6 @@
 # Components built by default:
 %bcond_without clang
 %bcond_without crt
-%bcond_without lldb
 
 # Components enabled if supported by target arch:
 %ifnarch s390 s390x sparc64
@@ -17,6 +16,13 @@
 %else
   %bcond_with gold
 %endif
+# ppc64 fails to build lldb upstream
+%ifnarch ppc ppc64
+  %bcond_without lldb
+%else
+  %bcond_with lldb
+%endif
+
 
 # Documentation install path
 %if 0%{?fedora} < 20
