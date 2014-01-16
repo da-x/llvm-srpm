@@ -36,7 +36,7 @@
 
 Name:           llvm
 Version:        3.4
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -649,6 +649,9 @@ exit 0
 %endif
 
 %changelog
+* Fri Jan 17 2014 Dave Airlie <airlied@redhat.com> 3.4-3
+- bump nvr for lldb on ppc disable
+
 * Tue Jan 14 2014 Dave Airlie <airlied@redhat.com> 3.4-2
 - add ncurses-devel BR and Requires
 
