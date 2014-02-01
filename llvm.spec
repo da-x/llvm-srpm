@@ -16,8 +16,8 @@
 %else
   %bcond_with gold
 %endif
-# ppc64 fails to build lldb upstream
-%ifnarch ppc ppc64
+# lldb not ported to anything but x86 so far.
+%ifarch x86_64 %{ix86}
   %bcond_without lldb
 %else
   %bcond_with lldb
@@ -36,7 +36,7 @@
 
 Name:           llvm
 Version:        3.4
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -649,6 +649,10 @@ exit 0
 %endif
 
 %changelog
+* Fri Jan 31 2014 Kyle McMartin <kyle@redhat.com> 3.4-4
+- Disable lldb on everything but x86_64, and i686. It hasn't been ported
+  beyond those platforms so far.
+
 * Fri Jan 17 2014 Dave Airlie <airlied@redhat.com> 3.4-3
 - bump nvr for lldb on ppc disable
 
