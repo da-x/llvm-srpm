@@ -36,7 +36,7 @@
 
 Name:           llvm
 Version:        3.4
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -58,6 +58,9 @@ Source11:       llvm-Config-llvm-config.h
 # patches
 Patch1:         0001-data-install-preserve-timestamps.patch
 Patch2:         0002-linker-flags-speedup-memory.patch
+
+# radeonsi GL 3.3 backport
+Patch3:         llvm-3.4-radeonsi-backport.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -284,6 +287,7 @@ mv lldb-%{version} tools/lldb
 
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 # fix library paths
 sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' ./configure
@@ -649,6 +653,9 @@ exit 0
 %endif
 
 %changelog
+* Wed Mar 19 2014 Dave Airlie <airlied@redhat.com> 3.4-5
+- backport patches from 3.5 to enable GL3.3 on radeonsi
+
 * Fri Jan 31 2014 Kyle McMartin <kyle@redhat.com> 3.4-4
 - Disable lldb on everything but x86_64, and i686. It hasn't been ported
   beyond those platforms so far.
