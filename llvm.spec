@@ -36,7 +36,7 @@
 
 Name:           llvm
 Version:        3.4
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -124,6 +124,12 @@ Documentation for the LLVM compiler infrastructure.
 %package libs
 Summary:        LLVM shared libraries
 Group:          System Environment/Libraries
+## retire OpenGTL/libQtGTL here
+Obsoletes: OpenGTL < 0.9.18-50
+Obsoletes: OpenGTL-libs < 0.9.18-50
+Obsoletes: OpenGTL-devel < 0.9.18-50
+Obsoletes: libQtGTL < 0.9.3-50
+Obsoletes: libQtGTL-devel < 0.9.3-50
 
 %description libs
 Shared libraries for the LLVM compiler infrastructure.
@@ -653,6 +659,9 @@ exit 0
 %endif
 
 %changelog
+* Thu Mar 27 2014 Rex Dieter <rdieter@fedoraproject.org> 3.4-6
+- -libs: Obsoletes: OpenGTL libQtGTL
+
 * Wed Mar 19 2014 Dave Airlie <airlied@redhat.com> 3.4-5
 - backport patches from 3.5 to enable GL3.3 on radeonsi
 
