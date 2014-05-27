@@ -36,7 +36,7 @@
 
 Name:           llvm
 Version:        3.4
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -44,7 +44,7 @@ License:        NCSA
 URL:            http://llvm.org/
 
 # source archives
-Source0:        %{downloadurl}/llvm-%{version}%{?prerel}.src.tar.gz
+Source0:        %{downloadurl}/llvm-%{version}.1%{?prerel}.src.tar.gz
 Source1:        %{downloadurl}/clang-%{version}%{?prerel}.src.tar.gz
 Source2:        %{downloadurl}/compiler-rt-%{version}%{?prerel}.src.tar.gz
 Source3:        %{downloadurl}/lldb-%{version}%{?prerel}.src.tar.gz
@@ -53,12 +53,15 @@ Source3:        %{downloadurl}/lldb-%{version}%{?prerel}.src.tar.gz
 Source10:       llvm-Config-config.h
 Source11:       llvm-Config-llvm-config.h
 
-# patches
-Patch1:         0001-data-install-preserve-timestamps.patch
-Patch2:         0002-linker-flags-speedup-memory.patch
+# sync with release_34@209031
+Patch1:		0001-Merging-r207990.patch
+Patch2:		0002-Merging-r208721.patch
+Patch3:		0003-Merging-r208501.patch
+Patch4:		0004-Merging-r208908.patch
 
-# radeonsi GL 3.3 backport
-Patch3:         llvm-3.4-radeonsi-backport.patch
+# patches
+Patch11:         0001-data-install-preserve-timestamps.patch
+Patch12:         0002-linker-flags-speedup-memory.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -122,12 +125,14 @@ Documentation for the LLVM compiler infrastructure.
 %package libs
 Summary:        LLVM shared libraries
 Group:          System Environment/Libraries
+%if 0%{?fedora} > 20
 ## retire OpenGTL/libQtGTL here
 Obsoletes: OpenGTL < 0.9.18-50
 Obsoletes: OpenGTL-libs < 0.9.18-50
 Obsoletes: OpenGTL-devel < 0.9.18-50
 Obsoletes: libQtGTL < 0.9.3-50
 Obsoletes: libQtGTL-devel < 0.9.3-50
+%endif
 
 %description libs
 Shared libraries for the LLVM compiler infrastructure.
@@ -277,7 +282,7 @@ HTML documentation for LLVM's OCaml binding.
 
 
 %prep
-%setup -q %{?with_clang:-a1} %{?with_crt:-a2} %{?with_lldb:-a3}
+%setup -q %{?with_clang:-a1} %{?with_crt:-a2} %{?with_lldb:-a3} -n llvm-3.4.1.src
 rm -rf tools/clang tools/lldb projects/compiler-rt
 %if %{with clang}
 mv clang-%{version} tools/clang
@@ -292,6 +297,9 @@ mv lldb-%{version} tools/lldb
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
+%patch11 -p1
+%patch12 -p1
 
 # fix library paths
 sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' ./configure
@@ -657,6 +665,10 @@ exit 0
 %endif
 
 %changelog
+* Thu May 29 2014 Adam Jackson <ajax@redhat.com> 3.4-7
+- Update to llvm 3.4.1 plus a few things from svn
+- Drop radeonsi patch, merged in 3.4.1
+
 * Thu Mar 27 2014 Rex Dieter <rdieter@fedoraproject.org> 3.4-6
 - -libs: Obsoletes: OpenGTL libQtGTL
 
