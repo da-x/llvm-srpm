@@ -36,7 +36,7 @@
 
 Name:           llvm
 Version:        3.4
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -62,6 +62,9 @@ Patch4:		0004-Merging-r208908.patch
 # patches
 Patch11:         0001-data-install-preserve-timestamps.patch
 Patch12:         0002-linker-flags-speedup-memory.patch
+
+# sledgehammer to default to hard-float on arm
+Patch20:	clang-3.4-arm-hard-float.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -300,6 +303,9 @@ mv lldb-%{version} tools/lldb
 %patch4 -p1
 %patch11 -p1
 %patch12 -p1
+%if %{with clang}
+%patch20 -p1
+%endif
 
 # fix library paths
 sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' ./configure
@@ -665,6 +671,9 @@ exit 0
 %endif
 
 %changelog
+* Mon Jun 02 2014 Adam Jackson <ajax@redhat.com> 3.4-8
+- Attempt to default to hard-float on arm (#803433)
+
 * Thu May 29 2014 Adam Jackson <ajax@redhat.com> 3.4-7
 - Update to llvm 3.4.1 plus a few things from svn
 - Drop radeonsi patch, merged in 3.4.1
