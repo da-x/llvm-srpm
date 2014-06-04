@@ -36,7 +36,7 @@
 
 Name:           llvm
 Version:        3.4
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -60,11 +60,14 @@ Patch3:		0003-Merging-r208501.patch
 Patch4:		0004-Merging-r208908.patch
 
 # patches
-Patch11:         0001-data-install-preserve-timestamps.patch
-Patch12:         0002-linker-flags-speedup-memory.patch
+Patch11:	0001-data-install-preserve-timestamps.patch
+Patch12:	0002-linker-flags-speedup-memory.patch
 
 # sledgehammer to default to hard-float on arm
 Patch20:	clang-3.4-arm-hard-float.patch
+
+# temporary measure to get ppc64le building, if perhaps not working
+Patch21:	0001-PPC64LE-ELFv2-ABI-updates-for-the-.opd-section.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -306,6 +309,7 @@ mv lldb-%{version} tools/lldb
 %if %{with clang}
 %patch20 -p1
 %endif
+%patch21 -p1
 
 # fix library paths
 sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' ./configure
@@ -671,6 +675,9 @@ exit 0
 %endif
 
 %changelog
+* Wed Jun 04 2014 Adam Jackson <ajax@redhat.com> 3.4-9
+- Backport a ppc64le fix to get things started bootstrapping
+
 * Mon Jun 02 2014 Adam Jackson <ajax@redhat.com> 3.4-8
 - Attempt to default to hard-float on arm (#803433)
 
