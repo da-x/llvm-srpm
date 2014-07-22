@@ -36,7 +36,7 @@
 
 Name:           llvm
 Version:        3.4
-Release:        11%{?dist}
+Release:        12%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -679,6 +679,9 @@ exit 0
 %endif
 
 %changelog
+* Tue Jul 22 2014 Richard W.M. Jones <rjones@redhat.com> - 3.4-12
+- OCaml 4.02.0 beta rebuild.
+
 * Wed Jun 11 2014 Adam Jackson <ajax@redhat.com> 3.4-11
 - Different attempt to default to hard-float on arm (#803433)
 
