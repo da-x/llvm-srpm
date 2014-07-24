@@ -36,7 +36,7 @@
 
 Name:           llvm
 Version:        3.4
-Release:        12%{?dist}
+Release:        13%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -44,8 +44,8 @@ License:        NCSA
 URL:            http://llvm.org/
 
 # source archives
-Source0:        %{downloadurl}/llvm-%{version}.1%{?prerel}.src.tar.gz
-Source1:        %{downloadurl}/clang-%{version}%{?prerel}.src.tar.gz
+Source0:	http://llvm.org/releases/3.4.2/llvm-3.4.2.src.tar.gz
+Source1:	http://llvm.org/releases/3.4.2/cfe-3.4.2.src.tar.gz
 Source2:        %{downloadurl}/compiler-rt-%{version}%{?prerel}.src.tar.gz
 Source3:        %{downloadurl}/lldb-%{version}%{?prerel}.src.tar.gz
 
@@ -54,10 +54,10 @@ Source10:       llvm-Config-config.h
 Source11:       llvm-Config-llvm-config.h
 
 # sync with release_34@209031
-Patch1:		0001-Merging-r207990.patch
-Patch2:		0002-Merging-r208721.patch
-Patch3:		0003-Merging-r208501.patch
-Patch4:		0004-Merging-r208908.patch
+#Patch1:		0001-Merging-r207990.patch
+#Patch2:		0002-Merging-r208721.patch
+#Patch3:		0003-Merging-r208501.patch
+#Patch4:		0004-Merging-r208908.patch
 
 # patches
 Patch11:	0001-data-install-preserve-timestamps.patch
@@ -67,7 +67,7 @@ Patch12:	0002-linker-flags-speedup-memory.patch
 Patch20:	clang-3.4-arm-hard-float.patch
 
 # temporary measure to get ppc64le building, if perhaps not working
-Patch21:	0001-PPC64LE-ELFv2-ABI-updates-for-the-.opd-section.patch
+#Patch21:	0001-PPC64LE-ELFv2-ABI-updates-for-the-.opd-section.patch
 
 # http://llvm.org/bugs/attachment.cgi?id=12586
 Patch22:	pr12586.patch
@@ -291,10 +291,10 @@ HTML documentation for LLVM's OCaml binding.
 
 
 %prep
-%setup -q %{?with_clang:-a1} %{?with_crt:-a2} %{?with_lldb:-a3} -n llvm-3.4.1.src
+%setup -q %{?with_clang:-a1} %{?with_crt:-a2} %{?with_lldb:-a3} -n llvm-3.4.2.src
 rm -rf tools/clang tools/lldb projects/compiler-rt
 %if %{with clang}
-mv clang-%{version} tools/clang
+mv cfe-*/ tools/clang
 %endif
 %if %{with crt}
 mv compiler-rt-%{version} projects/compiler-rt
@@ -303,16 +303,11 @@ mv compiler-rt-%{version} projects/compiler-rt
 mv lldb-%{version} tools/lldb
 %endif
 
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
 %patch11 -p1
 %patch12 -p1
 %if %{with clang}
 %patch20 -p1
 %endif
-%patch21 -p1
 %patch22 -p1
 
 # fix library paths
@@ -679,6 +674,9 @@ exit 0
 %endif
 
 %changelog
+* Thu Jul 24 2014 Adam Jackson <ajax@redhat.com> 3.4-13
+- llvm and clang 3.4.2
+
 * Tue Jul 22 2014 Richard W.M. Jones <rjones@redhat.com> - 3.4-12
 - OCaml 4.02.0 beta rebuild.
 
