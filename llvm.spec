@@ -36,7 +36,7 @@
 
 Name:           llvm
 Version:        3.4
-Release:        14%{?dist}
+Release:        15%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -67,7 +67,7 @@ Patch12:	0002-linker-flags-speedup-memory.patch
 Patch20:	clang-3.4-arm-hard-float.patch
 
 # temporary measure to get ppc64le building, if perhaps not working
-#Patch21:	0001-PPC64LE-ELFv2-ABI-updates-for-the-.opd-section.patch
+Patch21:	0001-PPC64LE-ELFv2-ABI-updates-for-the-.opd-section.patch
 
 # http://llvm.org/bugs/attachment.cgi?id=12586
 Patch22:	pr12586.patch
@@ -308,6 +308,7 @@ mv lldb-%{version} tools/lldb
 %if %{with clang}
 %patch20 -p1
 %endif
+%patch21 -p1
 %patch22 -p1
 
 # fix library paths
@@ -674,6 +675,9 @@ exit 0
 %endif
 
 %changelog
+* Thu Aug 14 2014 Adam Jackson <ajax@redhat.com> 3.4-15
+- Restore ppc64le fix
+
 * Sat Aug 02 2014 Richard W.M. Jones <rjones@redhat.com> - 3.4-14
 - ocaml-4.02.0-0.8.git10e45753.fc22 rebuild.
 
