@@ -36,7 +36,7 @@
 
 Name:           llvm
 Version:        3.4
-Release:        15%{?dist}
+Release:        16%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -675,6 +675,9 @@ exit 0
 %endif
 
 %changelog
+* Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.4-16
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
 * Thu Aug 14 2014 Adam Jackson <ajax@redhat.com> 3.4-15
 - Restore ppc64le fix
 
