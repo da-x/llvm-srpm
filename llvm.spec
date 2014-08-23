@@ -36,7 +36,7 @@
 
 Name:           llvm
 Version:        3.4
-Release:        16%{?dist}
+Release:        17%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -675,6 +675,9 @@ exit 0
 %endif
 
 %changelog
+* Sat Aug 23 2014 Richard W.M. Jones <rjones@redhat.com> - 3.4-17
+- ocaml-4.02.0+rc1 rebuild.
+
 * Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.4-16
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
