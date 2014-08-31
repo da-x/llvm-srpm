@@ -36,7 +36,7 @@
 
 Name:           llvm
 Version:        3.4
-Release:        19%{?dist}
+Release:        20%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -675,6 +675,9 @@ exit 0
 %endif
 
 %changelog
+* Sun Aug 31 2014 Richard W.M. Jones <rjones@redhat.com> - 3.4-20
+- Bump release and rebuild.
+
 * Sun Aug 31 2014 Richard W.M. Jones <rjones@redhat.com> - 3.4-19
 - ocaml-4.02.0 final rebuild.
 
