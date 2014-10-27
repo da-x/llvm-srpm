@@ -32,11 +32,10 @@
 %endif
 
 #global prerel rc3
-%global downloadurl http://llvm.org/%{?prerel:pre-}releases/%{version}%{?prerel:/%{prerel}}
 
 Name:           llvm
-Version:        3.4
-Release:        20%{?dist}
+Version:        3.5.0
+Release:        1%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -44,33 +43,37 @@ License:        NCSA
 URL:            http://llvm.org/
 
 # source archives
-Source0:	http://llvm.org/releases/3.4.2/llvm-3.4.2.src.tar.gz
-Source1:	http://llvm.org/releases/3.4.2/cfe-3.4.2.src.tar.gz
-Source2:        %{downloadurl}/compiler-rt-%{version}%{?prerel}.src.tar.gz
-Source3:        %{downloadurl}/lldb-%{version}%{?prerel}.src.tar.gz
+Source0:	http://llvm.org/releases/%{version}/llvm-%{version}.src.tar.xz
+Source1:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
+Source2:	http://llvm.org/releases/%{version}/compiler-rt-%{version}.src.tar.xz
+Source3:	http://llvm.org/releases/%{version}/lldb-%{version}.src.tar.xz
 
 # multilib fixes
 Source10:       llvm-Config-config.h
 Source11:       llvm-Config-llvm-config.h
 
-# sync with release_34@209031
-#Patch1:		0001-Merging-r207990.patch
-#Patch2:		0002-Merging-r208721.patch
-#Patch3:		0003-Merging-r208501.patch
-#Patch4:		0004-Merging-r208908.patch
-
 # patches
-Patch11:	0001-data-install-preserve-timestamps.patch
-Patch12:	0002-linker-flags-speedup-memory.patch
+Patch1:		llvm-3.5.0-build-fix.patch
+Patch2:	0001-data-install-preserve-timestamps.patch
 
-# sledgehammer to default to hard-float on arm
+# the next two are various attempts to get clang to actually work on arm
+# by forcing a hard-float ABI.  They don't apply anymore as of 3.5.0,
+# and didn't seem to work very well in the first place.  Interested parties
+# are advised to follow:
+#
+# https://bugzilla.redhat.com/show_bug.cgi?id=803433
+# http://llvm.org/bugs/show_bug.cgi?id=15666
 Patch20:	clang-3.4-arm-hard-float.patch
-
-# temporary measure to get ppc64le building, if perhaps not working
-Patch21:	0001-PPC64LE-ELFv2-ABI-updates-for-the-.opd-section.patch
-
 # http://llvm.org/bugs/attachment.cgi?id=12586
 Patch22:	pr12586.patch
+
+# newish glibc hides the definition of __extern_always_inline behind
+# a check for gcc 4.3, clang pretends to be gcc 4.2.  a proper fix would
+# be to build everything herein with gcc, but i don't have the patience
+# atm, so in the interest of bootstrapping...
+Patch100:	clang-fake-gcc43.patch
+
+Patch200:	lldb-python.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -291,25 +294,38 @@ HTML documentation for LLVM's OCaml binding.
 
 
 %prep
-%setup -q %{?with_clang:-a1} %{?with_crt:-a2} %{?with_lldb:-a3} -n llvm-3.4.2.src
+%setup -q %{?with_clang:-a1} %{?with_crt:-a2} %{?with_lldb:-a3} -n llvm-%{version}.src
 rm -rf tools/clang tools/lldb projects/compiler-rt
 %if %{with clang}
 mv cfe-*/ tools/clang
 %endif
 %if %{with crt}
-mv compiler-rt-%{version} projects/compiler-rt
+mv compiler-rt-*/ projects/compiler-rt
 %endif
 %if %{with lldb}
-mv lldb-%{version} tools/lldb
+mv lldb-*/ tools/lldb
 %endif
 
-%patch11 -p1
-%patch12 -p1
+%patch1 -p1
+%patch2 -p1
 %if %{with clang}
-%patch20 -p1
+#patch20 -p1
 %endif
-%patch21 -p1
-%patch22 -p1
+#patch22 -p1
+
+%if %{with clang}
+pushd tools/clang
+%patch100 -p1
+popd
+%endif
+
+%if %{with lldb}
+pushd tools/lldb
+# careful when recreating this patch...
+%patch200 -p1 -b .python
+sed -i s/@lib@/%{_lib}/g scripts/Python/modules/readline/Makefile
+popd
+%endif
 
 # fix library paths
 sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' ./configure
@@ -318,9 +334,13 @@ sed -i 's|/lib\>|/%{_lib}/%{name}|g' tools/llvm-config/llvm-config.cpp
 
 %build
 # clang is lovely and all, but fedora builds with gcc
+# -fno-devirtualize shouldn't be necessary, but gcc has scary template-related
+# bugs that make it so.  gcc 5 ought to be fixed.
 export CC=gcc
-export CXX=c++
+export CXX=g++
 %configure \
+  --with-extra-options="-fno-devirtualize" \
+  --with-extra-ld-options=-Wl,-Bsymbolic \
   --libdir=%{_libdir}/%{name} \
   --disable-polly \
   --disable-libcpp \
@@ -350,8 +370,7 @@ export CXX=c++
   --disable-embed-stdcxx \
   --enable-timestamps \
   --enable-backtraces \
-  --enable-targets=x86,powerpc,arm,aarch64,cpp,nvptx,systemz \
-  --enable-experimental-targets=R600 \
+  --enable-targets=x86,powerpc,arm,aarch64,cpp,nvptx,systemz,r600 \
 %if %{with ocaml}
   --enable-bindings=ocaml \
 %else
@@ -375,16 +394,14 @@ export CXX=c++
   --with-c-include-dirs=%{_includedir}:$(echo %{_prefix}/lib/gcc/%{_target_cpu}*/*/include) \
   --with-optimize-option=-O3
 
-make %{_smp_mflags} REQUIRES_RTTI=1 VERBOSE=1 \
-%ifarch ppc
-  OPTIMIZE_OPTION="%{optflags} -UPPC"
-%else
-  OPTIMIZE_OPTION="%{optflags}"
-%endif
-
+make %{?_smp_mflags} REQUIRES_RTTI=1 VERBOSE=1
+#make REQUIRES_RTTI=1 VERBOSE=1
 
 %install
 make install DESTDIR=%{buildroot} PROJ_docsdir=/moredocs
+
+# you have got to be kidding me
+rm -f %{buildroot}%{_bindir}/{FileCheck,count,not}
 
 # multilib fixes
 mv %{buildroot}%{_bindir}/llvm-config{,-%{__isa_bits}}
@@ -630,8 +647,10 @@ exit 0
 %defattr(-,root,root,-)
 %doc %{llvmdocdir lldb}/
 %{_bindir}/lldb
-%{_bindir}/lldb-platform
+%{_bindir}/lldb-*
 %{_libdir}/%{name}/liblldb.so
+# XXX double check this
+%{python2_sitearch}/*
 %doc %{_mandir}/man1/lldb.1.*
 
 %files -n lldb-devel
@@ -675,6 +694,9 @@ exit 0
 %endif
 
 %changelog
+* Mon Oct 27 2014 Adam Jackson <ajax@redhat.com> 3.5.0-1
+- llvm 3.5.0
+
 * Sun Aug 31 2014 Richard W.M. Jones <rjones@redhat.com> - 3.4-20
 - Bump release and rebuild.
 
