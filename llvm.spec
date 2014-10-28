@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.5.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -145,6 +145,8 @@ Obsoletes: OpenGTL-devel < 0.9.18-50
 Obsoletes: libQtGTL < 0.9.3-50
 Obsoletes: libQtGTL-devel < 0.9.3-50
 %endif
+Obsoletes: python-llvmpy < 0.12.7-2
+Obsoletes: python3-llvmpy < 0.12.7-2
 
 %description libs
 Shared libraries for the LLVM compiler infrastructure.
@@ -694,6 +696,9 @@ exit 0
 %endif
 
 %changelog
+* Tue Oct 28 2014 Kalev Lember <kalevlember@gmail.com> - 3.5.0-2
+- Obsolete python-llvmpy
+
 * Mon Oct 27 2014 Adam Jackson <ajax@redhat.com> 3.5.0-1
 - llvm 3.5.0
 
