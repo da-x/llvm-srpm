@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.5.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -182,6 +182,14 @@ clang: noun
 The goal of the Clang project is to create a new C, C++, Objective C
 and Objective C++ front-end for the LLVM compiler. Its tools are built
 as libraries and designed to be loosely-coupled and extensible.
+
+
+%Package -n clang-libs
+Summary:	Runtime library for clang
+Group:		System Environment/Libraries
+
+%description -n clang-libs
+Runtime library for clang.
 
 
 %package -n clang-devel
@@ -626,9 +634,12 @@ exit 0
 %doc %{llvmdocdir clang}/
 %{_bindir}/clang*
 %{_bindir}/c-index-test
-%{_libdir}/%{name}/libclang.so
 %{_prefix}/lib/clang
 %doc %{_mandir}/man1/clang.1.*
+
+%files -n clang-libs
+%defattr(-,root,root,-)
+%{_libdir}/%{name}/libclang.so
 
 %files -n clang-devel
 %defattr(-,root,root,-)
@@ -696,6 +707,9 @@ exit 0
 %endif
 
 %changelog
+* Wed Nov 05 2014 Adam Jackson <ajax@redhat.com> 3.5.0-3
+- Split out clang-libs
+
 * Tue Oct 28 2014 Kalev Lember <kalevlember@gmail.com> - 3.5.0-2
 - Obsolete python-llvmpy
 
