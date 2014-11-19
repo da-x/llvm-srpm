@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.5.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -43,18 +43,18 @@ License:        NCSA
 URL:            http://llvm.org/
 
 # source archives
-Source0:	http://llvm.org/releases/%{version}/llvm-%{version}.src.tar.xz
-Source1:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
-Source2:	http://llvm.org/releases/%{version}/compiler-rt-%{version}.src.tar.xz
-Source3:	http://llvm.org/releases/%{version}/lldb-%{version}.src.tar.xz
+Source0:        http://llvm.org/releases/%{version}/llvm-%{version}.src.tar.xz
+Source1:        http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
+Source2:        http://llvm.org/releases/%{version}/compiler-rt-%{version}.src.tar.xz
+Source3:        http://llvm.org/releases/%{version}/lldb-%{version}.src.tar.xz
 
 # multilib fixes
 Source10:       llvm-Config-config.h
 Source11:       llvm-Config-llvm-config.h
 
 # patches
-Patch1:		llvm-3.5.0-build-fix.patch
-Patch2:	0001-data-install-preserve-timestamps.patch
+Patch1:         llvm-3.5.0-build-fix.patch
+Patch2:         0001-data-install-preserve-timestamps.patch
 
 # the next two are various attempts to get clang to actually work on arm
 # by forcing a hard-float ABI.  They don't apply anymore as of 3.5.0,
@@ -63,17 +63,17 @@ Patch2:	0001-data-install-preserve-timestamps.patch
 #
 # https://bugzilla.redhat.com/show_bug.cgi?id=803433
 # http://llvm.org/bugs/show_bug.cgi?id=15666
-Patch20:	clang-3.4-arm-hard-float.patch
+#Patch20:        clang-3.4-arm-hard-float.patch
 # http://llvm.org/bugs/attachment.cgi?id=12586
-Patch22:	pr12586.patch
+#Patch22:        pr12586.patch
 
 # newish glibc hides the definition of __extern_always_inline behind
 # a check for gcc 4.3, clang pretends to be gcc 4.2.  a proper fix would
 # be to build everything herein with gcc, but i don't have the patience
 # atm, so in the interest of bootstrapping...
-Patch100:	clang-fake-gcc43.patch
+Patch100:       clang-fake-gcc43.patch
 
-Patch200:	lldb-python.patch
+Patch200:       lldb-python.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -97,7 +97,7 @@ BuildRequires:  doxygen graphviz
 %endif
 # pod2man moved to perl-podlators in F19
 BuildRequires:  %{_bindir}/pod2man
-Requires:       llvm-libs%{?_isa} = %{version}-%{release}
+Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
 
 %description
 LLVM is a compiler infrastructure designed for compile-time,
@@ -153,9 +153,9 @@ Shared libraries for the LLVM compiler infrastructure.
 
 
 %package static
-Summary:	LLVM static libraries
-Group:		Development/Languages
-Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
+Summary:        LLVM static libraries
+Group:          Development/Languages
+Requires:       %{name}-devel%{?_isa} = %{version}-%{release}
 
 %description static
 Static libraries for the LLVM compiler infrastructure.  Not recommended
@@ -167,7 +167,7 @@ for general consumption.
 Summary:        A C language family front-end for LLVM
 License:        NCSA
 Group:          Development/Languages
-Requires:       llvm%{?_isa} = %{version}-%{release}
+Requires:       %{name}%{?_isa} = %{version}-%{release}
 # clang requires gcc, clang++ requires libstdc++-devel
 Requires:       libstdc++-devel
 # remove clang-doc pacakge
@@ -185,8 +185,8 @@ as libraries and designed to be loosely-coupled and extensible.
 
 
 %Package -n clang-libs
-Summary:	Runtime library for clang
-Group:		System Environment/Libraries
+Summary:        Runtime library for clang
+Group:          System Environment/Libraries
 
 %description -n clang-libs
 Runtime library for clang.
@@ -224,7 +224,7 @@ intended to run in tandem with a build of a project or code base.
 Summary:        Next generation high-performance debugger
 License:        NCSA
 Group:          Development/Languages
-Requires:       llvm%{?_isa} = %{version}-%{release}
+Requires:       %{name}%{?_isa} = %{version}-%{release}
 BuildRequires:  swig
 BuildRequires:  libedit-devel
 BuildRequires:  python-devel
@@ -320,8 +320,8 @@ mv lldb-*/ tools/lldb
 %patch2 -p1
 %if %{with clang}
 #patch20 -p1
-%endif
 #patch22 -p1
+%endif
 
 %if %{with clang}
 pushd tools/clang
@@ -338,7 +338,7 @@ popd
 %endif
 
 # fix library paths
-sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' ./configure
+sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' configure
 sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}/%{name}|g' Makefile.config.in
 sed -i 's|/lib\>|/%{_lib}/%{name}|g' tools/llvm-config/llvm-config.cpp
 
@@ -425,8 +425,8 @@ popd
 
 # Create ld.so.conf.d entry
 mkdir -p %{buildroot}%{_sysconfdir}/ld.so.conf.d
-cat >> %{buildroot}%{_sysconfdir}/ld.so.conf.d/llvm-%{_arch}.conf << EOF
-%{_libdir}/llvm
+cat >> %{buildroot}%{_sysconfdir}/ld.so.conf.d/%{name}-%{_arch}.conf << EOF
+%{_libdir}/%{name}
 EOF
 
 %if %{with clang}
@@ -472,25 +472,19 @@ cp tools/lldb/docs/lldb.1 %{buildroot}%{_mandir}/man1/
 find %{buildroot}/moredocs/ -name "*.tar.gz" -print0 | xargs -0 rm -rf
 mkdir -p %{buildroot}%{_docdir}
 
-# llvm
-mkdir -p %{buildroot}%{llvmdocdir llvm}
-for f in CREDITS.TXT LICENSE.TXT README.txt; do
-	cp $f %{buildroot}%{llvmdocdir llvm}
-done
-
 # llvm-doc
-mkdir -p %{buildroot}%{llvmdocdir llvm-doc}
-cp -ar examples %{buildroot}%{llvmdocdir llvm-doc}/examples
-find %{buildroot}%{llvmdocdir llvm-doc} -name Makefile -o -name CMakeLists.txt -o -name LLVMBuild.txt -print0 | xargs -0 rm -f
+mkdir -p %{buildroot}%{llvmdocdir %{name}-doc}
+cp -ar examples %{buildroot}%{llvmdocdir %{name}-doc}/examples
+find %{buildroot}%{llvmdocdir %{name}-doc} -name Makefile -o -name CMakeLists.txt -o -name LLVMBuild.txt -print0 | xargs -0 rm -f
 
 # llvm-apidoc
 %if %{with doxygen}
-mv %{buildroot}/moredocs/html/doxygen %{buildroot}%{llvmdocdir llvm-apidoc}
+mv %{buildroot}/moredocs/html/doxygen %{buildroot}%{llvmdocdir %{name}-apidoc}
 %endif
 
 # llvm-ocaml-doc
 %if %{with ocaml}
-mv %{buildroot}/moredocs/ocamldoc/html %{buildroot}%{llvmdocdir llvm-ocaml-doc}
+mv %{buildroot}/moredocs/ocamldoc/html %{buildroot}%{llvmdocdir %{name}-ocaml-doc}
 %endif
 
 # clang
@@ -523,7 +517,7 @@ cp -p cmake/modules/*.cmake %{buildroot}%{_datadir}/llvm/cmake/
 
 # remove RPATHs
 file %{buildroot}/%{_bindir}/* | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
-file %{buildroot}/%{_libdir}/llvm/*.so | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
+file %{buildroot}/%{_libdir}/%{name}/*.so | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
 
 %check
 # the Koji build server does not seem to have enough RAM
@@ -533,8 +527,8 @@ file %{buildroot}/%{_libdir}/llvm/*.so | awk -F: '$2~/ELF/{print $1}' | xargs -r
 # broken makefiles in the doc dirs.
 
 # LLVM test suite failing on ARM, PPC64 and s390(x)
-mkdir -p %{buildroot}%{llvmdocdir llvm-devel}
-make -k check LIT_ARGS="-v -j4" | tee %{buildroot}%{llvmdocdir llvm-devel}/testlog-%{_arch}.txt || :
+mkdir -p %{buildroot}%{llvmdocdir %{name}-devel}
+make -k check LIT_ARGS="-v -j4" | tee %{buildroot}%{llvmdocdir %{name}-devel}/testlog-%{_arch}.txt || :
 
 %if %{with clang}
 # clang test suite failing on PPC and s390(x)
@@ -584,8 +578,8 @@ exit 0
 
 
 %files
-%defattr(-,root,root,-)
-%doc %{llvmdocdir llvm}/
+%doc CREDITS.TXT
+%doc README.txt
 %dir %{_datadir}/llvm
 %{_bindir}/bugpoint
 %{_bindir}/llc
@@ -605,16 +599,15 @@ exit 0
 %doc %{_mandir}/man1/*.1.*
 
 %files devel
-%defattr(-,root,root,-)
-%doc %{llvmdocdir llvm-devel}/
+%doc %{llvmdocdir %{name}-devel}/
 %{_bindir}/llvm-config-%{__isa_bits}
 %{_includedir}/%{name}
 %{_includedir}/%{name}-c
 %{_datadir}/llvm/cmake
 
 %files libs
-%defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/ld.so.conf.d/llvm-%{_arch}.conf
+%doc LICENSE.TXT
+%config(noreplace) %{_sysconfdir}/ld.so.conf.d/%{name}-%{_arch}.conf
 %dir %{_libdir}/%{name}
 %if %{with clang}
 %exclude %{_libdir}/%{name}/libclang.so
@@ -625,12 +618,10 @@ exit 0
 %{_libdir}/%{name}/*.so
 
 %files static
-%defattr(-,root,root,-)
 %{_libdir}/%{name}/*.a
 
 %if %{with clang}
 %files -n clang
-%defattr(-,root,root,-)
 %doc %{llvmdocdir clang}/
 %{_bindir}/clang*
 %{_bindir}/c-index-test
@@ -638,17 +629,14 @@ exit 0
 %doc %{_mandir}/man1/clang.1.*
 
 %files -n clang-libs
-%defattr(-,root,root,-)
 %{_libdir}/%{name}/libclang.so
 
 %files -n clang-devel
-%defattr(-,root,root,-)
 %doc %{llvmdocdir clang-devel}/
 %{_includedir}/clang
 %{_includedir}/clang-c
 
 %files -n clang-analyzer
-%defattr(-,root,root,-)
 %{_mandir}/man1/scan-build.1.*
 %{_bindir}/scan-build
 %{_bindir}/scan-view
@@ -657,7 +645,6 @@ exit 0
 
 %if %{with lldb}
 %files -n lldb
-%defattr(-,root,root,-)
 %doc %{llvmdocdir lldb}/
 %{_bindir}/lldb
 %{_bindir}/lldb-*
@@ -667,46 +654,46 @@ exit 0
 %doc %{_mandir}/man1/lldb.1.*
 
 %files -n lldb-devel
-%defattr(-,root,root,-)
 %{_includedir}/lldb
 %endif
 
 %files doc
-%defattr(-,root,root,-)
-%doc %{llvmdocdir llvm-doc}/
+%doc %{llvmdocdir %{name}-doc}/
 
 %if %{with ocaml}
 %files ocaml
-%defattr(-,root,root,-)
 %{_libdir}/ocaml/*.cma
 %{_libdir}/ocaml/*.cmi
 %{_libdir}/ocaml/dll*.so
 %{_libdir}/ocaml/META.llvm*
 
 %files ocaml-devel
-%defattr(-,root,root,-)
 %{_libdir}/ocaml/*.a
 %{_libdir}/ocaml/*.cmx*
 %{_libdir}/ocaml/*.mli
 
 %files ocaml-doc
-%defattr(-,root,root,-)
-%doc %{llvmdocdir llvm-ocaml-doc}/
+%doc %{llvmdocdir %{name}-ocaml-doc}/
 %endif
 
 %if %{with doxygen}
 %files apidoc
-%defattr(-,root,root,-)
-%doc %{llvmdocdir llvm-apidoc}/
+%doc %{llvmdocdir %{name}-apidoc}/
 
 %if %{with clang}
 %files -n clang-apidoc
-%defattr(-,root,root,-)
 %doc %{llvmdocdir clang-apidoc}/
 %endif
 %endif
 
 %changelog
+* Wed Nov 19 2014 Jens Petersen <petersen@redhat.com> - 3.5.0-4
+- minor spec file cleanup from llvm34 package review:
+- move LICENSE to llvm-libs
+- remove tabs from spec
+- use name macro to keep llvm34.spec closer
+- remove defattr's
+
 * Wed Nov 05 2014 Adam Jackson <ajax@redhat.com> 3.5.0-3
 - Split out clang-libs
 
