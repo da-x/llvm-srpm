@@ -692,7 +692,7 @@ exit 0
 %endif
 
 %changelog
-* Thu Dev 18 2014 Dan Horák <dan[at]danny.cz> - 3.5.0-5
+* Thu Dec 18 2014 Dan Horák <dan[at]danny.cz> - 3.5.0-5
 - use the common workaround for OOM during linking on s390
 
 * Wed Nov 19 2014 Jens Petersen <petersen@redhat.com> - 3.5.0-4
