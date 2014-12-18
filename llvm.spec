@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.5.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -343,6 +343,11 @@ sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}/%{name}|g' Makefile.config.in
 sed -i 's|/lib\>|/%{_lib}/%{name}|g' tools/llvm-config/llvm-config.cpp
 
 %build
+%ifarch s390
+# Decrease debuginfo verbosity to reduce memory consumption in linker
+%global optflags %(echo %{optflags} | sed 's/-g /-g1 /')
+%endif
+
 # clang is lovely and all, but fedora builds with gcc
 # -fno-devirtualize shouldn't be necessary, but gcc has scary template-related
 # bugs that make it so.  gcc 5 ought to be fixed.
@@ -687,6 +692,9 @@ exit 0
 %endif
 
 %changelog
+* Thu Dev 18 2014 Dan Horák <dan[at]danny.cz> - 3.5.0-5
+- use the common workaround for OOM during linking on s390
+
 * Wed Nov 19 2014 Jens Petersen <petersen@redhat.com> - 3.5.0-4
 - minor spec file cleanup from llvm34 package review:
 - move LICENSE to llvm-libs
