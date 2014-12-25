@@ -75,6 +75,7 @@ Patch100:       clang-fake-gcc43.patch
 
 Patch200:       lldb-python.patch
 Patch201:       lldb-fix-expression-parser.patch
+Patch202:       lldb-python-module-symlink.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -335,6 +336,7 @@ pushd tools/lldb
 # careful when recreating this patch...
 %patch200 -p1 -b .python
 %patch201 -p2
+%patch202 -p1
 sed -i s/@lib@/%{_lib}/g scripts/Python/modules/readline/Makefile
 popd
 %endif
@@ -696,6 +698,7 @@ exit 0
 %changelog
 * Thu Dec 25 2014 Jan Vcelak <jvcelak@fedoraproject.org> 3.5.0-6
 - lldb: fix broken expression parser
+- lldb, python module: fix symlink to lldb.so (#1177143)
 
 * Thu Dec 18 2014 Dan Horák <dan[at]danny.cz> - 3.5.0-5
 - use the common workaround for OOM during linking on s390
