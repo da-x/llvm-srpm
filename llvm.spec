@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.5.0
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -74,6 +74,7 @@ Patch2:         0001-data-install-preserve-timestamps.patch
 Patch100:       clang-fake-gcc43.patch
 
 Patch200:       lldb-python.patch
+Patch201:       lldb-fix-expression-parser.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -333,6 +334,7 @@ popd
 pushd tools/lldb
 # careful when recreating this patch...
 %patch200 -p1 -b .python
+%patch201 -p2
 sed -i s/@lib@/%{_lib}/g scripts/Python/modules/readline/Makefile
 popd
 %endif
@@ -692,6 +694,9 @@ exit 0
 %endif
 
 %changelog
+* Thu Dec 25 2014 Jan Vcelak <jvcelak@fedoraproject.org> 3.5.0-6
+- lldb: fix broken expression parser
+
 * Thu Dec 18 2014 Dan Horák <dan[at]danny.cz> - 3.5.0-5
 - use the common workaround for OOM during linking on s390
 
