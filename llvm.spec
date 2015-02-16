@@ -55,6 +55,8 @@ Source11:       llvm-Config-llvm-config.h
 # patches
 Patch1:         llvm-3.5.0-build-fix.patch
 Patch2:         0001-data-install-preserve-timestamps.patch
+# Upstream patch for gcc 5/c++11
+Patch3:         llvm-IntrusiveRefCntPtr.patch
 
 # the next two are various attempts to get clang to actually work on arm
 # by forcing a hard-float ABI.  They don't apply anymore as of 3.5.0,
@@ -320,6 +322,7 @@ mv lldb-*/ tools/lldb
 
 %patch1 -p1
 %patch2 -p1
+%patch3 -p2
 %if %{with clang}
 #patch20 -p1
 #patch22 -p1
