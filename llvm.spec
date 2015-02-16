@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.5.0
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -696,6 +696,9 @@ exit 0
 %endif
 
 %changelog
+* Mon Feb 16 2015 Orion Poplawski <orion@cora.nwra.com> - 3.5.0-7
+- Rebuild for gcc 5 C++11
+
 * Thu Dec 25 2014 Jan Vcelak <jvcelak@fedoraproject.org> 3.5.0-6
 - lldb: fix broken expression parser
 - lldb, python module: fix symlink to lldb.so (#1177143)
