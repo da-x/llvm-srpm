@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.5.0
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -699,6 +699,9 @@ exit 0
 %endif
 
 %changelog
+* Tue Feb 17 2015 Richard W.M. Jones <rjones@redhat.com> - 3.5.0-8
+- ocaml-4.02.1 rebuild.
+
 * Mon Feb 16 2015 Orion Poplawski <orion@cora.nwra.com> - 3.5.0-7
 - Rebuild for gcc 5 C++11
 
