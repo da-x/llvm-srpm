@@ -333,7 +333,7 @@ mv lldb-*/ tools/lldb
 %if %{with clang}
 pushd tools/clang
 %patch100 -p1
-%patch101 -p1
+%patch101 -p0
 popd
 %endif
 
