@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.5.0
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -407,7 +407,7 @@ export CXX=g++
   --with-arch=armv7-a \
   --with-float=hard \
   --with-fpu=vfpv3-d16 \
-  --with-abi=aapcs-linux \
+  --with-abi=aapcs-vfp \
 %endif
   \
 %if %{with gold}
@@ -556,8 +556,8 @@ make -C tools/clang/test TESTARGS="-v -j4" | tee %{buildroot}%{llvmdocdir clang-
 %postun libs -p /sbin/ldconfig
 
 %if %{with clang}
-%post -n clang -p /sbin/ldconfig
-%postun -n clang -p /sbin/ldconfig
+%post -n clang-libs -p /sbin/ldconfig
+%postun -n clang-libs -p /sbin/ldconfig
 %endif
 
 %if %{with lldb}
@@ -699,6 +699,10 @@ exit 0
 %endif
 
 %changelog
+* Tue Feb 17 2015 Peter Robinson <pbrobinson@fedoraproject.org> 3.5.0-9
+- Run ldconfig on clang-libs not clang
+- Update ARMv7 config options
+
 * Tue Feb 17 2015 Richard W.M. Jones <rjones@redhat.com> - 3.5.0-8
 - ocaml-4.02.1 rebuild.
 
