@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.5.0
-Release:        9%{?dist}
+Release:        10%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -699,6 +699,9 @@ exit 0
 %endif
 
 %changelog
+* Wed Feb 18 2015 Richard W.M. Jones <rjones@redhat.com> - 3.5.0-10
+- Bump release and rebuild.
+
 * Tue Feb 17 2015 Peter Robinson <pbrobinson@fedoraproject.org> 3.5.0-9
 - Run ldconfig on clang-libs not clang
 - Update ARMv7 config options
