@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.5.0
-Release:        10%{?dist}
+Release:        11%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -74,6 +74,8 @@ Patch3:         llvm-IntrusiveRefCntPtr.patch
 # be to build everything herein with gcc, but i don't have the patience
 # atm, so in the interest of bootstrapping...
 Patch100:       clang-fake-gcc43.patch
+# http://llvm.org/bugs/show_bug.cgi?id=22625
+Patch101:       clang-pr22625.patch
 
 Patch200:       lldb-python.patch
 Patch201:       lldb-fix-expression-parser.patch
@@ -331,6 +333,7 @@ mv lldb-*/ tools/lldb
 %if %{with clang}
 pushd tools/clang
 %patch100 -p1
+%patch101 -p1
 popd
 %endif
 
@@ -699,6 +702,9 @@ exit 0
 %endif
 
 %changelog
+* Wed Feb 18 2015 Jonathan Wakely <jwakely@redhat.com> - 3.5.0-11
+- Add patch for http://llvm.org/bugs/show_bug.cgi?id=22625
+
 * Wed Feb 18 2015 Richard W.M. Jones <rjones@redhat.com> - 3.5.0-10
 - Bump release and rebuild.
 
