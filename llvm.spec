@@ -7,7 +7,7 @@
 
 # Components enabled if supported by target arch:
 %ifnarch s390 s390x sparc64
-  %bcond_without ocaml
+  %bcond_with ocaml
 %else
   %bcond_with ocaml
 %endif
@@ -34,8 +34,8 @@
 #global prerel rc3
 
 Name:           llvm
-Version:        3.5.0
-Release:        11%{?dist}
+Version:        3.6.0
+Release:        1%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -53,10 +53,7 @@ Source10:       llvm-Config-config.h
 Source11:       llvm-Config-llvm-config.h
 
 # patches
-Patch1:         llvm-3.5.0-build-fix.patch
 Patch2:         0001-data-install-preserve-timestamps.patch
-# Upstream patch for gcc 5/c++11
-Patch3:         llvm-IntrusiveRefCntPtr.patch
 
 # the next two are various attempts to get clang to actually work on arm
 # by forcing a hard-float ABI.  They don't apply anymore as of 3.5.0,
@@ -69,16 +66,7 @@ Patch3:         llvm-IntrusiveRefCntPtr.patch
 # http://llvm.org/bugs/attachment.cgi?id=12586
 #Patch22:        pr12586.patch
 
-# newish glibc hides the definition of __extern_always_inline behind
-# a check for gcc 4.3, clang pretends to be gcc 4.2.  a proper fix would
-# be to build everything herein with gcc, but i don't have the patience
-# atm, so in the interest of bootstrapping...
-Patch100:       clang-fake-gcc43.patch
-# http://llvm.org/bugs/show_bug.cgi?id=22625
-Patch101:       clang-pr22625.patch
-
 Patch200:       lldb-python.patch
-Patch201:       lldb-fix-expression-parser.patch
 Patch202:       lldb-python-module-symlink.patch
 
 BuildRequires:  bison
@@ -322,26 +310,12 @@ mv compiler-rt-*/ projects/compiler-rt
 mv lldb-*/ tools/lldb
 %endif
 
-%patch1 -p1
 %patch2 -p1
-%patch3 -p2
-%if %{with clang}
-#patch20 -p1
-#patch22 -p1
-%endif
-
-%if %{with clang}
-pushd tools/clang
-%patch100 -p1
-%patch101 -p0
-popd
-%endif
 
 %if %{with lldb}
 pushd tools/lldb
 # careful when recreating this patch...
 %patch200 -p1 -b .python
-%patch201 -p2
 %patch202 -p1
 sed -i s/@lib@/%{_lib}/g scripts/Python/modules/readline/Makefile
 popd
@@ -363,6 +337,8 @@ sed -i 's|/lib\>|/%{_lib}/%{name}|g' tools/llvm-config/llvm-config.cpp
 # bugs that make it so.  gcc 5 ought to be fixed.
 export CC=gcc
 export CXX=g++
+export CFLAGS="%{optflags} -DLLDB_DISABLE_PYTHON"
+export CXXFLAGS="%{optflags} -DLLDB_DISABLE_PYTHON"
 %configure \
   --with-extra-options="-fno-devirtualize" \
   --with-extra-ld-options=-Wl,-Bsymbolic \
@@ -426,7 +402,7 @@ make %{?_smp_mflags} REQUIRES_RTTI=1 VERBOSE=1
 make install DESTDIR=%{buildroot} PROJ_docsdir=/moredocs
 
 # you have got to be kidding me
-rm -f %{buildroot}%{_bindir}/{FileCheck,count,not}
+rm -f %{buildroot}%{_bindir}/{FileCheck,count,not,verify-uselistorder,obj2yaml,yaml2obj}
 
 # multilib fixes
 mv %{buildroot}%{_bindir}/llvm-config{,-%{__isa_bits}}
@@ -665,7 +641,7 @@ exit 0
 %{_bindir}/lldb-*
 %{_libdir}/%{name}/liblldb.so
 # XXX double check this
-%{python2_sitearch}/*
+#{python2_sitearch}/*
 %doc %{_mandir}/man1/lldb.1.*
 
 %files -n lldb-devel
@@ -702,6 +678,9 @@ exit 0
 %endif
 
 %changelog
+* Thu Apr 09 2015 Adam Jackson <ajax@redhat.com> 3.6.0-1
+- llvm 3.6.0
+
 * Wed Feb 18 2015 Jonathan Wakely <jwakely@redhat.com> - 3.5.0-11
 - Add patch for http://llvm.org/bugs/show_bug.cgi?id=22625
 

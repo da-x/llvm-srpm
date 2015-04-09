@@ -1,4 +1,4 @@
-27718dd13c7df83e15f997116bbb4aef  cfe-3.5.0.src.tar.xz
-02624d2a9144278c3808c00dbbab56c8  compiler-rt-3.5.0.src.tar.xz
-9597d5376309805ac586adfbd1e992f4  lldb-3.5.0.src.tar.xz
-d6987305a1a0e58e128c1374cd3b8fef  llvm-3.5.0.src.tar.xz
+e3012065543dc6ab8a9842b09616b78d  cfe-3.6.0.src.tar.xz
+cc36dbcafe43406083e98bc9e74f8054  compiler-rt-3.6.0.src.tar.xz
+a1ea02b3126152f3dd9aeee8ebb5afa5  lldb-3.6.0.src.tar.xz
+f1e14e949f8df3047c59816c55278cec  llvm-3.6.0.src.tar.xz
