@@ -72,6 +72,7 @@ Patch202:       lldb-python-module-symlink.patch
 BuildRequires:  bison
 BuildRequires:  chrpath
 BuildRequires:  flex
+BuildRequires:  gcc-c++
 BuildRequires:  groff
 BuildRequires:  libffi-devel
 BuildRequires:  libtool-ltdl-devel
