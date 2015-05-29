@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.6.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -165,6 +165,7 @@ Group:          Development/Languages
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 # clang requires gcc, clang++ requires libstdc++-devel
 Requires:       libstdc++-devel
+Requires:       gcc-c++
 # remove clang-doc pacakge
 Obsoletes:      clang-doc < %{version}-%{release}
 
@@ -679,6 +680,9 @@ exit 0
 %endif
 
 %changelog
+* Fri May 29 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 3.6.0-2
+- Also require gcc-c++ at runtime (#1021645)
+
 * Thu Apr 09 2015 Adam Jackson <ajax@redhat.com> 3.6.0-1
 - llvm 3.6.0
 
