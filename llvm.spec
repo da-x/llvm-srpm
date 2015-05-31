@@ -165,6 +165,8 @@ Group:          Development/Languages
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 # clang requires gcc, clang++ requires libstdc++-devel
 Requires:       libstdc++-devel
+# See https://bugzilla.redhat.com/show_bug.cgi?id=1021645
+# and https://bugzilla.redhat.com/show_bug.cgi?id=1158594
 Requires:       gcc-c++
 # remove clang-doc pacakge
 Obsoletes:      clang-doc < %{version}-%{release}
