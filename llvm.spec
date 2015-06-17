@@ -34,8 +34,8 @@
 #global prerel rc3
 
 Name:           llvm
-Version:        3.6.0
-Release:        2%{?dist}
+Version:        3.6.1
+Release:        1%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -682,6 +682,9 @@ exit 0
 %endif
 
 %changelog
+* Wed Jun 17 2015 Dave Airlie <airlied@redhat.com> 3.6.1-1
+- llvm 3.6.1
+
 * Fri May 29 2015 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl> - 3.6.0-2
 - Also require gcc-c++ at runtime (#1021645)
 
