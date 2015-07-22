@@ -34,7 +34,7 @@
 #global prerel rc3
 
 Name:           llvm
-Version:        3.6.1
+Version:        3.6.2
 Release:        1%{?dist}
 Summary:        The Low Level Virtual Machine
 
@@ -682,6 +682,9 @@ exit 0
 %endif
 
 %changelog
+* Wed Jul 22 2015 Adam Jackson <ajax@redhat.com> 3.6.2-1
+- llvm 3.6.2
+
 * Wed Jun 17 2015 Dave Airlie <airlied@redhat.com> 3.6.1-1
 - llvm 3.6.1
 
