@@ -1,28 +1,14 @@
 # Components skipped by default:
 %bcond_with doxygen
+%bcond_with ocaml
+%bcond_with lldb
 
 # Components built by default:
 %bcond_without clang
 %bcond_without crt
+%bcond_without gold
 
-# Components enabled if supported by target arch:
-%ifnarch s390 s390x sparc64
-  %bcond_without ocaml
-%else
-  %bcond_with ocaml
-%endif
-%ifarch %ix86 x86_64
-  %bcond_without gold
-%else
-  %bcond_with gold
-%endif
-# lldb not ported to anything but x86 so far.
-%ifarch x86_64 %{ix86}
-  %bcond_without lldb
-%else
-  %bcond_with lldb
-%endif
-
+%define _prefix /opt/llvm-3.5
 
 # Documentation install path
 %if 0%{?fedora} < 20
@@ -33,7 +19,7 @@
 
 #global prerel rc3
 
-Name:           llvm
+Name:           llvm-3.5
 Version:        3.5.0
 Release:        9%{?dist}
 Summary:        The Low Level Virtual Machine
@@ -100,7 +86,7 @@ BuildRequires:  dejagnu tcl-devel python
 BuildRequires:  doxygen graphviz
 %endif
 # pod2man moved to perl-podlators in F19
-BuildRequires:  %{_bindir}/pod2man
+BuildRequires:  /usr/bin/pod2man
 Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
 
 %description
@@ -167,7 +153,7 @@ for general consumption.
 
 
 %if %{with clang}
-%package -n clang
+%package -n clang-3.5
 Summary:        A C language family front-end for LLVM
 License:        NCSA
 Group:          Development/Languages
@@ -177,7 +163,7 @@ Requires:       libstdc++-devel
 # remove clang-doc pacakge
 Obsoletes:      clang-doc < %{version}-%{release}
 
-%description -n clang
+%description -n clang-3.5
 clang: noun
     1. A loud, resonant, metallic sound.
     2. The strident call of a crane or goose.
@@ -188,34 +174,34 @@ and Objective C++ front-end for the LLVM compiler. Its tools are built
 as libraries and designed to be loosely-coupled and extensible.
 
 
-%Package -n clang-libs
+%Package -n clang-3.5-libs
 Summary:        Runtime library for clang
 Group:          System Environment/Libraries
 
-%description -n clang-libs
+%description -n clang-3.5-libs
 Runtime library for clang.
 
 
-%package -n clang-devel
+%package -n clang-3.5-devel
 Summary:        Header files for clang
 Group:          Development/Languages
-Requires:       clang%{?_isa} = %{version}-%{release}
+Requires:       clang-3.5%{?_isa} = %{version}-%{release}
 
-%description -n clang-devel
+%description -n clang-3.5-devel
 This package contains header files for the Clang compiler.
 
 
-%package -n clang-analyzer
+%package -n clang-3.5-analyzer
 Summary:        A source code analysis framework
 License:        NCSA
 Group:          Development/Languages
 BuildArch:      noarch
-Requires:       clang = %{version}-%{release}
+Requires:       clang-3.5 = %{version}-%{release}
 # not picked up automatically since files are currently not instaled
 # in standard Python hierarchies yet
 Requires:       python
 
-%description -n clang-analyzer
+%description -n clang-3.5-analyzer
 The Clang Static Analyzer consists of both a source code analysis
 framework and a standalone tool that finds bugs in C and Objective-C
 programs. The standalone tool is invoked from the command-line, and is
@@ -261,13 +247,13 @@ API documentation for the LLVM compiler infrastructure.
 
 
 %if %{with clang}
-%package -n clang-apidoc
+%package -n clang-3.5-apidoc
 Summary:        API documentation for Clang
 Group:          Development/Languages
 BuildArch:      noarch
 
 
-%description -n clang-apidoc
+%description -n clang-3.5-apidoc
 API documentation for the Clang compiler.
 %endif
 %endif
@@ -411,9 +397,9 @@ export CXX=g++
 %endif
   \
 %if %{with gold}
-  --with-binutils-include=%{_includedir} \
+  --with-binutils-include=/usr/include \
 %endif
-  --with-c-include-dirs=%{_includedir}:$(echo %{_prefix}/lib/gcc/%{_target_cpu}*/*/include) \
+  --with-c-include-dirs=/usr/include:$(echo /usr/lib/gcc/%{_target_cpu}*/*/include | tr ' ' ':') \
   --with-optimize-option=-O3
 
 make %{?_smp_mflags} REQUIRES_RTTI=1 VERBOSE=1
@@ -556,8 +542,8 @@ make -C tools/clang/test TESTARGS="-v -j4" | tee %{buildroot}%{llvmdocdir clang-
 %postun libs -p /sbin/ldconfig
 
 %if %{with clang}
-%post -n clang-libs -p /sbin/ldconfig
-%postun -n clang-libs -p /sbin/ldconfig
+%post -n clang-3.5-libs -p /sbin/ldconfig
+%postun -n clang-3.5-libs -p /sbin/ldconfig
 %endif
 
 %if %{with lldb}
@@ -602,19 +588,18 @@ exit 0
 %{_bindir}/macho-dump
 %{_bindir}/opt
 %if %{with clang}
-%exclude %{_mandir}/man1/clang.1.*
-%exclude %{_mandir}/man1/scan-build.1.*
+%exclude %{_mandir}/man1/clang.1
+%exclude %{_mandir}/man1/scan-build.1
 %endif
 %if %{with lldb}
 %exclude %{_mandir}/man1/lldb.1.*
 %endif
-%doc %{_mandir}/man1/*.1.*
 
 %files devel
 %doc %{llvmdocdir %{name}-devel}/
 %{_bindir}/llvm-config-%{__isa_bits}
-%{_includedir}/%{name}
-%{_includedir}/%{name}-c
+%{_includedir}/llvm
+%{_includedir}/llvm-c
 %{_datadir}/llvm/cmake
 
 %files libs
@@ -633,23 +618,23 @@ exit 0
 %{_libdir}/%{name}/*.a
 
 %if %{with clang}
-%files -n clang
+%files -n clang-3.5
 %doc %{llvmdocdir clang}/
 %{_bindir}/clang*
 %{_bindir}/c-index-test
 %{_prefix}/lib/clang
-%doc %{_mandir}/man1/clang.1.*
+%doc %{_mandir}/man1/clang.*
 
-%files -n clang-libs
+%files -n clang-3.5-libs
 %{_libdir}/%{name}/libclang.so
 
-%files -n clang-devel
+%files -n clang-3.5-devel
 %doc %{llvmdocdir clang-devel}/
 %{_includedir}/clang
 %{_includedir}/clang-c
 
-%files -n clang-analyzer
-%{_mandir}/man1/scan-build.1.*
+%files -n clang-3.5-analyzer
+%{_mandir}/man1/scan-build.*
 %{_bindir}/scan-build
 %{_bindir}/scan-view
 %{_libexecdir}/clang-analyzer
@@ -693,7 +678,7 @@ exit 0
 %doc %{llvmdocdir %{name}-apidoc}/
 
 %if %{with clang}
-%files -n clang-apidoc
+%files -n clang-3.5-apidoc
 %doc %{llvmdocdir clang-apidoc}/
 %endif
 %endif
