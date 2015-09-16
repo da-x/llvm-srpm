@@ -34,7 +34,7 @@
 #global prerel rc3
 
 Name:           llvm
-Version:        3.6.2
+Version:        3.7.0
 Release:        1%{?dist}
 Summary:        The Low Level Virtual Machine
 
@@ -53,6 +53,9 @@ Source10:       llvm-Config-config.h
 Source11:       llvm-Config-llvm-config.h
 
 # patches
+# there is a double slash in an include, it breaks debugedit
+Patch0:         fix-broken-include-path.patch
+
 Patch2:         0001-data-install-preserve-timestamps.patch
 
 # the next two are various attempts to get clang to actually work on arm
@@ -86,6 +89,7 @@ BuildRequires:  ncurses-devel
 BuildRequires:  zip
 # for DejaGNU test suite
 BuildRequires:  dejagnu tcl-devel python
+BuildRequires: python-sphinx
 # for doxygen documentation
 %if %{with doxygen}
 BuildRequires:  doxygen graphviz
@@ -314,6 +318,8 @@ mv compiler-rt-*/ projects/compiler-rt
 mv lldb-*/ tools/lldb
 %endif
 
+
+%patch0 -p1
 %patch2 -p1
 
 %if %{with lldb}
@@ -329,6 +335,7 @@ popd
 sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' configure
 sed -i 's|(PROJ_prefix)/lib|(PROJ_prefix)/%{_lib}/%{name}|g' Makefile.config.in
 sed -i 's|/lib\>|/%{_lib}/%{name}|g' tools/llvm-config/llvm-config.cpp
+sed -ri "/ifeq.*CompilerTargetArch/s#i386#i686#g" projects/compiler-rt/make/platform/clang_linux.mk
 
 %build
 %ifarch s390
@@ -336,13 +343,16 @@ sed -i 's|/lib\>|/%{_lib}/%{name}|g' tools/llvm-config/llvm-config.cpp
 %global optflags %(echo %{optflags} | sed 's/-g /-g1 /')
 %endif
 
+mkdir build
+cd build
+ln -s ../configure .
 # clang is lovely and all, but fedora builds with gcc
 # -fno-devirtualize shouldn't be necessary, but gcc has scary template-related
 # bugs that make it so.  gcc 5 ought to be fixed.
 export CC=gcc
 export CXX=g++
-export CFLAGS="%{optflags} -DLLDB_DISABLE_PYTHON"
-export CXXFLAGS="%{optflags} -DLLDB_DISABLE_PYTHON"
+export CFLAGS="%{optflags} -DLLDB_DISABLE_PYTHON -DHAVE_PROCESS_VM_READV"
+export CXXFLAGS="%{optflags} -DLLDB_DISABLE_PYTHON -DHAVE_PROCESS_VM_READV"
 %configure \
   --with-extra-options="-fno-devirtualize" \
   --with-extra-ld-options=-Wl,-Bsymbolic \
@@ -396,14 +406,15 @@ export CXXFLAGS="%{optflags} -DLLDB_DISABLE_PYTHON"
 %if %{with gold}
   --with-binutils-include=%{_includedir} \
 %endif
-  --with-c-include-dirs=%{_includedir}:$(echo %{_prefix}/lib/gcc/%{_target_cpu}*/*/include) \
   --with-optimize-option=-O3
 
 make %{?_smp_mflags} REQUIRES_RTTI=1 VERBOSE=1
 #make REQUIRES_RTTI=1 VERBOSE=1
 
 %install
+cd build
 make install DESTDIR=%{buildroot} PROJ_docsdir=/moredocs
+cd -
 
 # you have got to be kidding me
 rm -f %{buildroot}%{_bindir}/{FileCheck,count,not,verify-uselistorder,obj2yaml,yaml2obj}
@@ -484,6 +495,11 @@ mv %{buildroot}/moredocs/ocamldoc/html %{buildroot}%{llvmdocdir %{name}-ocaml-do
 
 # clang
 %if %{with clang}
+cd tools/clang/docs/
+make -f Makefile.sphinx man
+cd -
+cp tools/clang/docs/_build/man/clang.1 %{buildroot}%{_mandir}/man1/clang.1
+
 mkdir -p %{buildroot}%{llvmdocdir clang}
 for f in LICENSE.TXT NOTES.txt README.txt CODE_OWNERS.TXT; do
   cp tools/clang/$f %{buildroot}%{llvmdocdir clang}/
@@ -511,8 +527,8 @@ mkdir -p %{buildroot}%{_datadir}/llvm/cmake/
 cp -p cmake/modules/*.cmake %{buildroot}%{_datadir}/llvm/cmake/
 
 # remove RPATHs
-file %{buildroot}/%{_bindir}/* | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
-file %{buildroot}/%{_libdir}/%{name}/*.so | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
+file %{buildroot}%{_bindir}/* | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
+file %{buildroot}%{_libdir}/%{name}/*.so | awk -F: '$2~/ELF/{print $1}' | xargs -r chrpath -d
 
 %check
 # the Koji build server does not seem to have enough RAM
@@ -523,7 +539,9 @@ file %{buildroot}/%{_libdir}/%{name}/*.so | awk -F: '$2~/ELF/{print $1}' | xargs
 
 # LLVM test suite failing on ARM, PPC64 and s390(x)
 mkdir -p %{buildroot}%{llvmdocdir %{name}-devel}
+cd build
 make -k check LIT_ARGS="-v -j4" | tee %{buildroot}%{llvmdocdir %{name}-devel}/testlog-%{_arch}.txt || :
+cd -
 
 %if %{with clang}
 # clang test suite failing on PPC and s390(x)
@@ -531,7 +549,9 @@ make -k check LIT_ARGS="-v -j4" | tee %{buildroot}%{llvmdocdir %{name}-devel}/te
 # unexpected failures on all platforms with GCC 4.7.0.
 # capture logs
 mkdir -p %{buildroot}%{llvmdocdir clang-devel}
+cd build
 make -C tools/clang/test TESTARGS="-v -j4" | tee %{buildroot}%{llvmdocdir clang-devel}/testlog-%{_arch}.txt || :
+cd -
 %endif
 
 
@@ -682,6 +702,9 @@ exit 0
 %endif
 
 %changelog
+* Wed Sep 16 2015 Dave Airlie <airlied@redhat.com> 3.7.0-1
+- llvm 3.7.0
+
 * Wed Jul 22 2015 Adam Jackson <ajax@redhat.com> 3.6.2-1
 - llvm 3.6.2
 
