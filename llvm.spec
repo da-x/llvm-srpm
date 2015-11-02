@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.7.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -76,6 +76,7 @@ BuildRequires:  bison
 BuildRequires:  chrpath
 BuildRequires:  flex
 BuildRequires:  gcc-c++
+BuildRequires:  libstdc++-static
 BuildRequires:  groff
 BuildRequires:  libffi-devel
 BuildRequires:  libtool-ltdl-devel
@@ -347,15 +348,12 @@ mkdir build
 cd build
 ln -s ../configure .
 # clang is lovely and all, but fedora builds with gcc
-# -fno-devirtualize shouldn't be necessary, but gcc has scary template-related
-# bugs that make it so.  gcc 5 ought to be fixed.
 export CC=gcc
 export CXX=g++
 export CFLAGS="%{optflags} -DLLDB_DISABLE_PYTHON -DHAVE_PROCESS_VM_READV"
 export CXXFLAGS="%{optflags} -DLLDB_DISABLE_PYTHON -DHAVE_PROCESS_VM_READV"
 %configure \
-  --with-extra-options="-fno-devirtualize" \
-  --with-extra-ld-options=-Wl,-Bsymbolic \
+  --with-extra-ld-options="-Wl,-Bsymbolic -static-libstdc++" \
   --libdir=%{_libdir}/%{name} \
   --disable-polly \
   --disable-libcpp \
@@ -382,7 +380,6 @@ export CXXFLAGS="%{optflags} -DLLDB_DISABLE_PYTHON -DHAVE_PROCESS_VM_READV"
   --enable-zlib \
   --enable-pic \
   --enable-shared \
-  --disable-embed-stdcxx \
   --enable-timestamps \
   --enable-backtraces \
   --enable-targets=x86,powerpc,arm,aarch64,cpp,nvptx,systemz,r600 \
@@ -406,7 +403,6 @@ export CXXFLAGS="%{optflags} -DLLDB_DISABLE_PYTHON -DHAVE_PROCESS_VM_READV"
 %if %{with gold}
   --with-binutils-include=%{_includedir} \
 %endif
-  --with-optimize-option=-O3
 
 make %{?_smp_mflags} REQUIRES_RTTI=1 VERBOSE=1
 #make REQUIRES_RTTI=1 VERBOSE=1
@@ -702,6 +698,10 @@ exit 0
 %endif
 
 %changelog
+* Thu Oct 29 2015 Adam Jackson <ajax@redhat.com> 3.7.0-2
+- Drop -fno-devirtualize
+- Link with -static-libstdc++ to work around bundled libstdc++ in Steam
+
 * Wed Sep 16 2015 Dave Airlie <airlied@redhat.com> 3.7.0-1
 - llvm 3.7.0
 
