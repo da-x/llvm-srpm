@@ -1,0 +1,24 @@
+From e746af90e6aa52af6e6bb0b88ffe20dbd97a1e4d Mon Sep 17 00:00:00 2001
+From: Stephan Bergmann <sbergman@redhat.com>
+Date: Thu, 3 Dec 2015 14:53:39 +0100
+Subject: [PATCH 2/3] Adapt previous (Clang trunk) patch to Clang 3.7
+
+---
+ lib/AST/ItaniumMangle.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/lib/AST/ItaniumMangle.cpp b/lib/AST/ItaniumMangle.cpp
+index e32b659..19a09dc 100644
+--- a/tools/clang/lib/AST/ItaniumMangle.cpp
++++ b/tools/clang/lib/AST/ItaniumMangle.cpp
+@@ -31,6 +31,7 @@
+ #include "llvm/ADT/StringExtras.h"
+ #include "llvm/Support/ErrorHandling.h"
+ #include "llvm/Support/raw_ostream.h"
++#include <set>
+ 
+ #define MANGLE_CHECKER 0
+ 
+-- 
+2.4.3
+

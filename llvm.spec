@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.7.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -71,6 +71,9 @@ Patch2:         0001-data-install-preserve-timestamps.patch
 
 Patch200:       lldb-python.patch
 Patch202:       lldb-python-module-symlink.patch
+
+Patch203:       0001-add-gcc-abi_tag-support.patch
+Patch204:       0002-Adapt-previous-Clang-trunk-patch-to-Clang-3.7.patch
 
 BuildRequires:  bison
 BuildRequires:  chrpath
@@ -331,6 +334,9 @@ pushd tools/lldb
 sed -i s/@lib@/%{_lib}/g scripts/Python/modules/readline/Makefile
 popd
 %endif
+
+%patch203 -p1
+%patch204 -p1
 
 # fix library paths
 sed -i 's|/lib /usr/lib $lt_ld_extra|%{_libdir} $lt_ld_extra|' configure
@@ -698,6 +704,9 @@ exit 0
 %endif
 
 %changelog
+* Thu Dec 03 2015 Stephan Bergmann <sbergman@redhat.com> 3.7.0-3
+- Resolves: rhbz#1282645 add GCC abi_tag support
+
 * Thu Oct 29 2015 Adam Jackson <ajax@redhat.com> 3.7.0-2
 - Drop -fno-devirtualize
 - Link with -static-libstdc++ to work around bundled libstdc++ in Steam
