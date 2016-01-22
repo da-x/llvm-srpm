@@ -35,7 +35,7 @@
 
 Name:           llvm
 Version:        3.7.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        The Low Level Virtual Machine
 
 Group:          Development/Languages
@@ -388,7 +388,7 @@ export CXXFLAGS="%{optflags} -DLLDB_DISABLE_PYTHON -DHAVE_PROCESS_VM_READV"
   --enable-shared \
   --enable-timestamps \
   --enable-backtraces \
-  --enable-targets=x86,powerpc,arm,aarch64,cpp,nvptx,systemz,r600 \
+  --enable-targets=x86,powerpc,arm,aarch64,cpp,nvptx,systemz,r600,bpf \
 %if %{with ocaml}
   --enable-bindings=ocaml \
 %else
@@ -704,6 +704,9 @@ exit 0
 %endif
 
 %changelog
+* Fri Jan 22 2016 Adam Jackson <ajax@redhat.com> 3.7.0-4
+- Enable bpf target
+
 * Thu Dec 03 2015 Stephan Bergmann <sbergman@redhat.com> 3.7.0-3
 - Resolves: rhbz#1282645 add GCC abi_tag support
 
