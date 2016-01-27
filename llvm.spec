@@ -67,7 +67,7 @@ cd _build
 %cmake .. \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	-DCMAKE_SHARED_LINKER_FLAGS="-Wl,-Bsymbolic -static-libstdc++" \
-%if %{__isa_bits} == 64
+%if 0%{?__isa_bits} == 64
 	-DLLVM_LIBDIR_SUFFIX=64 \
 %else
 	-DLLVM_LIBDIR_SUFFIX= \
