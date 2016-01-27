@@ -1,0 +1,29 @@
+diff -up cfe-3.7.1.src/CMakeLists.txt.fix-header cfe-3.7.1.src/CMakeLists.txt
+--- cfe-3.7.1.src/CMakeLists.txt.fix-header	2015-06-12 12:33:38.000000000 -0400
++++ cfe-3.7.1.src/CMakeLists.txt	2016-01-21 18:41:53.215983596 -0500
+@@ -84,6 +84,7 @@ if( CMAKE_SOURCE_DIR STREQUAL CMAKE_CURR
+   # They are used as destination of target generators.
+   set(LLVM_RUNTIME_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/bin)
+   set(LLVM_LIBRARY_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/lib${LLVM_LIBDIR_SUFFIX})
++  set(LLVM_LIBRARY_OUTPUT_INCDIR ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/lib)
+   if(WIN32 OR CYGWIN)
+     # DLL platform -- put DLLs into bin.
+     set(LLVM_SHLIB_OUTPUT_INTDIR ${LLVM_RUNTIME_OUTPUT_INTDIR})
+diff -up cfe-3.7.1.src/lib/Headers/CMakeLists.txt.fix-header cfe-3.7.1.src/lib/Headers/CMakeLists.txt
+--- cfe-3.7.1.src/lib/Headers/CMakeLists.txt.fix-header	2015-07-30 18:47:41.000000000 -0400
++++ cfe-3.7.1.src/lib/Headers/CMakeLists.txt	2016-01-21 19:22:49.261200235 -0500
+@@ -69,7 +69,7 @@ set(files
+   xtestintrin.h
+   )
+ 
+-set(output_dir ${LLVM_LIBRARY_OUTPUT_INTDIR}/clang/${CLANG_VERSION}/include)
++set(output_dir ${LLVM_LIBRARY_OUTPUT_INCDIR}/clang/${CLANG_VERSION}/include)
+ 
+ # Generate arm_neon.h
+ clang_tablegen(arm_neon.h -gen-arm-neon
+@@ -98,4 +98,4 @@ set_target_properties(clang-headers PROP
+ install(
+   FILES ${files} ${CMAKE_CURRENT_BINARY_DIR}/arm_neon.h
+   PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+-  DESTINATION lib${LLVM_LIBDIR_SUFFIX}/clang/${CLANG_VERSION}/include)
++  DESTINATION lib/clang/${CLANG_VERSION}/include)
