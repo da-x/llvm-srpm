@@ -38,7 +38,7 @@ make install DESTDIR=%{buildroot}
 # move sanitizer lists to better place
 mkdir -p %{buildroot}%{_datadir}/%{name}
 for file in asan_blacklist.txt dfsan_abilist.txt msan_blacklist.txt; do
-	mv -v %{buildroot}%{_prefix}/${file} %{buildroot}%{_datadir}/%{name}/
+	mv -v %{buildroot}%{_prefix}/${file} %{buildroot}%{_datadir}/%{name}/ || :
 done
 
 %check
