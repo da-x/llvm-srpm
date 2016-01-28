@@ -1,6 +1,6 @@
 Name:		clang
 Version:	3.7.1
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -9,7 +9,6 @@ Source0:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
 
 Source100:	clang-config.h
 
-Patch1:		patch-headers.patch
 BuildRequires:	cmake
 BuildRequires:	llvm-devel = %{version}
 BuildRequires:	libxml2-devel
@@ -63,7 +62,6 @@ intended to run in tandem with a build of a project or code base.
 
 %prep
 %setup -q -n cfe-%{version}.src
-%patch1 -p1 -b .fix-header
 %build
 mkdir -p _build
 cd _build
@@ -141,5 +139,11 @@ done
 %{_mandir}/man1/scan-build.1.*
 
 %changelog
+* Thu Jan 28 2016 Dave Airlie <airlied@redhat.com> 3.7.1-2
+- just accept clang includes moving to /usr/lib64, upstream don't let much else happen
+
+* Thu Jan 28 2016 Dave Airlie <airlied@redhat.com> 3.7.1-1
+- initial build in Fedora.
+
 * Tue Oct 06 2015 Jan Vcelak <jvcelak@fedoraproject.org> 3.7.0-100
 - initial version using cmake build system
