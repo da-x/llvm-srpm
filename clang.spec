@@ -119,7 +119,7 @@ done
 #make check-all
 
 %files
-%{_prefix}/lib/clang
+%{_libdir}/clang/
 %{_bindir}/clang*
 
 %files libs
