@@ -1,6 +1,6 @@
 Name:		clang
 Version:	3.7.1
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -139,6 +139,9 @@ done
 %{_mandir}/man1/scan-build.1.*
 
 %changelog
+* Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 3.7.1-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
 * Thu Jan 28 2016 Dave Airlie <airlied@redhat.com> 3.7.1-2
 - just accept clang includes moving to /usr/lib64, upstream don't let much else happen
 
