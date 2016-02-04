@@ -7,7 +7,7 @@
 
 Name:		llvm
 Version:	3.7.1
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -151,6 +151,9 @@ make check-all || :
 %doc %{_pkgdocdir}/html
 
 %changelog
+* Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 3.7.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
 * Thu Jan 07 2016 Jan Vcelak <jvcelak@fedoraproject.org> 3.7.1-1
 - new upstream release
 - enable gold linker
