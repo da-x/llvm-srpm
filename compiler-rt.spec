@@ -37,7 +37,7 @@ make install DESTDIR=%{buildroot}
 
 # move sanitizer lists to better place
 mkdir -p %{buildroot}%{_libdir}/clang/%{version}
-for file in asan_blacklist.txt; do
+for file in asan_blacklist.txt msan_blacklist.txt dfsan_blacklist.txt; do
 	mv -v %{buildroot}%{_prefix}/${file} %{buildroot}%{_libdir}/clang/%{version}/ || :
 done
 
@@ -52,7 +52,6 @@ cd _build
 %files
 %{_includedir}
 %{_libdir}/clang/%{version}
-%{_libdir}/clang/%{version}/lib
 
 %changelog
 * Fri Feb 05 2016 Dave Airlie <airlied@redhat.com> 3.7.1-3
