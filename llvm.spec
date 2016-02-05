@@ -7,7 +7,7 @@
 
 Name:		llvm
 Version:	3.7.1
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -53,6 +53,7 @@ Documentation for the LLVM compiler infrastructure.
 
 %package libs
 Summary:	LLVM shared libraries
+Obsoletes:	llvm-static < 3.7.1
 
 %description libs
 Shared libraries for the LLVM compiler infrastructure.
@@ -151,6 +152,9 @@ make check-all || :
 %doc %{_pkgdocdir}/html
 
 %changelog
+* Fri Feb 05 2016 Dave Airlie <airlied@redhat.com> 3.7.1-3
+- add missing obsoletes (#1303497)
+
 * Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 3.7.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
