@@ -37,12 +37,12 @@ make install DESTDIR=%{buildroot}
 
 # move sanitizer lists to better place
 mkdir -p %{buildroot}%{_libdir}/clang/%{version}
-for file in asan_blacklist.txt dfsan_abilist.txt msan_blacklist.txt; do
+for file in asan_blacklist.txt; do
 	mv -v %{buildroot}%{_prefix}/${file} %{buildroot}%{_libdir}/clang/%{version}/ || :
 done
 
 # move sanitizer libs to better place
-mv -v %{buildroot}%{_prefix}/lib %{buildroot}%{_libdir}/clang/%{version}/lib
+mv -v %{buildroot}%{_prefix}/lib/linux/libclang_rt* %{buildroot}%{_libdir}/clang/%{version}/lib
 
 %check
 cd _build
