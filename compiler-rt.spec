@@ -42,6 +42,7 @@ for file in asan_blacklist.txt; do
 done
 
 # move sanitizer libs to better place
+mkdir -p %{buildroot}%{_libdir}/clang/%{version}/lib
 mv -v %{buildroot}%{_prefix}/lib/linux/libclang_rt* %{buildroot}%{_libdir}/clang/%{version}/lib
 
 %check
