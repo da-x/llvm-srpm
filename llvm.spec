@@ -7,7 +7,7 @@
 
 Name:		llvm
 Version:	3.7.1
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -65,7 +65,9 @@ Shared libraries for the LLVM compiler infrastructure.
 mkdir -p _build
 cd _build
 
+# force off shared libs as cmake macros turns it on.
 %cmake .. \
+	-DBUILD_SHARED_LIBS:BOOL=OFF \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	-DCMAKE_SHARED_LINKER_FLAGS="-Wl,-Bsymbolic -static-libstdc++" \
 %if 0%{?__isa_bits} == 64
@@ -101,7 +103,7 @@ cd _build
 	-DLLVM_ENABLE_SPHINX:BOOL=ON \
 	-DLLVM_ENABLE_DOXYGEN:BOOL=OFF \
 	\
-	-DLLVM_BUILD_LLVM_DYLIB:BOOL=OFF \
+	-DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
 	-DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=ON \
 	-DLLVM_INSTALL_TOOLCHAIN_ONLY:BOOL=OFF \
 	\
@@ -113,6 +115,9 @@ make %{?_smp_mflags}
 cd _build
 make install DESTDIR=%{buildroot}
 
+# nuke static libraries for now - we can package them later.
+
+rm -f %{buildroot}%{_libdir}/*.a
 # fix multi-lib
 mv -v %{buildroot}%{_bindir}/llvm-config{,-%{__isa_bits}}
 mv -v %{buildroot}%{_includedir}/llvm/Config/llvm-config{,-%{__isa_bits}}.h
@@ -152,6 +157,9 @@ make check-all || :
 %doc %{_pkgdocdir}/html
 
 %changelog
+* Fri Feb 12 2016 Dave Airlie <airlied@redhat.com> 3.7.1-4
+- jump back to single llvm library, the split libs aren't working very well.
+
 * Fri Feb 05 2016 Dave Airlie <airlied@redhat.com> 3.7.1-3
 - add missing obsoletes (#1303497)
 
