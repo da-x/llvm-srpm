@@ -7,7 +7,7 @@
 
 Name:		llvm
 Version:	3.7.1
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -53,10 +53,15 @@ Documentation for the LLVM compiler infrastructure.
 
 %package libs
 Summary:	LLVM shared libraries
-Obsoletes:	llvm-static < 3.7.1
 
 %description libs
 Shared libraries for the LLVM compiler infrastructure.
+
+%package static
+Summary:	LLVM static libraries
+
+%description static
+Static libraries for the LLVM compiler infrastructure.
 
 %prep
 %setup -q -n %{name}-%{version}.src
@@ -115,9 +120,6 @@ make %{?_smp_mflags}
 cd _build
 make install DESTDIR=%{buildroot}
 
-# nuke static libraries for now - we can package them later.
-
-rm -f %{buildroot}%{_libdir}/*.a
 # fix multi-lib
 mv -v %{buildroot}%{_bindir}/llvm-config{,-%{__isa_bits}}
 mv -v %{buildroot}%{_includedir}/llvm/Config/llvm-config{,-%{__isa_bits}}.h
@@ -156,7 +158,13 @@ make check-all || :
 %files doc
 %doc %{_pkgdocdir}/html
 
+%files static
+%{_libdir}/*.a
+
 %changelog
+* Sat Feb 13 2016 Dave Airlie <airlied@redhat.com> 3.7.1-5
+- reintroduce llvm-static, clang needs it currently.
+
 * Fri Feb 12 2016 Dave Airlie <airlied@redhat.com> 3.7.1-4
 - jump back to single llvm library, the split libs aren't working very well.
 
