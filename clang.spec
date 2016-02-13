@@ -12,6 +12,7 @@ Source100:	clang-config.h
 BuildRequires:	cmake
 BuildRequires:	llvm-devel = %{version}
 BuildRequires:	libxml2-devel
+BuildRequires:  llvm-static
 
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 
@@ -141,6 +142,7 @@ done
 %changelog
 * Fri Feb 12 2016 Dave Airlie <airlied@redhat.com> 3.7.1-4
 - rebuild against latest llvm packages
+- add BuildRequires llvm-static
 
 * Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 3.7.1-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
