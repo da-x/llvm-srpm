@@ -7,7 +7,7 @@
 
 Name:		llvm
 Version:	3.7.1
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -109,6 +109,7 @@ cd _build
 	-DLLVM_ENABLE_DOXYGEN:BOOL=OFF \
 	\
 	-DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
+	-DLLVM_DYLIB_EXPORT_ALL:BOOL=ON \
 	-DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=ON \
 	-DLLVM_INSTALL_TOOLCHAIN_ONLY:BOOL=OFF \
 	\
@@ -162,6 +163,9 @@ make check-all || :
 %{_libdir}/*.a
 
 %changelog
+* Sat Feb 13 2016 Dave Airlie <airlied@redhat.com> 3.7.1-6
+- export C++ API for mesa.
+
 * Sat Feb 13 2016 Dave Airlie <airlied@redhat.com> 3.7.1-5
 - reintroduce llvm-static, clang needs it currently.
 
