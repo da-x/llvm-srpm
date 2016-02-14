@@ -14,6 +14,8 @@ BuildRequires:	libedit-devel
 BuildRequires:  swig
 BuildRequires:  llvm-static = %{version}
 BuildRequires:  libffi-devel
+BuildRequires:  zlib-devel
+BuildRequires:  libxml2-devel
 
 %description
 LLDB is a next generation, high-performance debugger. It is built as a set
