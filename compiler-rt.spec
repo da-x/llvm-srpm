@@ -10,6 +10,7 @@ Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.xz
 BuildRequires:	cmake
 BuildRequires:	python
 BuildRequires:  llvm-devel = %{version}
+BuildRequires:  llvm-static = %{version}
 
 %description
 The compiler-rt project is a part of the LLVM project. It provides
