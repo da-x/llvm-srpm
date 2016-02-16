@@ -1,0 +1,12 @@
+diff -up llvm-3.7.1.src/cmake/config-ix.cmake.s390 llvm-3.7.1.src/cmake/config-ix.cmake
+--- llvm-3.7.1.src/cmake/config-ix.cmake.s390	2016-02-16 12:27:36.000000000 +0100
++++ llvm-3.7.1.src/cmake/config-ix.cmake	2016-02-16 12:27:52.000000000 +0100
+@@ -356,6 +356,8 @@ elseif (LLVM_NATIVE_ARCH MATCHES "msp430
+   set(LLVM_NATIVE_ARCH MSP430)
+ elseif (LLVM_NATIVE_ARCH MATCHES "hexagon")
+   set(LLVM_NATIVE_ARCH Hexagon)
++elseif (LLVM_NATIVE_ARCH MATCHES "s390")
++  set(LLVM_NATIVE_ARCH SystemZ)
+ elseif (LLVM_NATIVE_ARCH MATCHES "s390x")
+   set(LLVM_NATIVE_ARCH SystemZ)
+ elseif (LLVM_NATIVE_ARCH MATCHES "wasm32")

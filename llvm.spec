@@ -7,7 +7,7 @@
 
 Name:		llvm
 Version:	3.7.1
-Release:	6%{?dist}
+Release:	7%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -15,6 +15,9 @@ URL:		http://llvm.org
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.xz
 
 Source100:	llvm-config.h
+
+# recognize s390 as SystemZ when configuring build
+Patch0:		llvm-3.7.1-cmake-s390.patch
 
 BuildRequires:	cmake
 BuildRequires:	zlib-devel
@@ -65,6 +68,7 @@ Static libraries for the LLVM compiler infrastructure.
 
 %prep
 %setup -q -n %{name}-%{version}.src
+%patch0 -p1 -b .s390
 
 %build
 mkdir -p _build
@@ -164,6 +168,9 @@ make check-all || :
 %{_libdir}/*.a
 
 %changelog
+* Tue Feb 16 2016 Dan Horák <dan[at][danny.cz> 3.7.1-7
+- recognize s390 as SystemZ when configuring build
+
 * Sat Feb 13 2016 Dave Airlie <airlied@redhat.com> 3.7.1-6
 - export C++ API for mesa.
 
