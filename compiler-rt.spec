@@ -1,11 +1,11 @@
 Name:		compiler-rt
-Version:	3.7.1
-Release:	3%{?dist}
+Version:	3.8.0
+Release:	0.1%{?dist}
 Summary:	LLVM "compiler-rt" runtime libraries
 
 License:	NCSA or MIT
 URL:		http://llvm.org
-Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.xz
+Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}rc2.src.tar.xz
 
 BuildRequires:	cmake
 BuildRequires:	python
@@ -19,7 +19,7 @@ code generation, sanitizer runtimes and profiling library for code
 instrumentation, and Blocks C language extension.
 
 %prep
-%setup -q -n %{name}-%{version}.src
+%setup -q -n %{name}-%{version}rc2.src
 
 %build
 mkdir -p _build
@@ -38,7 +38,7 @@ make install DESTDIR=%{buildroot}
 
 # move sanitizer lists to better place
 mkdir -p %{buildroot}%{_libdir}/clang/%{version}
-for file in asan_blacklist.txt msan_blacklist.txt dfsan_blacklist.txt dfsan_abilist.txt; do
+for file in asan_blacklist.txt msan_blacklist.txt dfsan_blacklist.txt cfi_blacklist.txt dfsan_abilist.txt; do
 	mv -v %{buildroot}%{_prefix}/${file} %{buildroot}%{_libdir}/clang/%{version}/ || :
 done
 
@@ -55,6 +55,9 @@ cd _build
 %{_libdir}/clang/%{version}
 
 %changelog
+* Thu Feb 18 2016 Dave Airlie <airlied@redhat.com> - 3.8.0-0.1
+- compiler-rt 3.8.0rc2
+
 * Fri Feb 05 2016 Dave Airlie <airlied@redhat.com> 3.7.1-3
 - fix compiler-rt paths - from rwindz0@gmail.com - #1304605
 
