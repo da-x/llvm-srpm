@@ -1,18 +1,18 @@
 Name:		clang
-Version:	3.7.1
-Release:	4%{?dist}
+Version:	3.8.0
+Release:	0.1%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
 URL:		http://llvm.org
-Source0:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
+Source0:	http://llvm.org/pre-releases/%{version}/rc2/cfe-%{version}rc2.src.tar.xz
 
 Source100:	clang-config.h
 
 BuildRequires:	cmake
 BuildRequires:	llvm-devel = %{version}
 BuildRequires:	libxml2-devel
-BuildRequires:  llvm-static
+BuildRequires:  llvm-static = %{version}
 
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 
@@ -62,7 +62,7 @@ programs. The standalone tool is invoked from the command-line, and is
 intended to run in tandem with a build of a project or code base.
 
 %prep
-%setup -q -n cfe-%{version}.src
+%setup -q -n cfe-%{version}rc2.src
 %build
 mkdir -p _build
 cd _build
@@ -76,7 +76,8 @@ cd _build
 	-DCLANG_INCLUDE_TESTS:BOOL=ON \
 	-DCLANG_PLUGIN_SUPPORT:BOOL=ON \
 	\
-	-DCLANG_BUILD_EXAMPLES:BOOL=OFF
+	-DCLANG_BUILD_EXAMPLES:BOOL=OFF \
+	-DLIB_SUFFIX=
 
 make %{?_smp_mflags}
 
@@ -98,22 +99,6 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format.py*
 # remove diff reformatter
 rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 
-# install static-analyzer
-# http://clang-analyzer.llvm.org/installation#OtherPlatforms
-mkdir -p %{buildroot}%{_libexecdir}/clang-analyzer/
-cp -vpr ../tools/scan-view %{buildroot}%{_libexecdir}/clang-analyzer/
-cp -vpr ../tools/scan-build %{buildroot}%{_libexecdir}/clang-analyzer/
-# remove non-Linux scripts
-rm -vf %{_buildroot}%{_libexecdir}/clang-analyzer/scan-build/*.bat
-rm -vf %{_buildroot}%{_libexecdir}/clang-analyzer/scan-build/set-xcode-analyzer
-# fix manual page location
-mkdir -p %{buildroot}%{_mandir}/man1/
-mv -v %{buildroot}%{_libexecdir}/clang-analyzer/scan-build/scan-build.1 %{buildroot}%{_mandir}/man1/
-# launchers in /bin
-for tool in scan-{build,view}; do
-  ln -vs ../../%{_libexecdir}/clang-analyzer/$tool/$tool %{buildroot}%{_bindir}/$tool
-done
-
 %check
 # requires lit.py from LLVM utilities
 #cd _build
@@ -122,6 +107,7 @@ done
 %files
 %{_libdir}/clang/
 %{_bindir}/clang*
+%{_bindir}/c-index-test
 
 %files libs
 %{_libdir}/*.so.*
@@ -136,10 +122,17 @@ done
 %files analyzer
 %{_bindir}/scan-view
 %{_bindir}/scan-build
-%{_libexecdir}/clang-analyzer
+%{_bindir}/scan-build
+%{_libexecdir}/ccc-analyzer
+%{_libexecdir}/c++-analyzer
+%{_datadir}/scan-view/
+%{_datadir}/scan-build/
 %{_mandir}/man1/scan-build.1.*
 
 %changelog
+* Thu Feb 18 2016 Dave Airlie <airlied@redhat.com> - 3.8.0-0.1
+- clang 3.8.0rc2
+
 * Fri Feb 12 2016 Dave Airlie <airlied@redhat.com> 3.7.1-4
 - rebuild against latest llvm packages
 - add BuildRequires llvm-static
