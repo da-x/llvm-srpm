@@ -6,13 +6,13 @@
 %endif
 
 Name:		llvm
-Version:	3.7.1
-Release:	7%{?dist}
+Version:	3.8.0
+Release:	0.1%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
 URL:		http://llvm.org
-Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.xz
+Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}rc2.src.tar.xz
 
 Source100:	llvm-config.h
 
@@ -67,7 +67,7 @@ Summary:	LLVM static libraries
 Static libraries for the LLVM compiler infrastructure.
 
 %prep
-%setup -q -n %{name}-%{version}.src
+%setup -q -n %{name}-%{version}rc2.src
 %patch0 -p1 -b .s390
 
 %build
@@ -115,6 +115,7 @@ cd _build
 	\
 	-DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
 	-DLLVM_DYLIB_EXPORT_ALL:BOOL=ON \
+	-DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
 	-DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=ON \
 	-DLLVM_INSTALL_TOOLCHAIN_ONLY:BOOL=OFF \
 	\
@@ -151,7 +152,7 @@ make check-all || :
 %exclude %{_mandir}/man1/llvm-config.1.*
 
 %files libs
-%{_libdir}/*.so.*
+%{_libdir}/*.so*
 
 %files devel
 %{_bindir}/llvm-config-%{__isa_bits}
@@ -168,6 +169,9 @@ make check-all || :
 %{_libdir}/*.a
 
 %changelog
+* Fri Feb 19 2016 Dave Airlie <airlied@redhat.com> 3.8.0-0.1
+- llvm 3.8.0 rc2 release
+
 * Tue Feb 16 2016 Dan Horák <dan[at][danny.cz> 3.7.1-7
 - recognize s390 as SystemZ when configuring build
 
