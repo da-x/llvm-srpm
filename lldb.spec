@@ -1,11 +1,14 @@
 Name:		lldb
-Version:	3.7.1
-Release:	3%{?dist}
+Version:	3.8.0
+Release:	0.1%{?dist}
 Summary:	Next generation high-performance debugger
 
 License:	NCSA
 URL:		http://llvm.org
-Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.xz
+Source0:	http://llvm.org/pre-releases/%{version}/%{name}-%{version}rc2.src.tar.xz
+
+# hack patch from upstream review systems to fix out of tree builds.
+Patch0: D15067.id41365.diff
 
 BuildRequires:	cmake
 BuildRequires:  llvm-devel = %{version}
@@ -33,13 +36,15 @@ The package contains header files for the LLDB debugger.
 %package -n python-lldb
 Summary:	Python module for LLDB
 BuildRequires:	python2-devel
+Requires:	python2-six
 
 %description -n python-lldb
 The package contains the LLDB Python module.
 
 %prep
-%setup -q -n %{name}-%{version}.src
+%setup -q -n %{name}-%{version}rc2.src
 
+%patch0 -p1 -b .dave
 %build
 mkdir -p _build
 cd _build
@@ -48,8 +53,8 @@ cd _build
 
 LDFLAGS="%{__global_ldflags} -lpthread -ldl"
 
-CFLAGS="%{optflags} -fno-strict-aliasing"
-CXXFLAGS="%{optflags} -fno-strict-aliasing"
+CFLAGS="%{optflags} -fno-strict-aliasing -Wno-error=format-security"
+CXXFLAGS="%{optflags} -fno-strict-aliasing -Wno-error=format-security"
 
 %cmake .. \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
@@ -79,14 +84,15 @@ rm -fv %{buildroot}%{_libdir}/*.a
 liblldb=$(basename $(readlink -e %{buildroot}%{_libdir}/liblldb.so))
 ln -vsf "../../../${liblldb}" %{buildroot}%{python_sitearch}/lldb/_lldb.so
 mv -v %{buildroot}%{python_sitearch}/readline.so %{buildroot}%{python_sitearch}/lldb/readline.so
-rm -v %{buildroot}%{python_sitearch}/lib
+
+# remove bundled six.py
+rm -f %{buildroot}%{python_sitearch}/six.*
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
 %files
 %{_bindir}/lldb*
-%{_bindir}/argdumper
 %{_libdir}/liblldb.so.*
 
 %files devel
@@ -97,6 +103,9 @@ rm -v %{buildroot}%{python_sitearch}/lib
 %{python_sitearch}/lldb
 
 %changelog
+* Thu Feb 18 2016 Dave Airlie <airlied@redhat.com> - 3.8.0-0.1
+- lldb 3.8.0 rc2
+
 * Sun Feb 14 2016 Dave Airlie <airlied@redhat.com> 3.7.1-3
 - rebuild lldb against latest llvm
 
