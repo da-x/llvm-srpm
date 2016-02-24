@@ -1,6 +1,6 @@
 Name:		clang
 Version:	3.8.0
-Release:	0.2%{?dist}
+Release:	0.3%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -112,11 +112,11 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 
 %files libs
 %{_libdir}/*.so.*
+%{_libdir}/*.so
 
 %files devel
 %{_includedir}/clang/
 %{_includedir}/clang-c/
-%{_libdir}/*.so
 %dir %{_datadir}/clang/
 %{_datadir}/clang/cmake/
 
@@ -131,6 +131,9 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 %{_mandir}/man1/scan-build.1.*
 
 %changelog
+* Wed Feb 24 2016 Dave Airlie <airlied@redhat.com> - 3.8.0-0.3
+- package all libs into clang-libs.
+
 * Wed Feb 24 2016 Dave Airlie <airlied@redhat.com> 3.8.0-0.2
 - enable dynamic linking of clang against llvm
 
