@@ -1,6 +1,6 @@
 Name:		lldb
 Version:	3.8.0
-Release:	0.1%{?dist}
+Release:	0.2%{?dist}
 Summary:	Next generation high-performance debugger
 
 License:	NCSA
@@ -58,6 +58,7 @@ CXXFLAGS="%{optflags} -fno-strict-aliasing -Wno-error=format-security"
 
 %cmake .. \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+	-DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
 	-DLLVM_CONFIG:FILEPATH=/usr/bin/llvm-config-%{__isa_bits} \
 	\
 	-DLLDB_PATH_TO_LLVM_BUILD=%{_prefix} \
@@ -103,6 +104,9 @@ rm -f %{buildroot}%{python_sitearch}/six.*
 %{python_sitearch}/lldb
 
 %changelog
+* Wed Feb 24 2016 Dave Airlie <airlied@redhat.com> - 3.8.0-0.2
+- dynamically link to llvm
+
 * Thu Feb 18 2016 Dave Airlie <airlied@redhat.com> - 3.8.0-0.1
 - lldb 3.8.0 rc2
 
