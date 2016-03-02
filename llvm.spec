@@ -7,12 +7,12 @@
 
 Name:		llvm
 Version:	3.8.0
-Release:	0.1%{?dist}
+Release:	0.2%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
 URL:		http://llvm.org
-Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}rc2.src.tar.xz
+Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}rc3.src.tar.xz
 
 Source100:	llvm-config.h
 
@@ -67,7 +67,7 @@ Summary:	LLVM static libraries
 Static libraries for the LLVM compiler infrastructure.
 
 %prep
-%setup -q -n %{name}-%{version}rc2.src
+%setup -q -n %{name}-%{version}rc3.src
 %patch0 -p1 -b .s390
 
 %build
@@ -169,6 +169,9 @@ make check-all || :
 %{_libdir}/*.a
 
 %changelog
+* Thu Mar 03 2016 Dave Airlie <airlied@redhat.com> 3.8.0-0.2
+- llvm 3.8.0 rc3 release
+
 * Fri Feb 19 2016 Dave Airlie <airlied@redhat.com> 3.8.0-0.1
 - llvm 3.8.0 rc2 release
 
