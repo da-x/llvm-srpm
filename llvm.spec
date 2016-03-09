@@ -7,7 +7,7 @@
 
 Name:		llvm
 Version:	3.8.0
-Release:	0.2%{?dist}
+Release:	0.3%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -74,11 +74,20 @@ Static libraries for the LLVM compiler infrastructure.
 mkdir -p _build
 cd _build
 
+%ifarch s390
+# Decrease debuginfo verbosity to reduce memory consumption during final library linking
+%global optflags %(echo %{optflags} | sed 's/-g /-g1 /')
+%endif
+
 # force off shared libs as cmake macros turns it on.
 %cmake .. \
 	-DBUILD_SHARED_LIBS:BOOL=OFF \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	-DCMAKE_SHARED_LINKER_FLAGS="-Wl,-Bsymbolic -static-libstdc++" \
+%ifarch s390
+	-DCMAKE_C_FLAGS_RELWITHDEBINFO="%{optflags} -DNDEBUG" \
+	-DCMAKE_CXX_FLAGS_RELWITHDEBINFO="%{optflags} -DNDEBUG" \
+%endif
 %if 0%{?__isa_bits} == 64
 	-DLLVM_LIBDIR_SUFFIX=64 \
 %else
@@ -169,6 +178,9 @@ make check-all || :
 %{_libdir}/*.a
 
 %changelog
+* Wed Mar 09 2016 Dan Horák <dan[at][danny.cz> 3.8.0-0.3
+- install back memory consumption workaround for s390
+
 * Thu Mar 03 2016 Dave Airlie <airlied@redhat.com> 3.8.0-0.2
 - llvm 3.8.0 rc3 release
 
