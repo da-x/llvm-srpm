@@ -3,19 +3,22 @@
 %global debug_package %{nil}
 %endif
 
-Name:		compiler-rt
-Version:	3.9.0
-Release:	3%{?dist}
+%define _prefix /opt/llvm-3.9.1
+
+Name:		compiler-rt-3.9.1
+Version:	3.9.1
+Release:	3%{?dist}.alonid
 Summary:	LLVM "compiler-rt" runtime libraries
 
 License:	NCSA or MIT
 URL:		http://llvm.org
-Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.xz
+Source0:	http://llvm.org/releases/%{version}/compiler-rt-3.9.0.src.tar.xz
 
 BuildRequires:	cmake
 BuildRequires:	python
-BuildRequires:  llvm-devel = %{version}
-BuildRequires:  llvm-static = %{version}
+BuildRequires:  llvm-%{version}-devel = %{version}
+BuildRequires:  llvm-%{version}-static = %{version}
+Patch0:         0001-compiler-rt-3.9.1.patch
 
 %description
 The compiler-rt project is a part of the LLVM project. It provides
@@ -24,7 +27,8 @@ code generation, sanitizer runtimes and profiling library for code
 instrumentation, and Blocks C language extension.
 
 %prep
-%setup -q -n %{name}-%{version}.src
+%setup -q -n compiler-rt-3.9.0.src
+%patch0 -p1
 
 %build
 mkdir -p _build
