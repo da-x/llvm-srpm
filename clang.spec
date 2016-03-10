@@ -1,11 +1,11 @@
 Name:		clang
 Version:	3.8.0
-Release:	0.4%{?dist}
+Release:	1%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
 URL:		http://llvm.org
-Source0:	http://llvm.org/pre-releases/%{version}/rc3/cfe-%{version}rc3.src.tar.xz
+Source0:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
 
 Source100:	clang-config.h
 
@@ -62,7 +62,7 @@ programs. The standalone tool is invoked from the command-line, and is
 intended to run in tandem with a build of a project or code base.
 
 %prep
-%setup -q -n cfe-%{version}rc3.src
+%setup -q -n cfe-%{version}.src
 %build
 mkdir -p _build
 cd _build
@@ -131,6 +131,9 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 %{_mandir}/man1/scan-build.1.*
 
 %changelog
+* Thu Mar 10 2016 Dave Airlie <airlied@redhat.com> 3.8.0-1
+- clang 3.8.0 final release
+
 * Thu Mar 03 2016 Dave Airlie <airlied@redhat.com> 3.8.0-0.4
 - clang 3.8.0rc3
 
