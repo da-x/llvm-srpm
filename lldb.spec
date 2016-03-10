@@ -1,11 +1,11 @@
 Name:		lldb
 Version:	3.8.0
-Release:	0.3%{?dist}
+Release:	1%{?dist}
 Summary:	Next generation high-performance debugger
 
 License:	NCSA
 URL:		http://llvm.org
-Source0:	http://llvm.org/pre-releases/%{version}/%{name}-%{version}rc3.src.tar.xz
+Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.xz
 
 # hack patch from upstream review systems to fix out of tree builds.
 Patch0: D15067.id41365.diff
@@ -42,7 +42,7 @@ Requires:	python2-six
 The package contains the LLDB Python module.
 
 %prep
-%setup -q -n %{name}-%{version}rc3.src
+%setup -q -n %{name}-%{version}.src
 
 %patch0 -p1 -b .dave
 %build
@@ -104,6 +104,9 @@ rm -f %{buildroot}%{python_sitearch}/six.*
 %{python_sitearch}/lldb
 
 %changelog
+* Thu Mar 10 2016 Dave Airlie <airlied@redhat.com> 3.8.0-1
+- lldb 3.8.0
+
 * Thu Mar 03 2016 Dave Airlie <airlied@redhat.com> 3.8.0-0.3
 - lldb 3.8.0 rc3
 
