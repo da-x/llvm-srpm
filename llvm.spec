@@ -5,14 +5,16 @@
   %bcond_with gold
 %endif
 
-Name:		llvm
+%define _prefix /opt/llvm-3.8.0
+
+Name:		llvm-3.8.0
 Version:	3.8.0
-Release:	1%{?dist}
+Release:	1%{?dist}.alonid
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
 URL:		http://llvm.org
-Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.xz
+Source0:	http://llvm.org/releases/%{version}/llvm-%{version}.src.tar.xz
 
 Source100:	llvm-config.h
 
@@ -22,7 +24,11 @@ Patch0:		llvm-3.7.1-cmake-s390.patch
 BuildRequires:	cmake
 BuildRequires:	zlib-devel
 BuildRequires:  libffi-devel
+%if 0%{?fedora} >= 24
 BuildRequires:	python3-sphinx
+%else
+BuildRequires:	python
+%endif
 %if %{with gold}
 BuildRequires:  binutils-devel
 %endif
@@ -39,8 +45,8 @@ tools as well as libraries with equivalent functionality.
 %package devel
 Summary:	Libraries and header files for LLVM
 Requires:	%{name}%{?_isa} = %{version}-%{release}
-Requires(posttrans): %{_sbindir}/alternatives
-Requires(posttrans): %{_sbindir}/alternatives
+Requires(posttrans): /usr/sbin/alternatives
+Requires(postun): /usr/sbin/alternatives
 
 %description devel
 This package contains library and header files needed to develop new native
@@ -67,7 +73,7 @@ Summary:	LLVM static libraries
 Static libraries for the LLVM compiler infrastructure.
 
 %prep
-%setup -q -n %{name}-%{version}.src
+%setup -q -n llvm-%{version}.src
 %patch0 -p1 -b .s390
 
 %build
@@ -119,7 +125,9 @@ cd _build
 	\
 	-DLLVM_INCLUDE_DOCS:BOOL=ON \
 	-DLLVM_BUILD_DOCS:BOOL=ON \
+%if 0%{?fedora} >= 24
 	-DLLVM_ENABLE_SPHINX:BOOL=ON \
+%endif
 	-DLLVM_ENABLE_DOXYGEN:BOOL=OFF \
 	\
 	-DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
@@ -128,7 +136,9 @@ cd _build
 	-DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=ON \
 	-DLLVM_INSTALL_TOOLCHAIN_ONLY:BOOL=OFF \
 	\
-	-DSPHINX_EXECUTABLE=%{_bindir}/sphinx-build-3
+%if 0%{?fedora} >= 24
+	-DSPHINX_EXECUTABLE=/usr/bin/sphinx-build-3
+%endif
 
 make %{?_smp_mflags}
 
@@ -141,6 +151,9 @@ mv -v %{buildroot}%{_bindir}/llvm-config{,-%{__isa_bits}}
 mv -v %{buildroot}%{_includedir}/llvm/Config/llvm-config{,-%{__isa_bits}}.h
 install -m 0644 %{SOURCE100} %{buildroot}%{_includedir}/llvm/Config/llvm-config.h
 
+mkdir -p %{buildroot}/etc/ld.so.conf.d
+echo %{_prefix}/lib64 > %{buildroot}/etc/ld.so.conf.d/%{name}.conf
+
 %check
 cd _build
 make check-all || :
@@ -149,30 +162,39 @@ make check-all || :
 %postun libs -p /sbin/ldconfig
 
 %post devel
-%{_sbindir}/update-alternatives --install %{_bindir}/llvm-config llvm-config %{_bindir}/llvm-config-%{__isa_bits} %{__isa_bits}
+/usr/sbin/update-alternatives --install %{_bindir}/llvm-config llvm-config %{_bindir}/llvm-config-%{__isa_bits} %{__isa_bits}
 
 %postun devel
-[ $1 -eq 0 ] && %{_sbindir}/update-alternatives --remove llvm-config %{_bindir}/llvm-config-%{__isa_bits}
+[ $1 -eq 0 ] && /usr/sbin/update-alternatives --remove llvm-config %{_bindir}/llvm-config-%{__isa_bits}
 
 %files
 %{_bindir}/*
+%if 0%{?fedora} >= 24
 %{_mandir}/man1/*.1.*
+%endif
 %exclude %{_bindir}/llvm-config-%{__isa_bits}
+%if 0%{?fedora} >= 24
 %exclude %{_mandir}/man1/llvm-config.1.*
+%endif
 
 %files libs
 %{_libdir}/*.so*
+/etc/ld.so.conf.d/%{name}.conf
 
 %files devel
 %{_bindir}/llvm-config-%{__isa_bits}
+%if 0%{?fedora} >= 24
 %{_mandir}/man1/llvm-config.1.*
+%endif
 %{_includedir}/llvm
 %{_includedir}/llvm-c
 %{_libdir}/*.so
 %{_datadir}/llvm/cmake
 
 %files doc
+%if 0%{?fedora} >= 24
 %doc %{_pkgdocdir}/html
+%endif
 
 %files static
 %{_libdir}/*.a
