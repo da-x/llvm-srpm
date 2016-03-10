@@ -1,6 +1,8 @@
+%define _prefix /opt/llvm-3.8.0
+
 Name:		clang
 Version:	3.8.0
-Release:	1%{?dist}
+Release:	1%{?dist}.alonid
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -10,9 +12,9 @@ Source0:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
 Source100:	clang-config.h
 
 BuildRequires:	cmake
-BuildRequires:	llvm-devel = %{version}
+BuildRequires:	llvm-%{version}-devel = %{version}
 BuildRequires:	libxml2-devel
-BuildRequires:  llvm-static = %{version}
+BuildRequires:  llvm-%{version}-static = %{version}
 
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 
@@ -69,7 +71,7 @@ cd _build
 %cmake .. \
 	-DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
-	-DLLVM_CONFIG:FILEPATH=/usr/bin/llvm-config-%{__isa_bits} \
+	-DLLVM_CONFIG:FILEPATH=/opt/llvm-%{version}/bin/llvm-config-%{__isa_bits} \
 	\
 	-DCLANG_ENABLE_ARCMT:BOOL=ON \
 	-DCLANG_ENABLE_STATIC_ANALYZER:BOOL=ON \
@@ -100,6 +102,9 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format.py*
 # remove diff reformatter
 rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 
+%post libs -p /sbin/ldconfig
+%postun libs -p /sbin/ldconfig
+
 %check
 # requires lit.py from LLVM utilities
 #cd _build
@@ -128,7 +133,7 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 %{_libexecdir}/c++-analyzer
 %{_datadir}/scan-view/
 %{_datadir}/scan-build/
-%{_mandir}/man1/scan-build.1.*
+%{_prefix}/share/man/man1/scan-build.1*
 
 %changelog
 * Thu Mar 10 2016 Dave Airlie <airlied@redhat.com> 3.8.0-1
