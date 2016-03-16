@@ -51,7 +51,7 @@ cd _build
 #make check-all
 
 %files
-%{_includedir}
+%{_includedir}/*
 %{_libdir}/clang/%{version}
 
 %changelog
