@@ -1,6 +1,6 @@
 %define _prefix /opt/llvm-3.8.0
 
-Name:		clang
+Name:		clang-3.8.0
 Version:	3.8.0
 Release:	1%{?dist}.alonid
 Summary:	A C language family front-end for LLVM
