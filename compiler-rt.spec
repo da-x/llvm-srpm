@@ -1,6 +1,6 @@
 Name:		compiler-rt
 Version:	3.8.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	LLVM "compiler-rt" runtime libraries
 
 License:	NCSA or MIT
@@ -45,6 +45,11 @@ done
 # move sanitizer libs to better place
 mkdir -p %{buildroot}%{_libdir}/clang/%{version}/lib
 mv -v %{buildroot}%{_prefix}/lib/linux/libclang_rt* %{buildroot}%{_libdir}/clang/%{version}/lib
+mkdir -p %{buildroot}%{_libdir}/clang/%{version}/lib/linux/
+pushd %{buildroot}%{_libdir}/clang/%{version}/lib
+for i in *.a *.syms *.so; do
+	ln -s ../$i linux/$i
+done
 
 %check
 cd _build
@@ -55,6 +60,9 @@ cd _build
 %{_libdir}/clang/%{version}
 
 %changelog
+* Mon May  2 2016 Tom Callaway <spot@fedoraproject.org> 3.8.0-2
+- make symlinks to where the linker thinks these libs are
+
 * Thu Mar 10 2016 Dave Airlie <airlied@redhat.com> 3.8.0-1
 - compiler-rt 3.8.0 final release
 
