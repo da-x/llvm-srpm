@@ -58,7 +58,7 @@ cd _build
 	-DLIBCXX_CXX_ABI=libcxxabi \
 	-DLIBCXX_CXX_ABI_INCLUDE_PATHS=%{_includedir} \
 %endif
-%if %{__isa_bits} == 64
+%if 0%{__isa_bits} == 64
 	-DLIBCXX_LIBDIR_SUFFIX:STRING=64 \
 %endif
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo
