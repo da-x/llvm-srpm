@@ -7,7 +7,7 @@
 
 Name:		llvm
 Version:	3.8.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -22,6 +22,7 @@ Patch0:		llvm-3.7.1-cmake-s390.patch
 BuildRequires:	cmake
 BuildRequires:	zlib-devel
 BuildRequires:  libffi-devel
+BuildRequires:	ncurses-devel
 BuildRequires:	python3-sphinx
 %if %{with gold}
 BuildRequires:  binutils-devel
@@ -178,6 +179,9 @@ make check-all || :
 %{_libdir}/*.a
 
 %changelog
+* Tue Jun 07 2016 Jan Vcelak <jvcelak@fedoraproject.org> - 3.8.0-2
+- fix color support detection on terminal
+
 * Thu Mar 10 2016 Dave Airlie <airlied@redhat.com> 3.8.0-1
 - llvm 3.8.0 release
 
