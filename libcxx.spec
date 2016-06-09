@@ -4,7 +4,7 @@
 
 Name:		libcxx
 Version:	3.8.0
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	C++ standard library targeting C++11
 License:	MIT or NCSA
 URL:		http://libcxx.llvm.org/
@@ -16,7 +16,9 @@ BuildRequires:	libcxxabi-devel
 # PPC64 (on EL7) doesn't like this code.
 # /builddir/build/BUILD/libcxx-3.8.0.src/include/thread:431:73: error: '(9.223372036854775807e+18 / 1.0e+9)' is not a constant expression
 # _LIBCPP_CONSTEXPR duration<long double> _Max = nanoseconds::max();
+%if 0%{?rhel}
 ExcludeArch:	ppc64 ppc64le
+%endif
 
 %description
 libc++ is a new implementation of the C++ standard library, targeting C++11.
@@ -38,6 +40,11 @@ Requires:	libcxxabi-devel
 %build
 mkdir _build
 cd _build
+%ifarch s390 s390x
+# clang requires z10 at minimum
+# workaround until we change the defaults for Fedora
+%global optflags %(echo %{optflags} | sed 's/-march=z9-109 /-march=z10 /')
+%endif
 # Clang in older releases than f24 can't build this code without crashing.
 # So, we use gcc there. But the really old version in RHEL 6 works. Huh.
 %cmake .. \
@@ -84,6 +91,10 @@ make install DESTDIR=%{buildroot}
 %{_libdir}/libc++.so
 
 %changelog
+* Thu Jun 09 2016 Dan Horák <dan[at]danny.cz> - 3.8.0-4
+- exclude Power only in EPEL
+- default to z10 on s390(x)
+
 * Thu May 19 2016 Tom Callaway <spot@fedoraproject.org> - 3.8.0-3
 - use gcc on el7, fedora < 24. use clang on el6 and f24+
   MAGIC.
