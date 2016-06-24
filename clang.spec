@@ -13,6 +13,7 @@ BuildRequires:	cmake
 BuildRequires:	llvm-devel = %{version}
 BuildRequires:	libxml2-devel
 BuildRequires:  llvm-static = %{version}
+BuildRequires:  perl-generators
 
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 
