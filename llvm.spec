@@ -6,8 +6,8 @@
 %endif
 
 Name:		llvm
-Version:	3.8.0
-Release:	2%{?dist}
+Version:	3.8.1
+Release:	1%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -95,7 +95,7 @@ cd _build
 	-DLLVM_LIBDIR_SUFFIX= \
 %endif
 	\
-	-DLLVM_TARGETS_TO_BUILD="X86;AMDGPU;PowerPC;NVPTX;SystemZ;AArch64;ARM;BPF;CppBackend" \
+	-DLLVM_TARGETS_TO_BUILD="X86;AMDGPU;PowerPC;NVPTX;SystemZ;AArch64;ARM;Miips;BPF;CppBackend" \
 	-DLLVM_ENABLE_LIBCXX:BOOL=OFF \
 	-DLLVM_ENABLE_ZLIB:BOOL=ON \
 	-DLLVM_ENABLE_FFI:BOOL=ON \
@@ -162,14 +162,20 @@ make check-all || :
 %exclude %{_mandir}/man1/llvm-config.1.*
 
 %files libs
-%{_libdir}/*.so*
+%{_libdir}/BugpointPasses.so
+%{_libdir}/LLVMHello.so
+%if %{with gold}
+%{_libdir}/LLVMgold.so
+%endif
+%{_libdir}/libLLVM-3.8*.so
+%{_libdir}/libLTO.so
 
 %files devel
 %{_bindir}/llvm-config-%{__isa_bits}
 %{_mandir}/man1/llvm-config.1.*
 %{_includedir}/llvm
 %{_includedir}/llvm-c
-%{_libdir}/*.so
+%{_libdir}/libLLVM.so
 %{_datadir}/llvm/cmake
 
 %files doc
@@ -179,6 +185,11 @@ make check-all || :
 %{_libdir}/*.a
 
 %changelog
+* Wed Jul 13 2016 Adam Jackson <ajax@redhat.com> - 3.8.1-1
+- llvm 3.8.1
+- Add mips target
+- Fix some shared library mispackaging
+
 * Tue Jun 07 2016 Jan Vcelak <jvcelak@fedoraproject.org> - 3.8.0-2
 - fix color support detection on terminal
 
