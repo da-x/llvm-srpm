@@ -1,6 +1,6 @@
 Name:		lldb
 Version:	3.8.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Next generation high-performance debugger
 
 License:	NCSA
@@ -104,6 +104,9 @@ rm -f %{buildroot}%{python_sitearch}/six.*
 %{python_sitearch}/lldb
 
 %changelog
+* Tue Jul 19 2016 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.8.0-2
+- https://fedoraproject.org/wiki/Changes/Automatic_Provides_for_Python_RPM_Packages
+
 * Thu Mar 10 2016 Dave Airlie <airlied@redhat.com> 3.8.0-1
 - lldb 3.8.0
 
