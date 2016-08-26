@@ -3,8 +3,8 @@
 %global bootstrap 1
 
 Name:		libcxx
-Version:	3.8.0
-Release:	4%{?dist}
+Version:	3.8.1
+Release:	1%{?dist}
 Summary:	C++ standard library targeting C++11
 License:	MIT or NCSA
 URL:		http://libcxx.llvm.org/
@@ -91,6 +91,9 @@ make install DESTDIR=%{buildroot}
 %{_libdir}/libc++.so
 
 %changelog
+* Fri Aug 26 2016 Tom Callaway <spot@fedoraproject.org> - 3.8.1-1
+- update to 3.8.1
+
 * Thu Jun 09 2016 Dan Horák <dan[at]danny.cz> - 3.8.0-4
 - exclude Power only in EPEL
 - default to z10 on s390(x)
