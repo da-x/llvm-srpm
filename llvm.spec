@@ -6,7 +6,7 @@
 %endif
 
 Name:		llvm
-Version:	3.8.1
+Version:	3.9.0
 Release:	1%{?dist}
 Summary:	The Low Level Virtual Machine
 
@@ -95,7 +95,7 @@ cd _build
 	-DLLVM_LIBDIR_SUFFIX= \
 %endif
 	\
-	-DLLVM_TARGETS_TO_BUILD="X86;AMDGPU;PowerPC;NVPTX;SystemZ;AArch64;ARM;Mips;BPF;CppBackend" \
+	-DLLVM_TARGETS_TO_BUILD="X86;AMDGPU;PowerPC;NVPTX;SystemZ;AArch64;ARM;Mips;BPF" \
 	-DLLVM_ENABLE_LIBCXX:BOOL=OFF \
 	-DLLVM_ENABLE_ZLIB:BOOL=ON \
 	-DLLVM_ENABLE_FFI:BOOL=ON \
@@ -167,7 +167,7 @@ make check-all || :
 %if %{with gold}
 %{_libdir}/LLVMgold.so
 %endif
-%{_libdir}/libLLVM-3.8*.so
+%{_libdir}/libLLVM-3.9*.so
 %{_libdir}/libLTO.so
 
 %files devel
@@ -176,7 +176,7 @@ make check-all || :
 %{_includedir}/llvm
 %{_includedir}/llvm-c
 %{_libdir}/libLLVM.so
-%{_datadir}/llvm/cmake
+%{_libdir}/cmake/llvm
 
 %files doc
 %doc %{_pkgdocdir}/html
@@ -185,6 +185,11 @@ make check-all || :
 %{_libdir}/*.a
 
 %changelog
+* Wed Sep 07 2016 Dave Airlie <airlied@redhat.com> - 3.9.0-1
+- llvm 3.9.0
+- upstream moved where cmake files are packaged.
+- upstream dropped CppBackend
+
 * Wed Jul 13 2016 Adam Jackson <ajax@redhat.com> - 3.8.1-1
 - llvm 3.8.1
 - Add mips target
