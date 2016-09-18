@@ -19,6 +19,8 @@ Source100:	llvm-config.h
 # recognize s390 as SystemZ when configuring build
 Patch0:		llvm-3.7.1-cmake-s390.patch
 
+Patch1:		0001-This-code-block-breaks-the-docs-build-http-lab.llvm..patch
+
 BuildRequires:	cmake
 BuildRequires:	zlib-devel
 BuildRequires:  libffi-devel
@@ -70,6 +72,7 @@ Static libraries for the LLVM compiler infrastructure.
 %prep
 %setup -q -n %{name}-%{version}.src
 %patch0 -p1 -b .s390
+%patch1 -p1 -b .sphinx
 
 %build
 mkdir -p _build
