@@ -22,6 +22,7 @@ Patch0:		llvm-3.7.1-cmake-s390.patch
 Patch1:		0001-This-code-block-breaks-the-docs-build-http-lab.llvm..patch
 Patch2:		0001-fix-docs-2.patch
 Patch3:		0001-fix-docs-3.patch
+Patch4:		0001-docs-fix-cmake-code-block-warning.patch
 
 BuildRequires:	cmake
 BuildRequires:	zlib-devel
@@ -77,6 +78,7 @@ Static libraries for the LLVM compiler infrastructure.
 %patch1 -p1 -b .sphinx
 %patch2 -p1 -b .docs2
 %patch3 -p1 -b .docs3
+%patch4 -p1 -b .docs4
 
 %build
 mkdir -p _build
