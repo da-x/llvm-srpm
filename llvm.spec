@@ -7,7 +7,7 @@
 
 Name:		llvm
 Version:	3.9.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -23,6 +23,7 @@ Patch1:		0001-This-code-block-breaks-the-docs-build-http-lab.llvm..patch
 Patch2:		0001-fix-docs-2.patch
 Patch3:		0001-fix-docs-3.patch
 Patch4:		0001-docs-fix-cmake-code-block-warning.patch
+Patch5:		0001-Backport-rL281650.patch
 
 BuildRequires:	cmake
 BuildRequires:	zlib-devel
@@ -79,6 +80,7 @@ Static libraries for the LLVM compiler infrastructure.
 %patch2 -p1 -b .docs2
 %patch3 -p1 -b .docs3
 %patch4 -p1 -b .docs4
+%patch5 -p1 -b .rust1
 
 %build
 mkdir -p _build
@@ -194,6 +196,9 @@ make check-all || :
 %{_libdir}/*.a
 
 %changelog
+* Sat Oct 15 2016 Josh Stone <jistone@redhat.com> - 3.9.0-2
+- Apply an InstCombine backport via rust-lang/llvm#51
+
 * Wed Sep 07 2016 Dave Airlie <airlied@redhat.com> - 3.9.0-1
 - llvm 3.9.0
 - upstream moved where cmake files are packaged.
