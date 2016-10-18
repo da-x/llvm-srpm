@@ -7,7 +7,7 @@
 
 Name:		llvm
 Version:	3.9.0
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -23,7 +23,13 @@ Patch1:		0001-This-code-block-breaks-the-docs-build-http-lab.llvm..patch
 Patch2:		0001-fix-docs-2.patch
 Patch3:		0001-fix-docs-3.patch
 Patch4:		0001-docs-fix-cmake-code-block-warning.patch
-Patch5:		0001-Backport-rL281650.patch
+
+# backports cribbed from https://github.com/rust-lang/llvm/
+Patch47:	rust-lang-llvm-pr47.patch
+Patch48:	rust-lang-llvm-pr48.patch
+Patch51:	rust-lang-llvm-pr51.patch
+Patch53:	rust-lang-llvm-pr53.patch
+Patch54:	rust-lang-llvm-pr54.patch
 
 BuildRequires:	cmake
 BuildRequires:	zlib-devel
@@ -80,7 +86,11 @@ Static libraries for the LLVM compiler infrastructure.
 %patch2 -p1 -b .docs2
 %patch3 -p1 -b .docs3
 %patch4 -p1 -b .docs4
-%patch5 -p1 -b .rust1
+%patch47 -p1 -b .rust47
+%patch48 -p1 -b .rust48
+%patch51 -p1 -b .rust51
+%patch53 -p1 -b .rust53
+%patch54 -p1 -b .rust54
 
 %build
 mkdir -p _build
@@ -196,6 +206,9 @@ make check-all || :
 %{_libdir}/*.a
 
 %changelog
+* Mon Oct 17 2016 Josh Stone <jistone@redhat.com> - 3.9.0-3
+- Apply backports from rust-lang/llvm#47, #48, #53, #54
+
 * Sat Oct 15 2016 Josh Stone <jistone@redhat.com> - 3.9.0-2
 - Apply an InstCombine backport via rust-lang/llvm#51
 

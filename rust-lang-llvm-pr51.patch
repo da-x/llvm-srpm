@@ -1,7 +1,7 @@
 From 7801978ec1f3637fcda1b564048ebc732bf586af Mon Sep 17 00:00:00 2001
 From: Simonas Kazlauskas <git@kazlauskas.me>
 Date: Fri, 16 Sep 2016 00:32:20 +0300
-Subject: [PATCH] Backport rL281650
+Subject: [rust-lang/llvm#51] Backport rL281650
 
 ---
  lib/Transforms/InstCombine/InstCombineCompares.cpp  |  2 +-
