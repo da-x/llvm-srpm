@@ -28,6 +28,11 @@ cd _build
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	-DLLVM_CONFIG_PATH:FILEPATH=%{_bindir}/llvm-config-%{__isa_bits} \
 	\
+%if 0%{?__isa_bits} == 64
+        -DLLVM_LIBDIR_SUFFIX=64 \
+%else
+        -DLLVM_LIBDIR_SUFFIX= \
+%endif
 	-DCOMPILER_RT_INCLUDE_TESTS:BOOL=OFF # could be on?
 
 make %{?_smp_mflags}
