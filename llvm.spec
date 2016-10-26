@@ -7,7 +7,7 @@
 
 Name:		llvm
 Version:	3.9.0
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -88,6 +88,7 @@ Static libraries for the LLVM compiler infrastructure.
 %patch2 -p1 -b .docs2
 %patch3 -p1 -b .docs3
 %patch4 -p1 -b .docs4
+%patch5 -p1 -b .lldbfix
 %patch47 -p1 -b .rust47
 %patch48 -p1 -b .rust48
 %patch51 -p1 -b .rust51
@@ -208,6 +209,9 @@ make check-all || :
 %{_libdir}/*.a
 
 %changelog
+* Wed Oct 26 2016 Dave Airlie <airlied@redhat.com> - 3.9.0-5
+- apply the patch from -4
+
 * Wed Oct 26 2016 Dave Airlie <airlied@redhat.com> - 3.9.0-4
 - add fix for lldb out-of-tree build
 
