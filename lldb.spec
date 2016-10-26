@@ -1,6 +1,6 @@
 Name:		lldb
-Version:	3.8.0
-Release:	2%{?dist}
+Version:	3.9.0
+Release:	1%{?dist}
 Summary:	Next generation high-performance debugger
 
 License:	NCSA
@@ -67,6 +67,11 @@ CXXFLAGS="%{optflags} -fno-strict-aliasing -Wno-error=format-security"
 	-DLLDB_DISABLE_CURSES:BOOL=OFF \
 	-DLLDB_DISABLE_LIBEDIT:BOOL=OFF \
 	-DLLDB_DISABLE_PYTHON:BOOL=OFF \
+%if 0%{?__isa_bits} == 64
+        -DLLVM_LIBDIR_SUFFIX=64 \
+%else
+        -DLLVM_LIBDIR_SUFFIX= \
+%endif
 	\
 	-DPYTHON_EXECUTABLE:STRING=%{__python} \
 	-DPYTHON_VERSION_MAJOR:STRING=$(%{__python} -c "import sys; print sys.version_info.major") \
@@ -104,6 +109,9 @@ rm -f %{buildroot}%{python_sitearch}/six.*
 %{python_sitearch}/lldb
 
 %changelog
+* Wed Oct 26 2016 Dave Airlie <airlied@redhat.com> - 3.9.0-1
+- lldb 3.9.0
+
 * Tue Jul 19 2016 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.8.0-2
 - https://fedoraproject.org/wiki/Changes/Automatic_Provides_for_Python_RPM_Packages
 
