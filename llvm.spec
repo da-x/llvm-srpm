@@ -7,7 +7,7 @@
 
 Name:		llvm
 Version:	3.9.0
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -23,6 +23,8 @@ Patch1:		0001-This-code-block-breaks-the-docs-build-http-lab.llvm..patch
 Patch2:		0001-fix-docs-2.patch
 Patch3:		0001-fix-docs-3.patch
 Patch4:		0001-docs-fix-cmake-code-block-warning.patch
+# backport from upstream to fix lldb out of tree
+Patch5:		0001-cmake-Install-CheckAtomic.cmake-needed-by-lldb.patch
 
 # backports cribbed from https://github.com/rust-lang/llvm/
 Patch47:	rust-lang-llvm-pr47.patch
@@ -206,6 +208,9 @@ make check-all || :
 %{_libdir}/*.a
 
 %changelog
+* Wed Oct 26 2016 Dave Airlie <airlied@redhat.com> - 3.9.0-4
+- add fix for lldb out-of-tree build
+
 * Mon Oct 17 2016 Josh Stone <jistone@redhat.com> - 3.9.0-3
 - Apply backports from rust-lang/llvm#47, #48, #53, #54
 
