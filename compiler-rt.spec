@@ -1,6 +1,6 @@
 Name:		compiler-rt
 Version:	3.9.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	LLVM "compiler-rt" runtime libraries
 
 License:	NCSA or MIT
@@ -65,6 +65,9 @@ cd _build
 %{_libdir}/clang/%{version}
 
 %changelog
+* Wed Nov 02 2016 Dave Airlie <airlied@redhat.com> - 3.9.0-2
+- build for new arches.
+
 * Wed Oct 26 2016 Dave Airlie <airlied@redhat.com> - 3.9.0-1
 - compiler-rt 3.9.0 final release
 
