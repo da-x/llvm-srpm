@@ -7,7 +7,7 @@
 
 Name:		llvm
 Version:	3.9.0
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -209,6 +209,9 @@ make check-all || :
 %{_libdir}/*.a
 
 %changelog
+* Tue Nov 01 2016 Dave Airlie <airlied@gmail.com - 3.9.0-6
+- rebuild for new arches
+
 * Wed Oct 26 2016 Dave Airlie <airlied@redhat.com> - 3.9.0-5
 - apply the patch from -4
 
