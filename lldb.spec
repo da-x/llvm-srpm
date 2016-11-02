@@ -1,12 +1,13 @@
 Name:		lldb
 Version:	3.9.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Next generation high-performance debugger
 
 License:	NCSA
-URL:		http://llvm.org
+URL:		http://lldb.llvm.org/
 Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.xz
 
+ExclusiveArch:  %{arm} aarch64 %{ix86} x86_64
 # Patch to remove use of private llvm headers
 Patch1: 0001-Replace-uses-of-MIUtilParse-CRegexParser-with-llvm-R.patch
 Patch2: 0001-Remove-MIUtilParse-no-longer-used.patch
@@ -114,6 +115,9 @@ rm -f %{buildroot}%{python_sitearch}/six.*
 %{python_sitearch}/lldb
 
 %changelog
+* Wed Nov  2 2016 Peter Robinson <pbrobinson@fedoraproject.org> 3.9.0-2
+- Set upstream supported architectures in an ExclusiveArch
+
 * Wed Oct 26 2016 Dave Airlie <airlied@redhat.com> - 3.9.0-1
 - lldb 3.9.0
 - fixup some issues with MIUtilParse by removing it
