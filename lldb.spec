@@ -1,6 +1,6 @@
 Name:		lldb
 Version:	3.9.0
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	Next generation high-performance debugger
 
 License:	NCSA
@@ -15,7 +15,7 @@ Patch2: 0001-Remove-MIUtilParse-no-longer-used.patch
 BuildRequires:	cmake
 BuildRequires:  llvm-devel = %{version}
 BuildRequires:  clang-devel = %{version}
-BuildRequires:	libedit-devel
+#BuildRequires:	libedit-devel
 BuildRequires:  swig
 BuildRequires:  llvm-static = %{version}
 BuildRequires:  libffi-devel
@@ -71,7 +71,7 @@ CXXFLAGS="%{optflags} -fno-strict-aliasing -Wno-error=format-security -fno-rtti"
 	-DLLDB_PATH_TO_CLANG_BUILD=%{_prefix} \
 	\
 	-DLLDB_DISABLE_CURSES:BOOL=OFF \
-	-DLLDB_DISABLE_LIBEDIT:BOOL=OFF \
+	-DLLDB_DISABLE_LIBEDIT:BOOL=ON \
 	-DLLDB_DISABLE_PYTHON:BOOL=OFF \
 %if 0%{?__isa_bits} == 64
         -DLLVM_LIBDIR_SUFFIX=64 \
@@ -115,6 +115,9 @@ rm -f %{buildroot}%{python_sitearch}/six.*
 %{python_sitearch}/lldb
 
 %changelog
+* Mon Nov 14 2016 Nathaniel McCallum <npmccallum@redhat.com> - 3.9.0-3
+- Disable libedit support until upstream fixes it (#1356140)
+
 * Wed Nov  2 2016 Peter Robinson <pbrobinson@fedoraproject.org> 3.9.0-2
 - Set upstream supported architectures in an ExclusiveArch
 
