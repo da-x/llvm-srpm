@@ -15,7 +15,7 @@ Patch2: 0001-Remove-MIUtilParse-no-longer-used.patch
 BuildRequires:	cmake
 BuildRequires:  llvm-devel = %{version}
 BuildRequires:  clang-devel = %{version}
-#BuildRequires:	libedit-devel
+BuildRequires:  ncurses-devel
 BuildRequires:  swig
 BuildRequires:  llvm-static = %{version}
 BuildRequires:  libffi-devel
