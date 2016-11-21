@@ -1,6 +1,11 @@
+%ifarch s390 s390x
+# only limited set of libs available on s390(x) and the existing ones (stats, ubsan) don't provide debuginfo
+%global debug_package %{nil}
+%endif
+
 Name:		compiler-rt
 Version:	3.9.0
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	LLVM "compiler-rt" runtime libraries
 
 License:	NCSA or MIT
@@ -65,6 +70,9 @@ cd _build
 %{_libdir}/clang/%{version}
 
 %changelog
+* Mon Nov 21 2016 Dan Horák <dan[at]danny.cz> - 3.9.0-3
+- disable debuginfo on s390(x)
+
 * Wed Nov 02 2016 Dave Airlie <airlied@redhat.com> - 3.9.0-2
 - build for new arches.
 
