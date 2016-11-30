@@ -7,7 +7,7 @@
 
 Name:		llvm
 Version:	3.9.0
-Release:	6%{?dist}
+Release:	7%{?dist}
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -32,6 +32,8 @@ Patch48:	rust-lang-llvm-pr48.patch
 Patch51:	rust-lang-llvm-pr51.patch
 Patch53:	rust-lang-llvm-pr53.patch
 Patch54:	rust-lang-llvm-pr54.patch
+Patch55:	rust-lang-llvm-pr55.patch
+Patch57:	rust-lang-llvm-pr57.patch
 
 BuildRequires:	cmake
 BuildRequires:	zlib-devel
@@ -94,6 +96,8 @@ Static libraries for the LLVM compiler infrastructure.
 %patch51 -p1 -b .rust51
 %patch53 -p1 -b .rust53
 %patch54 -p1 -b .rust54
+%patch55 -p1 -b .rust55
+%patch57 -p1 -b .rust57
 
 %build
 mkdir -p _build
@@ -209,6 +213,9 @@ make check-all || :
 %{_libdir}/*.a
 
 %changelog
+* Tue Nov 29 2016 Josh Stone <jistone@redhat.com> - 3.9.0-7
+- Apply backports from rust-lang/llvm#55, #57
+
 * Tue Nov 01 2016 Dave Airlie <airlied@gmail.com - 3.9.0-6
 - rebuild for new arches
 
