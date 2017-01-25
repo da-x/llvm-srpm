@@ -1,6 +1,8 @@
-Name:		clang
+%define _prefix /opt/llvm-3.9.0
+
+Name:		clang-3.9.0
 Version:	3.9.0
-Release:	3%{?dist}
+Release:	3%{?dist}.alonid
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -10,9 +12,9 @@ Source0:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
 Source100:	clang-config.h
 
 BuildRequires:	cmake
-BuildRequires:	llvm-devel = %{version}
+BuildRequires:	llvm-%{version}-devel = %{version}
 BuildRequires:	libxml2-devel
-BuildRequires:  llvm-static = %{version}
+BuildRequires:  llvm-%{version}-static = %{version}
 BuildRequires:  perl-generators
 BuildRequires:  ncurses-devel
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
@@ -36,7 +38,7 @@ as libraries and designed to be loosely-coupled and extensible.
 
 %package libs
 Summary: Runtime library for clang
-Requires: compiler-rt%{?_isa} >= %{version}
+Requires: compiler-rt-%{version}%{?_isa} >= %{version}
 
 %description libs
 Runtime library for clang.
@@ -71,7 +73,7 @@ cd _build
 %cmake .. \
 	-DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
-	-DLLVM_CONFIG:FILEPATH=/usr/bin/llvm-config-%{__isa_bits} \
+	-DLLVM_CONFIG:FILEPATH=/opt/llvm-%{version}/bin/llvm-config-%{__isa_bits} \
 	\
 	-DCLANG_ENABLE_ARCMT:BOOL=ON \
 	-DCLANG_ENABLE_STATIC_ANALYZER:BOOL=ON \
@@ -107,6 +109,9 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format.py*
 # remove diff reformatter
 rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 
+%post libs -p /sbin/ldconfig
+%postun libs -p /sbin/ldconfig
+
 %check
 # requires lit.py from LLVM utilities
 #cd _build
@@ -135,7 +140,7 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 %{_libexecdir}/c++-analyzer
 %{_datadir}/scan-view/
 %{_datadir}/scan-build/
-%{_mandir}/man1/scan-build.1.*
+%{_prefix}/share/man/man1/scan-build.1*
 
 %changelog
 * Mon Nov 14 2016 Nathaniel McCallum <npmccallum@redhat.com> - 3.9.0-3
