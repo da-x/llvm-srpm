@@ -1,13 +1,13 @@
-%define _prefix /opt/llvm-3.9.0
+%define _prefix /opt/llvm-4.0.0rc
 
-Name:		clang-3.9.0
-Version:	3.9.0
+Name:		clang-4.0.0rc
+Version:	4.0.0rc
 Release:	3.1%{?dist}.alonid
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
 URL:		http://llvm.org
-Source0:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
+Source0:	http://llvm.org/releases/%{version}/cfe-3.9.0.src.tar.xz
 
 Source100:	clang-config.h
 
@@ -67,7 +67,7 @@ programs. The standalone tool is invoked from the command-line, and is
 intended to run in tandem with a build of a project or code base.
 
 %prep
-%setup -q -n cfe-%{version}.src
+%setup -q -n cfe-3.9.0.src
 %patch1 -p1
 
 %build
