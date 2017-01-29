@@ -1,13 +1,13 @@
-%define _prefix /opt/llvm-3.9.0
+%define _prefix /opt/llvm-3.9.1
 
-Name:		clang-3.9.0
-Version:	3.9.0
+Name:		clang-3.9.1
+Version:	3.9.1
 Release:	3.1%{?dist}.alonid
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
 URL:		http://llvm.org
-Source0:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
+Source0:	http://llvm.org/releases/%{version}/cfe-3.9.0.src.tar.xz
 
 Source100:	clang-config.h
 
@@ -19,6 +19,7 @@ BuildRequires:  perl-generators
 BuildRequires:  ncurses-devel
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 Patch1:         0001-RPATH.patch
+Patch2:         0001-cfe-3.9.1.patch
 
 # clang requires gcc, clang++ requires libstdc++-devel
 # - https://bugzilla.redhat.com/show_bug.cgi?id=1021645
@@ -67,7 +68,7 @@ programs. The standalone tool is invoked from the command-line, and is
 intended to run in tandem with a build of a project or code base.
 
 %prep
-%setup -q -n cfe-%{version}.src
+%setup -q -n cfe-3.9.0.src
 %patch1 -p1
 
 %build
