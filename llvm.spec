@@ -5,11 +5,11 @@
   %bcond_with gold
 %endif
 
-%define _prefix /opt/llvm-3.9.0
+%define _prefix /opt/llvm-3.9.1
 %define _pkgdocdir %{_docdir}/llvm
 
-Name:		llvm-3.9.0
-Version:	3.9.0
+Name:		llvm-3.9.1
+Version:	3.9.1
 Release:	7%{?dist}.alonid
 Summary:	The Low Level Virtual Machine
 
@@ -37,6 +37,7 @@ Patch53:	rust-lang-llvm-pr53.patch
 Patch54:	rust-lang-llvm-pr54.patch
 Patch55:	rust-lang-llvm-pr55.patch
 Patch57:	rust-lang-llvm-pr57.patch
+Patch100:	0001-LLVM-3.9.1.patch
 
 BuildRequires:	cmake
 BuildRequires:	zlib-devel
@@ -91,7 +92,7 @@ Summary:	LLVM static libraries
 Static libraries for the LLVM compiler infrastructure.
 
 %prep
-%setup -q -n llvm-%{version}.src
+%setup -q -n llvm-3.9.0.src
 %patch0 -p1 -b .s390
 %patch1 -p1 -b .sphinx
 %patch2 -p1 -b .docs2
@@ -105,6 +106,7 @@ Static libraries for the LLVM compiler infrastructure.
 %patch54 -p1 -b .rust54
 %patch55 -p1 -b .rust55
 %patch57 -p1 -b .rust57
+%patch100 -p1 -b .llvm-3.9.1
 
 %build
 mkdir -p _build
