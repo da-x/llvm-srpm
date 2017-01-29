@@ -1,0 +1,50 @@
+From 0da944ad9f4f37dece62d2d389bf207a78dc5b89 Mon Sep 17 00:00:00 2001
+From: Dan Aloni <alonid@gmail.com>
+Date: Sun, 29 Jan 2017 15:24:52 +0200
+Subject: [PATCH] RPATH
+
+---
+ CMakeLists.txt               | 14 ++++++++++++++
+ cmake/modules/AddClang.cmake |  1 +
+ 2 files changed, 15 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index cfcd2212cfaf..8f86e6142186 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -172,6 +172,20 @@ endif()
+ # we can include cmake files from this directory.
+ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
+ 
++set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
++if (APPLE)
++  set(CMAKE_INSTALL_NAME_DIR "@rpath")
++  set(CMAKE_INSTALL_RPATH "@executable_path/../lib")
++else(UNIX)
++  if(NOT DEFINED CMAKE_INSTALL_RPATH)
++    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib${LLVM_LIBDIR_SUFFIX}")
++    if(${CMAKE_SYSTEM_NAME} MATCHES "(FreeBSD|DragonFly)")
++      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,origin")
++      set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,origin")
++    endif()
++  endif(NOT DEFINED CMAKE_INSTALL_RPATH)
++endif()
++
+ find_package(LibXml2 2.5.3 QUIET)
+ if (LIBXML2_FOUND)
+   set(CLANG_HAVE_LIBXML 1)
+diff --git a/cmake/modules/AddClang.cmake b/cmake/modules/AddClang.cmake
+index 6e063a706bf2..5275aae14489 100644
+--- a/cmake/modules/AddClang.cmake
++++ b/cmake/modules/AddClang.cmake
+@@ -117,6 +117,7 @@ endmacro(add_clang_library)
+ macro(add_clang_executable name)
+   add_llvm_executable( ${name} ${ARGN} )
+   set_target_properties(${name} PROPERTIES FOLDER "Clang executables")
++  target_link_libraries(${name} ${CMAKE_EXECUTABLE_RPATH_LINK_CXX_FLAG}../../lib${LLVM_LIBDIR_SUFFIX} )
+   set_clang_windows_version_resource_properties(${name})
+ endmacro(add_clang_executable)
+ 
+-- 
+2.7.4
+

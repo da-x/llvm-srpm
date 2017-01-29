@@ -2,7 +2,7 @@
 
 Name:		clang-3.9.0
 Version:	3.9.0
-Release:	3%{?dist}.alonid
+Release:	3.1%{?dist}.alonid
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -18,6 +18,7 @@ BuildRequires:  llvm-%{version}-static = %{version}
 BuildRequires:  perl-generators
 BuildRequires:  ncurses-devel
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
+Patch1:         0001-RPATH.patch
 
 # clang requires gcc, clang++ requires libstdc++-devel
 # - https://bugzilla.redhat.com/show_bug.cgi?id=1021645
@@ -67,6 +68,8 @@ intended to run in tandem with a build of a project or code base.
 
 %prep
 %setup -q -n cfe-%{version}.src
+%patch1 -p1
+
 %build
 mkdir -p _build
 cd _build
