@@ -5,38 +5,22 @@
   %bcond_with gold
 %endif
 
-%define _prefix /opt/llvm-3.9.0
+%define _prefix /opt/llvm-4.0.0rc
 %define _pkgdocdir %{_docdir}/llvm
 
-Name:		llvm-3.9.0
-Version:	3.9.0
-Release:	7%{?dist}.alonid
+Name:		llvm-4.0.0rc
+Version:	4.0.0rc
+Release:	1.svn291918%{?dist}.alonid
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
 URL:		http://llvm.org
-Source0:	http://llvm.org/releases/%{version}/llvm-3.9.0.src.tar.xz
+Source0:	http://llvm.org/releases/%{version}/50c188766385964a57d93a9db1bff024fce8dd82.tar.gz
 
 Source100:	llvm-config.h
 
 # recognize s390 as SystemZ when configuring build
 Patch0:		llvm-3.7.1-cmake-s390.patch
-
-Patch1:		0001-This-code-block-breaks-the-docs-build-http-lab.llvm..patch
-Patch2:		0001-fix-docs-2.patch
-Patch3:		0001-fix-docs-3.patch
-Patch4:		0001-docs-fix-cmake-code-block-warning.patch
-# backport from upstream to fix lldb out of tree
-Patch5:		0001-cmake-Install-CheckAtomic.cmake-needed-by-lldb.patch
-
-# backports cribbed from https://github.com/rust-lang/llvm/
-Patch47:	rust-lang-llvm-pr47.patch
-Patch48:	rust-lang-llvm-pr48.patch
-Patch51:	rust-lang-llvm-pr51.patch
-Patch53:	rust-lang-llvm-pr53.patch
-Patch54:	rust-lang-llvm-pr54.patch
-Patch55:	rust-lang-llvm-pr55.patch
-Patch57:	rust-lang-llvm-pr57.patch
 
 BuildRequires:	cmake
 BuildRequires:	zlib-devel
@@ -91,20 +75,8 @@ Summary:	LLVM static libraries
 Static libraries for the LLVM compiler infrastructure.
 
 %prep
-%setup -q -n llvm-%{version}.src
+%setup -q -n llvm-50c188766385964a57d93a9db1bff024fce8dd82
 %patch0 -p1 -b .s390
-%patch1 -p1 -b .sphinx
-%patch2 -p1 -b .docs2
-%patch3 -p1 -b .docs3
-%patch4 -p1 -b .docs4
-%patch5 -p1 -b .lldbfix
-%patch47 -p1 -b .rust47
-%patch48 -p1 -b .rust48
-%patch51 -p1 -b .rust51
-%patch53 -p1 -b .rust53
-%patch54 -p1 -b .rust54
-%patch55 -p1 -b .rust55
-%patch57 -p1 -b .rust57
 
 %build
 mkdir -p _build
@@ -135,6 +107,7 @@ cd _build
 	-DLLVM_ENABLE_ZLIB:BOOL=ON \
 	-DLLVM_ENABLE_FFI:BOOL=ON \
 	-DLLVM_ENABLE_RTTI:BOOL=ON \
+	-DSPHINX_WARNINGS_AS_ERRORS:BOOL=OFF \
 %if %{with gold}
 	-DLLVM_BINUTILS_INCDIR=%{_includedir} \
 %endif
@@ -219,8 +192,9 @@ make check-all || :
 %if %{with gold}
 %{_libdir}/LLVMgold.so
 %endif
-%{_libdir}/libLLVM-3.9*.so
+%{_libdir}/libLLVM-4.0*.so
 %{_libdir}/libLTO.so
+%{_libdir}/libLTO.so.*
 /etc/ld.so.conf.d/%{name}.conf
 
 %files devel
