@@ -4,7 +4,7 @@
 
 Name:		libcxx
 Version:	3.8.1
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	C++ standard library targeting C++11
 License:	MIT or NCSA
 URL:		http://libcxx.llvm.org/
@@ -91,6 +91,9 @@ make install DESTDIR=%{buildroot}
 %{_libdir}/libc++.so
 
 %changelog
+* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 3.8.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Fri Aug 26 2016 Tom Callaway <spot@fedoraproject.org> - 3.8.1-1
 - update to 3.8.1
 
