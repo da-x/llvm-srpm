@@ -1,6 +1,6 @@
 Name:		lldb
 Version:	3.9.0
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	Next generation high-performance debugger
 
 License:	NCSA
@@ -115,6 +115,9 @@ rm -f %{buildroot}%{python_sitearch}/six.*
 %{python_sitearch}/lldb
 
 %changelog
+* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 3.9.0-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Mon Nov 14 2016 Nathaniel McCallum <npmccallum@redhat.com> - 3.9.0-3
 - Disable libedit support until upstream fixes it (#1356140)
 
