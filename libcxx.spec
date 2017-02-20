@@ -3,8 +3,8 @@
 %global bootstrap 1
 
 Name:		libcxx
-Version:	3.8.1
-Release:	2%{?dist}
+Version:	3.9.0
+Release:	1%{?dist}
 Summary:	C++ standard library targeting C++11
 License:	MIT or NCSA
 URL:		http://libcxx.llvm.org/
@@ -45,6 +45,7 @@ cd _build
 # workaround until we change the defaults for Fedora
 %global optflags %(echo %{optflags} | sed 's/-march=z9-109 /-march=z10 /')
 %endif
+export LDFLAGS="-Wl,--build-id"
 # Clang in older releases than f24 can't build this code without crashing.
 # So, we use gcc there. But the really old version in RHEL 6 works. Huh.
 %cmake .. \
@@ -91,6 +92,9 @@ make install DESTDIR=%{buildroot}
 %{_libdir}/libc++.so
 
 %changelog
+* Mon Feb 20 2017 Tom Callaway <spot@fedoraproject.org> - 3.9.0-1
+- update to 3.9.0 (match clang)
+
 * Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 3.8.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
