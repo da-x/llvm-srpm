@@ -4,7 +4,7 @@
 
 Name:		libcxx
 Version:	3.9.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	C++ standard library targeting C++11
 License:	MIT or NCSA
 URL:		http://libcxx.llvm.org/
@@ -41,9 +41,11 @@ Requires:	libcxxabi-devel
 mkdir _build
 cd _build
 %ifarch s390 s390x
+%if 0%{?fedora} < 26
 # clang requires z10 at minimum
 # workaround until we change the defaults for Fedora
 %global optflags %(echo %{optflags} | sed 's/-march=z9-109 /-march=z10 /')
+%endif
 %endif
 export LDFLAGS="-Wl,--build-id"
 # Clang in older releases than f24 can't build this code without crashing.
@@ -92,6 +94,9 @@ make install DESTDIR=%{buildroot}
 %{_libdir}/libc++.so
 
 %changelog
+* Tue Feb 21 2017 Dan Horák <dan[at]danny.cz> - 3.9.0-2
+- apply s390(x) workaround only in Fedora < 26
+
 * Mon Feb 20 2017 Tom Callaway <spot@fedoraproject.org> - 3.9.0-1
 - update to 3.9.0 (match clang)
 
