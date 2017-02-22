@@ -1,0 +1,43 @@
+From 3306314bccdb3429a58fca198bec8d1a01cdf170 Mon Sep 17 00:00:00 2001
+From: Matthias Braun <matze@braunis.de>
+Date: Fri, 13 Jan 2017 18:36:20 +0000
+Subject: [PATCH] litsupport: Add compatibility cludge so it still works with
+ the pypy version of lit
+
+git-svn-id: https://llvm.org/svn/llvm-project/test-suite/trunk@291933 91177308-0d34-0410-b5e6-96231b3b80d8
+---
+ litsupport/testfile.py | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/litsupport/testfile.py b/litsupport/testfile.py
+index d1d234a..7223938 100644
+--- a/litsupport/testfile.py
++++ b/litsupport/testfile.py
+@@ -27,16 +27,19 @@ def parse(context, filename):
+     runscript = []
+     verifyscript = []
+     metricscripts = {}
+-    keywords = ['PREPARE:', 'RUN:', 'VERIFY:', 'METRIC:']
++    # Note that we keep both "RUN" and "RUN:" in the list to stay compatible
++    # with older lit versions.
++    keywords = ['PREPARE:', 'PREPARE', 'RUN:', 'RUN', 'VERIFY:', 'VERIFY',
++                'METRIC:', 'METRIC']
+     for line_number, command_type, ln in \
+             parseIntegratedTestScriptCommands(filename, keywords):
+-        if command_type == 'PREPARE:':
++        if command_type.startswith('PREPARE'):
+             _parseShellCommand(preparescript, ln)
+-        elif command_type == 'RUN:':
++        elif command_type.startswith('RUN'):
+             _parseShellCommand(runscript, ln)
+-        elif command_type == 'VERIFY:':
++        elif command_type.startswith('VERIFY'):
+             _parseShellCommand(verifyscript, ln)
+-        elif command_type == 'METRIC:':
++        elif command_type.startswith('METRIC'):
+             metric, ln = ln.split(':', 1)
+             metricscript = metricscripts.setdefault(metric.strip(), list())
+             _parseShellCommand(metricscript, ln)
+-- 
+2.9.3
+

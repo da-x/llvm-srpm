@@ -18,19 +18,28 @@
 	%{_bindir}/clang-import-test \
 	%{_bindir}/clang-offload-bundler
 
+%if 0%{?fedora}
+%bcond_without python3
+%else
+%bcond_with python3
+%endif
+
 Name:		clang
 Version:	4.0.0
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
 URL:		http://llvm.org
 Source0:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
 Source1:	http://llvm.org/releases/%{version}/clang-tools-extra-%{version}.src.tar.xz
+Source2:	http://llvm.org/releases/%{version}/test-suite-%{version}.src.tar.xz
 
 Source100:	clang-config.h
 
 Patch0:		0001-CMake-Fix-pthread-handling-for-out-of-tree-builds.patch
+# This patch is required when the test suite is using python-lit 0.5.0.
+Patch1:		0001-litsupport-Add-compatibility-cludge-so-it-still-work.patch
 
 BuildRequires:	cmake
 BuildRequires:	llvm-devel = %{version}
@@ -38,6 +47,19 @@ BuildRequires:	libxml2-devel
 BuildRequires:  llvm-static = %{version}
 BuildRequires:  perl-generators
 BuildRequires:  ncurses-devel
+
+# These build dependencies are required for the test suite.
+%if %with python3
+BuildRequires:  python3-lit
+%else
+BuildRequires:  python2-lit
+%endif
+
+BuildRequires: zlib-devel
+BuildRequires: tcl
+BuildRequires: python-virtualenv
+BuildRequires: libstdc++-static
+
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 
 # clang requires gcc, clang++ requires libstdc++-devel
@@ -97,6 +119,10 @@ A set of extra tools built using Clang's tooling API.
 %prep
 %setup -T -q -b 1 -n clang-tools-extra-%{version}.src
 %patch0 -p1 -b .pthread-fix
+
+%setup -T -q -b 2 -n test-suite-%{version}.src
+%patch1 -p1 -b .lit-fix
+
 %setup -q -n cfe-%{version}.src
 
 mv ../clang-tools-extra-%{version}.src tools/extra
@@ -159,6 +185,16 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 #cd _build
 #make check-all
 
+mkdir -p %{_builddir}/test-suite-%{version}.src/_build
+cd %{_builddir}/test-suite-%{version}.src/_build
+
+# FIXME: Using the cmake macro adds -Werror=format-security to the C/CXX flags,
+# which causes the test suite to fail to build.
+cmake .. -DCMAKE_C_COMPILER=%{buildroot}/usr/bin/clang \
+         -DCMAKE_CXX_COMPILER=%{buildroot}/usr/bin/clang++
+make %{?_smp_mflags} check
+
+
 %files
 %{_libdir}/clang/
 %{clang_binaries}
@@ -190,6 +226,9 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 %{_bindir}/modularize
 
 %changelog
+* Mon Apr 03 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-4
+- Run llvm test-suite
+
 * Mon Mar 27 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-3
 - Enable eh/rtti, which are required by lldb.
 
