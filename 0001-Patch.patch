@@ -1,0 +1,25 @@
+From 0b3517b11b18b7e4a598b6b25a0e59f9447ff82d Mon Sep 17 00:00:00 2001
+From: Dan Aloni <alonid@gmail.com>
+Date: Wed, 22 Feb 2017 23:43:39 +0200
+Subject: [PATCH] Patch
+
+---
+ cmake/modules/LLDBStandalone.cmake | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmake/modules/LLDBStandalone.cmake b/cmake/modules/LLDBStandalone.cmake
+index d849602c57b6..cc85d4e13e5d 100644
+--- a/cmake/modules/LLDBStandalone.cmake
++++ b/cmake/modules/LLDBStandalone.cmake
+@@ -12,7 +12,7 @@ if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+ 
+   # Rely on llvm-config.
+   set(CONFIG_OUTPUT)
+-  find_program(LLVM_CONFIG "llvm-config")
++  set(LLVM_CONFIG "/opt/llvm-3.9.1/bin/llvm-config")
+   if(LLVM_CONFIG)
+     message(STATUS "Found LLVM_CONFIG as ${LLVM_CONFIG}")
+     set(CONFIG_COMMAND ${LLVM_CONFIG}
+-- 
+2.7.4
+

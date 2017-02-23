@@ -1,26 +1,32 @@
-Name:		lldb
-Version:	3.9.0
-Release:	4%{?dist}
+%define _prefix /opt/llvm-3.9.1
+%define python_sitearch %{_libdir}/python2.7/site-packages
+
+Name:		lldb-3.9.1
+Version:	3.9.1
+Release:	1%{?dist}.alonid
 Summary:	Next generation high-performance debugger
 
 License:	NCSA
 URL:		http://lldb.llvm.org/
-Source0:	http://llvm.org/releases/%{version}/%{name}-%{version}.src.tar.xz
+Source0:	http://llvm.org/releases/%{version}/lldb-%{version}.src.tar.xz
 
 ExclusiveArch:  %{arm} aarch64 %{ix86} x86_64
 # Patch to remove use of private llvm headers
 Patch1: 0001-Replace-uses-of-MIUtilParse-CRegexParser-with-llvm-R.patch
 Patch2: 0001-Remove-MIUtilParse-no-longer-used.patch
+Patch3: 0001-Patch.patch
+Patch4: 0001-RPATH.patch
 
 BuildRequires:	cmake
-BuildRequires:  llvm-devel = %{version}
-BuildRequires:  clang-devel = %{version}
+BuildRequires:  llvm-3.9.1-devel = %{version}
+BuildRequires:  clang-3.9.1-devel = %{version}
 BuildRequires:  ncurses-devel
 BuildRequires:  swig
-BuildRequires:  llvm-static = %{version}
+BuildRequires:  llvm-3.9.1-static = %{version}
 BuildRequires:  libffi-devel
 BuildRequires:  zlib-devel
 BuildRequires:  libxml2-devel
+Requires:  clang-3.9.1-libs = %{version}
 
 %description
 LLDB is a next generation, high-performance debugger. It is built as a set
@@ -35,21 +41,25 @@ Requires:	%{name}%{?_isa} = %{version}-%{release}
 %description devel
 The package contains header files for the LLDB debugger.
 
-%package -n python-lldb
+%package -n python-lldb-3.9.1
 Summary:	Python module for LLDB
 BuildRequires:	python2-devel
 Requires:	python2-six
 
-%description -n python-lldb
+%description -n python-lldb-3.9.1
 The package contains the LLDB Python module.
 
 %prep
-%setup -q -n %{name}-%{version}.src
+%setup -q -n lldb-%{version}.src
 
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
 
 %build
+
+export PATH=%{_prefix}/bin:$PATH
 
 rm tools/lldb-mi/MIUtilParse.*
 mkdir -p _build
@@ -86,6 +96,9 @@ CXXFLAGS="%{optflags} -fno-strict-aliasing -Wno-error=format-security -fno-rtti"
 make %{?_smp_mflags}
 
 %install
+
+export PATH=%{_prefix}/bin:$PATH
+
 cd _build
 make install DESTDIR=%{buildroot}
 
@@ -111,7 +124,7 @@ rm -f %{buildroot}%{python_sitearch}/six.*
 %{_includedir}/lldb
 %{_libdir}/*.so
 
-%files -n python-lldb
+%files -n python-lldb-3.9.1
 %{python_sitearch}/lldb
 
 %changelog
