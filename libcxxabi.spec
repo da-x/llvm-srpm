@@ -34,6 +34,11 @@ Summary:	Static libraries for libcxxabi
 sed -i 's|${LLVM_BINARY_DIR}/share/llvm/cmake|%{_libdir}/cmake/llvm|g' CMakeLists.txt
 
 %build
+%ifarch armv7hl
+# disable ARM exception handling
+sed -i 's|LIBCXXABI_ARM_EHABI 1|LIBCXXABI_ARM_EHABI 0|g' include/__cxxabi_config.h
+%endif
+
 mkdir _build
 cd _build
 %ifarch s390 s390x
@@ -42,11 +47,6 @@ cd _build
 # workaround until we change the defaults for Fedora
 %global optflags %(echo %{optflags} | sed 's/-march=z9-109 /-march=z10 /')
 %endif
-%endif
-
-%ifarch armv7hl
-# disable ARM exception handling
-sed -i 's|LIBCXXABI_ARM_EHABI 1|LIBCXXABI_ARM_EHABI 0|g' include/__cxxabi_config.h
 %endif
 
 export LDFLAGS="-Wl,--build-id"
