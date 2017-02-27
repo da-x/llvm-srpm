@@ -43,6 +43,12 @@ cd _build
 %global optflags %(echo %{optflags} | sed 's/-march=z9-109 /-march=z10 /')
 %endif
 %endif
+
+%ifarch armv7hl
+# disable ARM exception handling
+sed -i 's|LIBCXXABI_ARM_EHABI 1|LIBCXXABI_ARM_EHABI 0|g' include/__cxxabi_config.h
+%endif
+
 export LDFLAGS="-Wl,--build-id"
 %cmake .. \
 	-DCMAKE_C_COMPILER=/usr/bin/clang \
