@@ -50,7 +50,7 @@ export LDFLAGS="-Wl,--build-id"
 	-DLLVM_CONFIG=%{_bindir}/llvm-config \
 	-DCMAKE_CXX_FLAGS="-std=c++11" \
 	-DLIBCXXABI_LIBCXX_INCLUDES=%{_includedir}/c++/v1/ \
-%if %{__isa_bits} == 64
+%if 0%{?__isa_bits} == 64
 	-DLIBCXXABI_LIBDIR_SUFFIX:STRING=64 \
 %endif
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo
