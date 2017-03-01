@@ -1,6 +1,6 @@
 Name:		clang
-Version:	3.9.0
-Release:	4%{?dist}
+Version:	3.9.1
+Release:	1%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -138,6 +138,9 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 %{_mandir}/man1/scan-build.1.*
 
 %changelog
+* Thu Mar 02 2017 Dave Airlie <airlied@redhat.com> - 3.9.1-1
+- clang 3.9.1 final release
+
 * Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 3.9.0-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
