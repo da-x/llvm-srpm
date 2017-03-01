@@ -14,10 +14,11 @@ Branches:
    [clang-4.0.0 RC (SVN 293134)](https://github.com/da-x/llvm-srpm/tree/clang-4.0.0),
    [compiler-rt-4.0.0 RC (SVN 292517)](https://github.com/da-x/llvm-srpm/tree/compiler-rt-4.0.0),
    **[Binaries in Copr](https://copr.fedorainfracloud.org/coprs/alonid/llvm-4.0.0/)**
- * [llvm-3.9.0](https://github.com/da-x/llvm-srpm/tree/llvm-3.9.0), 
-   [clang-3.9.0](https://github.com/da-x/llvm-srpm/tree/clang-3.9.0),
-   [compiler-rt-3.9.0](https://github.com/da-x/llvm-srpm/tree/compiler-rt-3.9.0),
-   **[Binaries in Copr](https://copr.fedorainfracloud.org/coprs/alonid/llvm-3.9.0/)**
+ * [llvm-3.9.1](https://github.com/da-x/llvm-srpm/tree/llvm-3.9.1), 
+   [clang-3.9.1](https://github.com/da-x/llvm-srpm/tree/clang-3.9.1),
+   [compiler-rt-3.9.1](https://github.com/da-x/llvm-srpm/tree/compiler-rt-3.9.1),
+   [lldb-3.9.1](https://github.com/da-x/llvm-srpm/tree/lldb-3.9.1),
+   **[Binaries in Copr](https://copr.fedorainfracloud.org/coprs/alonid/llvm-3.9.1/)**
  * [llvm-3.8.0](https://github.com/da-x/llvm-srpm/tree/llvm-3.8.0), 
    [clang-3.8.0](https://github.com/da-x/llvm-srpm/tree/clang-3.8.0),
    [compiler-rt-3.8.0](https://github.com/da-x/llvm-srpm/tree/compiler-rt-3.8.0),
