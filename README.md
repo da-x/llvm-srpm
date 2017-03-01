@@ -1,8 +1,8 @@
 ### RPM packaging for LLVM installed under `/opt/llvm-x.y.z`
 
-This repository contains sources for modified Fedora packages of `LLVM` and assoicated projects. 
+This repository contains sources for modified Fedora packages of `LLVM` and associated projects. 
 The main purpose of the modifications is to allow mutually installable multiple versions of 
-`LLVM`, `Clang`, and `compiler-rt` under /opt/llvm-[version].
+`LLVM`, `Clang`, `compiler-rt`, and `lldb` under /opt/llvm-[version].
 
 This work is based on Fedora's packaging.
 
