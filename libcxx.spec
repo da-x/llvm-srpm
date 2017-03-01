@@ -1,10 +1,10 @@
 # If you need to bootstrap this, turn this on.
 # Otherwise, you have a loop with libcxxabi
-%global bootstrap 1
+%global bootstrap 0
 
 Name:		libcxx
 Version:	3.9.0
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	C++ standard library targeting C++11
 License:	MIT or NCSA
 URL:		http://libcxx.llvm.org/
@@ -94,6 +94,9 @@ make install DESTDIR=%{buildroot}
 %{_libdir}/libc++.so
 
 %changelog
+* Wed Mar  1 2017 Tom Callaway <spot@fedoraproject.org> - 3.9.0-3
+- disable bootstrap
+
 * Tue Feb 21 2017 Dan Horák <dan[at]danny.cz> - 3.9.0-2
 - apply s390(x) workaround only in Fedora < 26
 
