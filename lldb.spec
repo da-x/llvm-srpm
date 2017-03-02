@@ -3,7 +3,7 @@
 
 Name:		lldb-3.9.1
 Version:	3.9.1
-Release:	1%{?dist}.alonid
+Release:	2%{?dist}.alonid
 Summary:	Next generation high-performance debugger
 
 License:	NCSA
@@ -119,10 +119,10 @@ rm -f %{buildroot}%{python_sitearch}/six.*
 %files
 %{_bindir}/lldb*
 %{_libdir}/liblldb.so.*
+%{_libdir}/*.so
 
 %files devel
 %{_includedir}/lldb
-%{_libdir}/*.so
 
 %files -n python-lldb-3.9.1
 %{python_sitearch}/lldb
