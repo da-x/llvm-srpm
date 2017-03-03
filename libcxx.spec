@@ -4,7 +4,7 @@
 
 Name:		libcxx
 Version:	3.9.0
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	C++ standard library targeting C++11
 License:	MIT or NCSA
 URL:		http://libcxx.llvm.org/
@@ -12,6 +12,7 @@ Source0:	http://llvm.org/releases/%{version}/libcxx-%{version}.src.tar.xz
 BuildRequires:	clang llvm-devel cmake
 %if %{bootstrap} < 1
 BuildRequires:	libcxxabi-devel
+BuildRequires:	python3
 %endif
 # PPC64 (on EL7) doesn't like this code.
 # /builddir/build/BUILD/libcxx-3.8.0.src/include/thread:431:73: error: '(9.223372036854775807e+18 / 1.0e+9)' is not a constant expression
@@ -67,6 +68,9 @@ export LDFLAGS="-Wl,--build-id"
 %if %{bootstrap} < 1
 	-DLIBCXX_CXX_ABI=libcxxabi \
 	-DLIBCXX_CXX_ABI_INCLUDE_PATHS=%{_includedir} \
+	-DPYTHONINTERP_FOUND=ON \
+	-DPYTHON_EXECUTABLE=%{_bindir}/python3 \
+	-DLIBCXX_ENABLE_ABI_LINKER_SCRIPT=ON \
 %endif
 %if 0%{?__isa_bits} == 64
 	-DLIBCXX_LIBDIR_SUFFIX:STRING=64 \
@@ -94,6 +98,9 @@ make install DESTDIR=%{buildroot}
 %{_libdir}/libc++.so
 
 %changelog
+* Fri Mar  3 2017 Tom Callaway <spot@fedoraproject.org> - 3.9.0-4
+- LIBCXX_ENABLE_ABI_LINKER_SCRIPT=ON
+
 * Wed Mar  1 2017 Tom Callaway <spot@fedoraproject.org> - 3.9.0-3
 - disable bootstrap
 
