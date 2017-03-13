@@ -1,13 +1,13 @@
-%define _prefix /opt/llvm-4.0.0rc
+%define _prefix /opt/llvm-4.0.0
 
-Name:		clang-4.0.0rc
-Version:	4.0.0rc
-Release:	1.svn293134%{?dist}.alonid
+Name:		clang-4.0.0
+Version:	4.0.0
+Release:	1.svn296762%{?dist}.alonid
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
 URL:		http://llvm.org
-Source0:	http://llvm.org/releases/%{version}/7bf54fb33971d145af18ce1ed4b7344df1d8a26f.tar.gz
+Source0:	http://llvm.org/releases/%{version}/559aa046fe3260d8640791f2249d7b0d458b5700.tar.gz
 
 Source100:	clang-config.h
 
@@ -67,7 +67,7 @@ programs. The standalone tool is invoked from the command-line, and is
 intended to run in tandem with a build of a project or code base.
 
 %prep
-%setup -q -n clang-7bf54fb33971d145af18ce1ed4b7344df1d8a26f
+%setup -q -n clang-559aa046fe3260d8640791f2249d7b0d458b5700
 %patch1 -p1
 
 %build
