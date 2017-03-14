@@ -14,8 +14,8 @@
 	%{_bindir}/clang-format
 
 Name:		clang
-Version:	3.9.1
-Release:	3%{?dist}
+Version:	4.0.0
+Release:	1%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -177,6 +177,9 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 %{_bindir}/modularize
 
 %changelog
+* Tue Mar 14 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-1
+- clang 4.0.0 final release
+
 * Mon Mar 20 2017 David Goerger <david.goerger@yale.edu> - 3.9.1-3
 - add clang-tools-extra rhbz#1328091
 
