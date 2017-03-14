@@ -5,22 +5,23 @@
   %bcond_with gold
 %endif
 
-%define _prefix /opt/llvm-4.0.0rc
+%define _prefix /opt/llvm-4.0.0
 %define _pkgdocdir %{_docdir}/llvm
 
-Name:		llvm-4.0.0rc
-Version:	4.0.0rc
-Release:	1.svn291918%{?dist}.alonid
+Name:		llvm-4.0.0
+Version:	4.0.0
+Release:	1.svn297204%{?dist}.alonid
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
 URL:		http://llvm.org
-Source0:	http://llvm.org/releases/%{version}/50c188766385964a57d93a9db1bff024fce8dd82.tar.gz
+Source0:	http://llvm.org/releases/%{version}/4423e351176a92975739dd4ea43c2ff5877236ae.tar.gz
 
 Source100:	llvm-config.h
 
 # recognize s390 as SystemZ when configuring build
 Patch0:		llvm-3.7.1-cmake-s390.patch
+Patch1:		0001-Hack-on-recursion-limit.patch
 
 BuildRequires:	cmake
 BuildRequires:	zlib-devel
@@ -47,8 +48,6 @@ tools as well as libraries with equivalent functionality.
 %package devel
 Summary:	Libraries and header files for LLVM
 Requires:	%{name}%{?_isa} = %{version}-%{release}
-Requires(posttrans): /usr/sbin/alternatives
-Requires(postun): /usr/sbin/alternatives
 
 %description devel
 This package contains library and header files needed to develop new native
@@ -75,8 +74,9 @@ Summary:	LLVM static libraries
 Static libraries for the LLVM compiler infrastructure.
 
 %prep
-%setup -q -n llvm-50c188766385964a57d93a9db1bff024fce8dd82
+%setup -q -n llvm-4423e351176a92975739dd4ea43c2ff5877236ae
 %patch0 -p1 -b .s390
+%patch1 -p1
 
 %build
 mkdir -p _build
@@ -154,21 +154,15 @@ mv -v %{buildroot}%{_bindir}/llvm-config{,-%{__isa_bits}}
 mv -v %{buildroot}%{_includedir}/llvm/Config/llvm-config{,-%{__isa_bits}}.h
 install -m 0644 %{SOURCE100} %{buildroot}%{_includedir}/llvm/Config/llvm-config.h
 
+# Fix for the removals of alternatives
+ln -s llvm-config-%{__isa_bits} %{buildroot}%{_bindir}/llvm-config
+
 mkdir -p %{buildroot}/etc/ld.so.conf.d
 echo %{_prefix}/lib64 > %{buildroot}/etc/ld.so.conf.d/%{name}.conf
 
 %check
 cd _build
 make check-all || :
-
-%post libs -p /sbin/ldconfig
-%postun libs -p /sbin/ldconfig
-
-%post devel
-/usr/sbin/update-alternatives --install %{_bindir}/llvm-config llvm-config %{_bindir}/llvm-config-%{__isa_bits} %{__isa_bits}
-
-%postun devel
-[ $1 -eq 0 ] && /usr/sbin/update-alternatives --remove llvm-config %{_bindir}/llvm-config-%{__isa_bits}
 
 %files
 %{_bindir}/*
@@ -198,6 +192,7 @@ make check-all || :
 /etc/ld.so.conf.d/%{name}.conf
 
 %files devel
+%{_bindir}/llvm-config
 %{_bindir}/llvm-config-%{__isa_bits}
 %if 0%{?fedora} > 25
 %{_mandir}/man1/llvm-config.1.*
