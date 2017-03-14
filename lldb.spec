@@ -1,32 +1,29 @@
-%define _prefix /opt/llvm-3.9.1
+%define _prefix /opt/llvm-4.0.0
 %define python_sitearch %{_libdir}/python2.7/site-packages
 
-Name:		lldb-3.9.1
-Version:	3.9.1
-Release:	2%{?dist}.alonid
+Name:		lldb-4.0.0
+Version:	4.0.0
+Release:	1.svn291842%{?dist}.alonid
 Summary:	Next generation high-performance debugger
 
 License:	NCSA
 URL:		http://lldb.llvm.org/
-Source0:	http://llvm.org/releases/%{version}/lldb-%{version}.src.tar.xz
+Source0:	http://llvm.org/releases/%{version}/fcd2aac9f179b968a20cf0231c3386dcef8a6659.tar.gz
 
 ExclusiveArch:  %{arm} aarch64 %{ix86} x86_64
 # Patch to remove use of private llvm headers
-Patch1: 0001-Replace-uses-of-MIUtilParse-CRegexParser-with-llvm-R.patch
-Patch2: 0001-Remove-MIUtilParse-no-longer-used.patch
 Patch3: 0001-Patch.patch
-Patch4: 0001-RPATH.patch
 
 BuildRequires:	cmake
-BuildRequires:  llvm-3.9.1-devel = %{version}
-BuildRequires:  clang-3.9.1-devel = %{version}
+BuildRequires:  llvm-4.0.0-devel = %{version}
+BuildRequires:  clang-4.0.0-devel = %{version}
 BuildRequires:  ncurses-devel
 BuildRequires:  swig
-BuildRequires:  llvm-3.9.1-static = %{version}
+BuildRequires:  llvm-4.0.0-static = %{version}
 BuildRequires:  libffi-devel
 BuildRequires:  zlib-devel
 BuildRequires:  libxml2-devel
-Requires:  clang-3.9.1-libs = %{version}
+Requires:  clang-4.0.0-libs = %{version}
 
 %description
 LLDB is a next generation, high-performance debugger. It is built as a set
@@ -41,27 +38,23 @@ Requires:	%{name}%{?_isa} = %{version}-%{release}
 %description devel
 The package contains header files for the LLDB debugger.
 
-%package -n python-lldb-3.9.1
+%package -n python-lldb-4.0.0
 Summary:	Python module for LLDB
 BuildRequires:	python2-devel
 Requires:	python2-six
 
-%description -n python-lldb-3.9.1
+%description -n python-lldb-4.0.0
 The package contains the LLDB Python module.
 
 %prep
-%setup -q -n lldb-%{version}.src
+%setup -q -n lldb-fcd2aac9f179b968a20cf0231c3386dcef8a6659
 
-%patch1 -p1
-%patch2 -p1
 %patch3 -p1
-%patch4 -p1
 
 %build
 
 export PATH=%{_prefix}/bin:$PATH
 
-rm tools/lldb-mi/MIUtilParse.*
 mkdir -p _build
 cd _build
 
@@ -69,8 +62,8 @@ cd _build
 
 LDFLAGS="%{__global_ldflags} -lpthread -ldl"
 
-CFLAGS="%{optflags} -fno-strict-aliasing -Wno-error=format-security -fno-rtti"
-CXXFLAGS="%{optflags} -fno-strict-aliasing -Wno-error=format-security -fno-rtti"
+CFLAGS="%{optflags} -fno-strict-aliasing -Wno-error=format-security -fno-rtti -fPIC"
+CXXFLAGS="%{optflags} -fno-strict-aliasing -Wno-error=format-security -fno-rtti -fPIC"
 
 %cmake .. \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
@@ -124,7 +117,7 @@ rm -f %{buildroot}%{python_sitearch}/six.*
 %files devel
 %{_includedir}/lldb
 
-%files -n python-lldb-3.9.1
+%files -n python-lldb-4.0.0
 %{python_sitearch}/lldb
 
 %changelog
