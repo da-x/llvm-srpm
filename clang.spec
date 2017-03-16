@@ -1,6 +1,6 @@
 Name:		clang
 Version:	3.9.1
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -78,6 +78,7 @@ cd _build
 	-DCLANG_INCLUDE_DOCS:BOOL=ON \
 	-DCLANG_INCLUDE_TESTS:BOOL=ON \
 	-DCLANG_PLUGIN_SUPPORT:BOOL=ON \
+	-DENABLE_LINKER_BUILD_ID:BOOL=ON \
 	\
 	-DCLANG_BUILD_EXAMPLES:BOOL=OFF \
 %if 0%{?__isa_bits} == 64
@@ -138,6 +139,9 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 %{_mandir}/man1/scan-build.1.*
 
 %changelog
+* Thu Mar 16 2017 Tom Stellard <tstellar@redhat.com> - 3.9.1-2
+- Enable build-id by default rhbz#1432403
+
 * Thu Mar 02 2017 Dave Airlie <airlied@redhat.com> - 3.9.1-1
 - clang 3.9.1 final release
 
