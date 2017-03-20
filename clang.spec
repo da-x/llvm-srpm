@@ -1,11 +1,27 @@
+%global clang_tools_binaries \
+	%{_bindir}/clang-apply-replacements \
+	%{_bindir}/clang-include-fixer \
+	%{_bindir}/clang-query \
+	%{_bindir}/clang-rename \
+	%{_bindir}/clang-tidy
+
+%global clang_binaries \
+	%{_bindir}/clang \
+	%{_bindir}/clang++ \
+	%{_bindir}/clang-3.9 \
+	%{_bindir}/clang-check \
+	%{_bindir}/clang-cl \
+	%{_bindir}/clang-format
+
 Name:		clang
 Version:	3.9.1
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
 URL:		http://llvm.org
 Source0:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
+Source1:	http://llvm.org/releases/%{version}/clang-tools-extra-%{version}.src.tar.xz
 
 Source100:	clang-config.h
 
@@ -63,8 +79,20 @@ framework and a standalone tool that finds bugs in C and Objective-C
 programs. The standalone tool is invoked from the command-line, and is
 intended to run in tandem with a build of a project or code base.
 
+%package tools-extra
+Summary: Extra tools for clang
+Requires: llvm-libs%{?_isa} = %{version}
+Requires: clang-libs%{?_isa} = %{version}
+
+%description tools-extra
+A set of extra tools built using Clang's tooling API.
+
 %prep
+%setup -T -q -b 1 -n clang-tools-extra-%{version}.src
 %setup -q -n cfe-%{version}.src
+
+mv ../clang-tools-extra-%{version}.src tools/extra
+
 %build
 mkdir -p _build
 cd _build
@@ -76,7 +104,7 @@ cd _build
 	-DCLANG_ENABLE_ARCMT:BOOL=ON \
 	-DCLANG_ENABLE_STATIC_ANALYZER:BOOL=ON \
 	-DCLANG_INCLUDE_DOCS:BOOL=ON \
-	-DCLANG_INCLUDE_TESTS:BOOL=ON \
+	-DCLANG_INCLUDE_TESTS:BOOL=OFF \
 	-DCLANG_PLUGIN_SUPPORT:BOOL=ON \
 	-DENABLE_LINKER_BUILD_ID:BOOL=ON \
 	\
@@ -105,6 +133,11 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format-bbedit.applescript
 rm -vf %{buildroot}%{_datadir}/clang/clang-format-sublime.py*
 rm -vf %{buildroot}%{_datadir}/clang/clang-format.el
 rm -vf %{buildroot}%{_datadir}/clang/clang-format.py*
+# clang-tools-extra
+rm -vf %{buildroot}%{_datadir}/clang/clang-include-fixer.py
+rm -vf %{buildroot}%{_datadir}/clang/clang-tidy-diff.py
+rm -vf %{buildroot}%{_datadir}/clang/run-clang-tidy.py
+rm -vf %{buildroot}%{_datadir}/clang/run-find-all-symbols.py
 # remove diff reformatter
 rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 
@@ -115,7 +148,7 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 
 %files
 %{_libdir}/clang/
-%{_bindir}/clang*
+%{clang_binaries}
 %{_bindir}/c-index-test
 
 %files libs
@@ -138,7 +171,15 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 %{_datadir}/scan-build/
 %{_mandir}/man1/scan-build.1.*
 
+%files tools-extra
+%{clang_tools_binaries}
+%{_bindir}/find-all-symbols
+%{_bindir}/modularize
+
 %changelog
+* Mon Mar 20 2017 David Goerger <david.goerger@yale.edu> - 3.9.1-3
+- add clang-tools-extra rhbz#1328091
+
 * Thu Mar 16 2017 Tom Stellard <tstellar@redhat.com> - 3.9.1-2
 - Enable build-id by default rhbz#1432403
 
