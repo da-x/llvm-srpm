@@ -177,7 +177,7 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 %{_bindir}/modularize
 
 %changelog
-* Tue Mar 14 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-1
+* Thu Mar 23 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-1
 - clang 4.0.0 final release
 
 * Mon Mar 20 2017 David Goerger <david.goerger@yale.edu> - 3.9.1-3
