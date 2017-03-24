@@ -1,21 +1,26 @@
 %global clang_tools_binaries \
 	%{_bindir}/clang-apply-replacements \
+	%{_bindir}/clang-change-namespace \
 	%{_bindir}/clang-include-fixer \
 	%{_bindir}/clang-query \
+	%{_bindir}/clang-reorder-fields \
 	%{_bindir}/clang-rename \
 	%{_bindir}/clang-tidy
 
 %global clang_binaries \
 	%{_bindir}/clang \
 	%{_bindir}/clang++ \
-	%{_bindir}/clang-3.9 \
+	%{_bindir}/clang-4.0 \
 	%{_bindir}/clang-check \
 	%{_bindir}/clang-cl \
-	%{_bindir}/clang-format
+	%{_bindir}/clang-cpp \
+	%{_bindir}/clang-format \
+	%{_bindir}/clang-import-test \
+	%{_bindir}/clang-offload-bundler
 
 Name:		clang
 Version:	4.0.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -24,6 +29,8 @@ Source0:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
 Source1:	http://llvm.org/releases/%{version}/clang-tools-extra-%{version}.src.tar.xz
 
 Source100:	clang-config.h
+
+Patch0:		0001-CMake-Fix-pthread-handling-for-out-of-tree-builds.patch
 
 BuildRequires:	cmake
 BuildRequires:	llvm-devel = %{version}
@@ -89,6 +96,7 @@ A set of extra tools built using Clang's tooling API.
 
 %prep
 %setup -T -q -b 1 -n clang-tools-extra-%{version}.src
+%patch0 -p1 -b .pthread-fix
 %setup -q -n cfe-%{version}.src
 
 mv ../clang-tools-extra-%{version}.src tools/extra
@@ -138,6 +146,9 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-include-fixer.py
 rm -vf %{buildroot}%{_datadir}/clang/clang-tidy-diff.py
 rm -vf %{buildroot}%{_datadir}/clang/run-clang-tidy.py
 rm -vf %{buildroot}%{_datadir}/clang/run-find-all-symbols.py
+rm -vf %{buildroot}%{_datadir}/clang/clang-include-fixer.el
+rm -vf %{buildroot}%{_datadir}/clang/clang-rename.el
+rm -vf %{buildroot}%{_datadir}/clang/clang-rename.py
 # remove diff reformatter
 rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 
@@ -177,6 +188,10 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 %{_bindir}/modularize
 
 %changelog
+* Fri Mar 24 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-2
+- Fix clang-tools-extra build
+- Fix install
+
 * Thu Mar 23 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-1
 - clang 4.0.0 final release
 
