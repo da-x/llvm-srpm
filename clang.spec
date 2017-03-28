@@ -20,7 +20,7 @@
 
 Name:		clang
 Version:	4.0.0
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -115,6 +115,8 @@ cd _build
 	-DCLANG_INCLUDE_TESTS:BOOL=OFF \
 	-DCLANG_PLUGIN_SUPPORT:BOOL=ON \
 	-DENABLE_LINKER_BUILD_ID:BOOL=ON \
+	-DLLVM_ENABLE_EH=ON \
+	-DLLVM_ENABLE_RTTI=ON \
 	\
 	-DCLANG_BUILD_EXAMPLES:BOOL=OFF \
 %if 0%{?__isa_bits} == 64
@@ -188,6 +190,9 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 %{_bindir}/modularize
 
 %changelog
+* Mon Mar 27 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-3
+- Enable eh/rtti, which are required by lldb.
+
 * Fri Mar 24 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-2
 - Fix clang-tools-extra build
 - Fix install
