@@ -3,8 +3,8 @@
 %global bootstrap 0
 
 Name:		libcxx
-Version:	3.9.0
-Release:	4%{?dist}
+Version:	3.9.1
+Release:	1%{?dist}
 Summary:	C++ standard library targeting C++11
 License:	MIT or NCSA
 URL:		http://libcxx.llvm.org/
@@ -98,6 +98,9 @@ make install DESTDIR=%{buildroot}
 %{_libdir}/libc++.so
 
 %changelog
+* Wed Mar  8 2017 Tom Callaway <spot@fedoraproject.org> - 3.9.1-1
+- update to 3.9.1
+
 * Fri Mar  3 2017 Tom Callaway <spot@fedoraproject.org> - 3.9.0-4
 - LIBCXX_ENABLE_ABI_LINKER_SCRIPT=ON
 
