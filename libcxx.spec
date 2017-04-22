@@ -9,7 +9,7 @@ Summary:	C++ standard library targeting C++11
 License:	MIT or NCSA
 URL:		http://libcxx.llvm.org/
 Source0:	http://llvm.org/releases/%{version}/libcxx-%{version}.src.tar.xz
-BuildRequires:	clang llvm-devel cmake
+BuildRequires:	clang llvm-devel cmake llvm-static
 %if %{bootstrap} < 1
 BuildRequires:	libcxxabi-devel
 BuildRequires:	python3
@@ -31,8 +31,13 @@ Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	libcxxabi-devel
 %endif
 
-
 %description devel
+%{summary}.
+
+%package static
+Summary:	Static libraries for libcxx
+
+%description static
 %{summary}.
 
 %prep
@@ -96,6 +101,11 @@ make install DESTDIR=%{buildroot}
 %files devel
 %{_includedir}/c++/
 %{_libdir}/libc++.so
+
+%files static
+%license LICENSE.TXT
+%{_libdir}/libc++*.a
+
 
 %changelog
 * Sat Apr 22 2017 Tom Callaway <spot@fedoraproject.org> - 4.0.0-1
