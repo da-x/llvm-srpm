@@ -1,5 +1,5 @@
 Name:		libcxxabi
-Version:	3.9.0
+Version:	4.0.0
 Release:	1%{?dist}
 Summary:	Low level support for a standard C++ library
 License:	MIT or NCSA
@@ -88,6 +88,9 @@ cp -a include/* %{buildroot}%{_includedir}
 %{_libdir}/libc++abi.a
 
 %changelog
+* Sat Apr 22 2017 Tom Callaway <spot@fedoraproject.org> - 4.0.0-1
+- update to 4.0.0
+
 * Mon Feb 20 2017 Tom Callaway <spot@fedoraproject.org> - 3.9.0-1
 - update to 3.9.0
 - apply fixes from libcxx
