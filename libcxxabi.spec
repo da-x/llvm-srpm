@@ -5,7 +5,7 @@ Summary:	Low level support for a standard C++ library
 License:	MIT or NCSA
 URL:		http://libcxxabi.llvm.org/
 Source0:	http://llvm.org/releases/%{version}/libcxxabi-%{version}.src.tar.xz
-BuildRequires:	clang llvm-devel cmake
+BuildRequires:	clang llvm-devel cmake llvm-static
 BuildRequires:	libcxx-devel >= %{version}
 %if 0%{?rhel}
 # libcxx-devel has this, so we need to as well.
