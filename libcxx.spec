@@ -3,7 +3,7 @@
 %global bootstrap 0
 
 Name:		libcxx
-Version:	3.9.1
+Version:	4.0.0
 Release:	1%{?dist}
 Summary:	C++ standard library targeting C++11
 License:	MIT or NCSA
@@ -98,6 +98,9 @@ make install DESTDIR=%{buildroot}
 %{_libdir}/libc++.so
 
 %changelog
+* Sat Apr 22 2017 Tom Callaway <spot@fedoraproject.org> - 4.0.0-1
+- update to 4.0.0
+
 * Wed Mar  8 2017 Tom Callaway <spot@fedoraproject.org> - 3.9.1-1
 - update to 3.9.1
 
