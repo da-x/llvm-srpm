@@ -1,0 +1,27 @@
+From 6a50c3deceaf66e3d2be93871abef03e22ee4a7c Mon Sep 17 00:00:00 2001
+From: Tom Stellard <tstellar@redhat.com>
+Date: Tue, 16 May 2017 11:52:19 -0400
+Subject: [PATCH] CMake: Make LIBOMP_HEADERS_INSTALL_PATH a cache variable when
+ bulding standalone
+
+This way it can be overriden on the command line.
+---
+ runtime/src/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/runtime/src/CMakeLists.txt b/runtime/src/CMakeLists.txt
+index b0aa487..04ebdc3 100644
+--- a/runtime/src/CMakeLists.txt
++++ b/runtime/src/CMakeLists.txt
+@@ -283,7 +283,7 @@ add_dependencies(libomp-micro-tests libomp-test-deps)
+ # We want to install libomp in DESTDIR/CMAKE_INSTALL_PREFIX/lib
+ # We want to install headers in DESTDIR/CMAKE_INSTALL_PREFIX/include
+ if(${LIBOMP_STANDALONE_BUILD})
+-  set(LIBOMP_HEADERS_INSTALL_PATH include)
++  set(LIBOMP_HEADERS_INSTALL_PATH include CACHE PATH "Install path for OpenMP headers")
+ else()
+   string(REGEX MATCH "[0-9]+\\.[0-9]+(\\.[0-9]+)?" CLANG_VERSION ${PACKAGE_VERSION})
+   set(LIBOMP_HEADERS_INSTALL_PATH lib${LIBOMP_LIBDIR_SUFFIX}/clang/${CLANG_VERSION}/include)
+-- 
+1.8.3.1
+

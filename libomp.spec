@@ -1,11 +1,13 @@
 Name: libomp
 Version: 4.0.0
 Release: 1%{?dist}
-Summary: OpenMP runtime for llvm/clang
+Summary: OpenMP runtime for clang
 
 License: NCSA
 URL: http://openmp.llvm.org	
 Source0: http://llvm.org/releases/%{version}/openmp-%{version}.src.tar.xz
+
+Patch0: 0001-CMake-Make-LIBOMP_HEADERS_INSTALL_PATH-a-cache-varia.patch
 
 BuildRequires: cmake
 BuildRequires: elfutils-libelf-devel
@@ -33,6 +35,7 @@ cd _build
 
 %cmake .. \
 	-DLIBOMP_INSTALL_ALIASES=OFF \
+	-DLIBOMP_HEADERS_INSTALL_PATH:PATH=%{_libdir}/clang/%{version}/include \
 %if 0%{?__isa_bits} == 64
 	-DLIBOMP_LIBDIR_SUFFIX=64 \
 %else
@@ -51,7 +54,7 @@ cd _build
 %{_libdir}/libomp.so
 
 %files devel
-%{_includedir}/omp.h
+%{_libdir}/clang/%{version}/include/omp.h
 
 %changelog
 * Mon May 15 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-1
