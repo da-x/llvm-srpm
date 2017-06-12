@@ -16,7 +16,8 @@
 	%{_bindir}/clang-cpp \
 	%{_bindir}/clang-format \
 	%{_bindir}/clang-import-test \
-	%{_bindir}/clang-offload-bundler
+	%{_bindir}/clang-offload-bundler \
+	%{_bindir}/git-clang-format
 
 %if 0%{?fedora}
 %bcond_without python3
@@ -26,7 +27,7 @@
 
 Name:		clang
 Version:	4.0.0
-Release:	6%{?dist}
+Release:	7%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -169,8 +170,6 @@ make install DESTDIR=%{buildroot}
 mv -v %{buildroot}%{_includedir}/clang/Config/config{,-%{__isa_bits}}.h
 install -m 0644 %{SOURCE100} %{buildroot}%{_includedir}/clang/Config/config.h
 
-# remove git integration
-rm -vf %{buildroot}%{_bindir}/git-clang-format
 # remove editor integrations (bbedit, sublime, emacs, vim)
 rm -vf %{buildroot}%{_datadir}/clang/clang-format-bbedit.applescript
 rm -vf %{buildroot}%{_datadir}/clang/clang-format-sublime.py*
@@ -237,6 +236,9 @@ make %{?_smp_mflags} check || :
 %{_bindir}/modularize
 
 %changelog
+* Mon Jun 12 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-7
+- Package git-clang-format
+
 * Thu Jun 08 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-6
 - Generate man pages
 
