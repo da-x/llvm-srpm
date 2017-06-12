@@ -26,7 +26,7 @@
 
 Name:		clang
 Version:	4.0.0
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -40,6 +40,7 @@ Source100:	clang-config.h
 Patch0:		0001-CMake-Fix-pthread-handling-for-out-of-tree-builds.patch
 # This patch is required when the test suite is using python-lit 0.5.0.
 Patch1:		0001-litsupport-Add-compatibility-cludge-so-it-still-work.patch
+Patch2:		0001-docs-Fix-Sphinx-detection-with-out-of-tree-builds.patch
 
 BuildRequires:	cmake
 BuildRequires:	llvm-devel = %{version}
@@ -59,6 +60,8 @@ BuildRequires: zlib-devel
 BuildRequires: tcl
 BuildRequires: python-virtualenv
 BuildRequires: libstdc++-static
+BuildRequires: python3-sphinx
+
 
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 
@@ -124,6 +127,7 @@ A set of extra tools built using Clang's tooling API.
 %patch1 -p1 -b .lit-fix
 
 %setup -q -n cfe-%{version}.src
+%patch2 -p1 -b .docs-fix
 
 mv ../clang-tools-extra-%{version}.src tools/extra
 
@@ -143,6 +147,9 @@ cd _build
 	-DENABLE_LINKER_BUILD_ID:BOOL=ON \
 	-DLLVM_ENABLE_EH=ON \
 	-DLLVM_ENABLE_RTTI=ON \
+	-DLLVM_BUILD_DOCS=ON \
+	-DLLVM_ENABLE_SPHINX=ON \
+	-DSPHINX_WARNINGS_AS_ERRORS=OFF \
 	\
 	-DCLANG_BUILD_EXAMPLES:BOOL=OFF \
 %if 0%{?__isa_bits} == 64
@@ -180,6 +187,9 @@ rm -vf %{buildroot}%{_datadir}/clang/clang-rename.py
 # remove diff reformatter
 rm -vf %{buildroot}%{_datadir}/clang/clang-format-diff.py*
 
+# TODO: Package html docs
+rm -Rvf %{buildroot}%{_pkgdocdir}
+
 %check
 # requires lit.py from LLVM utilities
 #cd _build
@@ -199,6 +209,7 @@ make %{?_smp_mflags} check || :
 %{_libdir}/clang/
 %{clang_binaries}
 %{_bindir}/c-index-test
+%{_mandir}/man1/clang.1.gz
 
 %files libs
 %{_libdir}/*.so.*
@@ -226,6 +237,9 @@ make %{?_smp_mflags} check || :
 %{_bindir}/modularize
 
 %changelog
+* Thu Jun 08 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-6
+- Generate man pages
+
 * Thu Jun 08 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-5
 - Ignore test-suite failures until all arches are fixed.
 
