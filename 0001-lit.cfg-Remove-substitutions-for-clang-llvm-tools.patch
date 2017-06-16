@@ -1,0 +1,73 @@
+From c4d409e8481e402eb34739c6579bd9ffe383f3cd Mon Sep 17 00:00:00 2001
+From: Tom Stellard <tstellar@redhat.com>
+Date: Fri, 16 Jun 2017 00:48:27 +0000
+Subject: [PATCH] lit.cfg: Remove substitutions for clang/llvm tools
+
+We were missing some subsitutions, for example 'not with no pipe, so
+there was a mismatch where some tests would run tools using the full
+path and others would search PATH for the tool.
+
+The new beahavior is that the lit tests will always search PATH for the
+tool.  This should not change the current functionality, because the
+smae paths that were being used in substitutions are being added to
+PATH.
+---
+ test/lit.cfg | 42 ------------------------------------------
+ 1 file changed, 42 deletions(-)
+
+diff --git a/test/lit.cfg b/test/lit.cfg
+index 7d8bebf..9ded96c 100644
+--- a/test/lit.cfg
++++ b/test/lit.cfg
+@@ -303,48 +303,6 @@ config.substitutions.append(
+     (' %clang-cl ',
+      """*** invalid substitution, use '%clang_cl'. ***""") )
+ 
+-# For each occurrence of a clang tool name as its own word, replace it
+-# with the full path to the build directory holding that tool.  This
+-# ensures that we are testing the tools just built and not some random
+-# tools that might happen to be in the user's PATH.
+-tool_dirs = os.path.pathsep.join((clang_tools_dir, llvm_tools_dir))
+-
+-# Regex assertions to reject neighbor hyphens/dots (seen in some tests).
+-# For example, don't match 'clang-check-' or '.clang-format'.
+-NoPreHyphenDot = r"(?<!(-|\.))"
+-NoPostHyphenDot = r"(?!(-|\.))"
+-NoPostBar = r"(?!(/|\\))"
+-
+-tool_patterns = [r"\bFileCheck\b",
+-                 r"\bc-index-test\b",
+-                 NoPreHyphenDot + r"\bclang-check\b" + NoPostHyphenDot,
+-                 NoPreHyphenDot + r"\bclang-format\b" + NoPostHyphenDot,
+-                 # FIXME: Some clang test uses opt?
+-                 NoPreHyphenDot + r"\bopt\b" + NoPostBar + NoPostHyphenDot,
+-                 # Handle these specially as they are strings searched
+-                 # for during testing.
+-                 r"\| \bcount\b",
+-                 r"\| \bnot\b"]
+-
+-if config.clang_examples:
+-    tool_patterns.append(NoPreHyphenDot + r"\bclang-interpreter\b" + NoPostHyphenDot)
+-
+-for pattern in tool_patterns:
+-    # Extract the tool name from the pattern.  This relies on the tool
+-    # name being surrounded by \b word match operators.  If the
+-    # pattern starts with "| ", include it in the string to be
+-    # substituted.
+-    tool_match = re.match(r"^(\\)?((\| )?)\W+b([0-9A-Za-z-_]+)\\b\W*$",
+-                          pattern)
+-    tool_pipe = tool_match.group(2)
+-    tool_name = tool_match.group(4)
+-    tool_path = lit.util.which(tool_name, tool_dirs)
+-    if not tool_path:
+-        # Warn, but still provide a substitution.
+-        lit_config.note('Did not find ' + tool_name + ' in ' + tool_dirs)
+-        tool_path = clang_tools_dir + '/' + tool_name
+-    config.substitutions.append((pattern, tool_pipe + tool_path))
+-
+ ###
+ 
+ # Set available features we allow tests to conditionalize on.
+-- 
+2.9.3
+
