@@ -27,7 +27,7 @@
 
 Name:		clang
 Version:	4.0.0
-Release:	7%{?dist}
+Release:	8%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -42,6 +42,8 @@ Patch0:		0001-CMake-Fix-pthread-handling-for-out-of-tree-builds.patch
 # This patch is required when the test suite is using python-lit 0.5.0.
 Patch1:		0001-litsupport-Add-compatibility-cludge-so-it-still-work.patch
 Patch2:		0001-docs-Fix-Sphinx-detection-with-out-of-tree-builds.patch
+Patch3:		0001-test-Remove-FileCheck-not-count-dependencies.patch
+Patch4:		0001-lit.cfg-Remove-substitutions-for-clang-llvm-tools.patch
 
 BuildRequires:	cmake
 BuildRequires:	llvm-devel = %{version}
@@ -123,12 +125,14 @@ A set of extra tools built using Clang's tooling API.
 %prep
 %setup -T -q -b 1 -n clang-tools-extra-%{version}.src
 %patch0 -p1 -b .pthread-fix
+%patch3 -p1 -b .lit-dep-fix
 
 %setup -T -q -b 2 -n test-suite-%{version}.src
 %patch1 -p1 -b .lit-fix
 
 %setup -q -n cfe-%{version}.src
 %patch2 -p1 -b .docs-fix
+%patch4 -p1 -b .lit-tools-fix
 
 mv ../clang-tools-extra-%{version}.src tools/extra
 
@@ -143,7 +147,7 @@ cd _build
 	-DCLANG_ENABLE_ARCMT:BOOL=ON \
 	-DCLANG_ENABLE_STATIC_ANALYZER:BOOL=ON \
 	-DCLANG_INCLUDE_DOCS:BOOL=ON \
-	-DCLANG_INCLUDE_TESTS:BOOL=OFF \
+	-DCLANG_INCLUDE_TESTS:BOOL=ON \
 	-DCLANG_PLUGIN_SUPPORT:BOOL=ON \
 	-DENABLE_LINKER_BUILD_ID:BOOL=ON \
 	-DLLVM_ENABLE_EH=ON \
@@ -191,8 +195,8 @@ rm -Rvf %{buildroot}%{_pkgdocdir}
 
 %check
 # requires lit.py from LLVM utilities
-#cd _build
-#make check-all
+cd _build
+PATH=%{_libdir}/llvm:$PATH make check-clang
 
 mkdir -p %{_builddir}/test-suite-%{version}.src/_build
 cd %{_builddir}/test-suite-%{version}.src/_build
@@ -236,6 +240,9 @@ make %{?_smp_mflags} check || :
 %{_bindir}/modularize
 
 %changelog
+* Fri Jun 16 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-8
+- Enable make check-clang
+
 * Mon Jun 12 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-7
 - Package git-clang-format
 
