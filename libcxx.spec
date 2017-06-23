@@ -9,6 +9,7 @@ Summary:	C++ standard library targeting C++11
 License:	MIT or NCSA
 URL:		http://libcxx.llvm.org/
 Source0:	http://llvm.org/releases/%{version}/libcxx-%{version}.src.tar.xz
+Patch0:		libcxx-4.0.1-noxlocale.patch
 BuildRequires:	clang llvm-devel cmake llvm-static
 %if %{bootstrap} < 1
 BuildRequires:	libcxxabi-devel
@@ -42,6 +43,10 @@ Summary:	Static libraries for libcxx
 
 %prep
 %setup -q -n %{name}-%{version}.src
+# glibc-2.25.90-8 or newer no longer includes xlocale.h
+%if 0%{?fedora} >= 27
+%patch0 -p1 -b .noxlocale
+%endif
 
 %build
 mkdir _build
