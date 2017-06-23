@@ -26,8 +26,8 @@
 %endif
 
 Name:		clang
-Version:	4.0.0
-Release:	8%{?dist}
+Version:	4.0.1
+Release:	1%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -38,7 +38,6 @@ Source2:	http://llvm.org/releases/%{version}/test-suite-%{version}.src.tar.xz
 
 Source100:	clang-config.h
 
-Patch0:		0001-CMake-Fix-pthread-handling-for-out-of-tree-builds.patch
 # This patch is required when the test suite is using python-lit 0.5.0.
 Patch1:		0001-litsupport-Add-compatibility-cludge-so-it-still-work.patch
 Patch2:		0001-docs-Fix-Sphinx-detection-with-out-of-tree-builds.patch
@@ -124,7 +123,6 @@ A set of extra tools built using Clang's tooling API.
 
 %prep
 %setup -T -q -b 1 -n clang-tools-extra-%{version}.src
-%patch0 -p1 -b .pthread-fix
 %patch3 -p1 -b .lit-dep-fix
 
 %setup -T -q -b 2 -n test-suite-%{version}.src
@@ -240,6 +238,9 @@ make %{?_smp_mflags} check || :
 %{_bindir}/modularize
 
 %changelog
+* Fri Jun 23 2017 Tom Stellard <tstellar@redhat.com> - 4.0.1-1
+- 4.0.1 Release.
+
 * Fri Jun 16 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-8
 - Enable make check-clang
 
