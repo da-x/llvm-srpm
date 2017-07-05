@@ -47,6 +47,8 @@ Patch4:		0001-lit.cfg-Remove-substitutions-for-clang-llvm-tools.patch
 BuildRequires:	cmake
 BuildRequires:	llvm-devel = %{version}
 BuildRequires:	libxml2-devel
+# llvm-static is required, because clang-tablegen needs libLLVMTableGen, which
+# is not included in libLLVM.so.
 BuildRequires:  llvm-static = %{version}
 BuildRequires:  perl-generators
 BuildRequires:  ncurses-devel
