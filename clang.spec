@@ -27,7 +27,7 @@
 
 Name:		clang
 Version:	4.0.1
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -240,6 +240,9 @@ make %{?_smp_mflags} check || :
 %{_bindir}/modularize
 
 %changelog
+* Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 4.0.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
 * Fri Jun 23 2017 Tom Stellard <tstellar@redhat.com> - 4.0.1-1
 - 4.0.1 Release.
 
