@@ -4,7 +4,7 @@
 
 Name:		libcxx
 Version:	4.0.1
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	C++ standard library targeting C++11
 License:	MIT or NCSA
 URL:		http://libcxx.llvm.org/
@@ -113,6 +113,9 @@ make install DESTDIR=%{buildroot}
 
 
 %changelog
+* Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 4.0.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
 * Fri Jun 23 2017 Tom Callaway <spot@fedoraproject.org> - 4.0.1-1
 - update to 4.0.1
 
