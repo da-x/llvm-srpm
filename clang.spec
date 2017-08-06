@@ -16,8 +16,7 @@
 	%{_bindir}/clang-cpp \
 	%{_bindir}/clang-format \
 	%{_bindir}/clang-import-test \
-	%{_bindir}/clang-offload-bundler \
-	%{_bindir}/git-clang-format
+	%{_bindir}/clang-offload-bundler
 
 %if 0%{?fedora}
 %bcond_without python3
@@ -27,7 +26,7 @@
 
 Name:		clang
 Version:	4.0.1
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -123,6 +122,18 @@ Requires: clang-libs%{?_isa} = %{version}
 %description tools-extra
 A set of extra tools built using Clang's tooling API.
 
+# Put git-clang-format in its own package, because it Requires git and python2
+# and we don't want to force users to install all those dependenices if they
+# just want clang.
+%package -n git-clang-format
+Summary: clang-format integration for git
+Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: git
+Requires: python2
+
+%description -n git-clang-format
+clang-format integration for git.
+
 %prep
 %setup -T -q -b 1 -n clang-tools-extra-%{version}.src
 %patch3 -p1 -b .lit-dep-fix
@@ -169,6 +180,8 @@ make %{?_smp_mflags}
 %install
 cd _build
 make install DESTDIR=%{buildroot}
+
+sed -i -e 's~#!/usr/bin/env python~#!%{_bindir}/python2~' %{buildroot}%{_bindir}/git-clang-format
 
 # multilib fix
 mv -v %{buildroot}%{_includedir}/clang/Config/config{,-%{__isa_bits}}.h
@@ -239,7 +252,13 @@ make %{?_smp_mflags} check || :
 %{_bindir}/find-all-symbols
 %{_bindir}/modularize
 
+%files -n git-clang-format
+%{_bindir}/git-clang-format
+
 %changelog
+* Wed Aug 30 2017 Tom Stellard <tstellar@redhat.com> - 4.0.1-5
+- Add Requires: python for git-clang-format
+
 * Sun Aug 06 2017 Björn Esser <besser82@fedoraproject.org> - 4.0.1-4
 - Rebuilt for AutoReq cmake-filesystem
 
