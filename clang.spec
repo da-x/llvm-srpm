@@ -27,7 +27,7 @@
 
 Name:		clang
 Version:	4.0.1
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -221,7 +221,7 @@ make %{?_smp_mflags} check || :
 %files devel
 %{_includedir}/clang/
 %{_includedir}/clang-c/
-%{_libdir}/cmake/
+%{_libdir}/cmake/*
 %dir %{_datadir}/clang/
 
 %files analyzer
@@ -240,6 +240,9 @@ make %{?_smp_mflags} check || :
 %{_bindir}/modularize
 
 %changelog
+* Sun Aug 06 2017 Björn Esser <besser82@fedoraproject.org> - 4.0.1-4
+- Rebuilt for AutoReq cmake-filesystem
+
 * Wed Aug 02 2017 Fedora Release Engineering <releng@fedoraproject.org> - 4.0.1-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
