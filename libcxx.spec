@@ -3,13 +3,12 @@
 %global bootstrap 0
 
 Name:		libcxx
-Version:	4.0.1
-Release:	3%{?dist}
+Version:	5.0.0
+Release:	1%{?dist}
 Summary:	C++ standard library targeting C++11
 License:	MIT or NCSA
 URL:		http://libcxx.llvm.org/
 Source0:	http://llvm.org/releases/%{version}/libcxx-%{version}.src.tar.xz
-Patch0:		libcxx-4.0.1-noxlocale.patch
 BuildRequires:	clang llvm-devel cmake llvm-static
 %if %{bootstrap} < 1
 BuildRequires:	libcxxabi-devel
@@ -43,10 +42,6 @@ Summary:	Static libraries for libcxx
 
 %prep
 %setup -q -n %{name}-%{version}.src
-# glibc-2.25.90-8 or newer no longer includes xlocale.h
-%if 0%{?fedora} >= 27
-%patch0 -p1 -b .noxlocale
-%endif
 
 %build
 mkdir _build
@@ -113,6 +108,9 @@ make install DESTDIR=%{buildroot}
 
 
 %changelog
+* Fri Sep  8 2017 Tom Callaway <spot@fedoraproject.org> - 5.0.0-1
+- update to 5.0.0
+
 * Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 4.0.1-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
