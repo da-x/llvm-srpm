@@ -166,18 +166,12 @@ make check-all || :
 
 %files
 %{_bindir}/*
-%if 0%{?fedora} > 25
-%{_mandir}/man1/*.1.*
-%endif
 %{_datadir}/opt-viewer
-%if 0%{?fedora} == 24 || 0%{?fedora} == 25
+%if 0%{?fedora} >= 24
 %{_mandir}/man1/*.1
 %endif
 %exclude %{_bindir}/llvm-config-%{__isa_bits}
-%if 0%{?fedora} > 25
-%exclude %{_mandir}/man1/llvm-config.1.*
-%endif
-%if 0%{?fedora} == 24 || 0%{?fedora} == 25
+%if 0%{?fedora} >= 24
 %exclude %{_mandir}/man1/llvm-config.1
 %endif
 
@@ -195,10 +189,7 @@ make check-all || :
 %files devel
 %{_bindir}/llvm-config
 %{_bindir}/llvm-config-%{__isa_bits}
-%if 0%{?fedora} > 25
-%{_mandir}/man1/llvm-config.1.*
-%endif
-%if 0%{?fedora} == 24 || 0%{?fedora} == 25
+%if 0%{?fedora} >= 24
 %{_mandir}/man1/llvm-config.1
 %endif
 %{_includedir}/llvm
