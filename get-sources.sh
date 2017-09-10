@@ -1,6 +1,6 @@
 #!/bin/bash
 
-git fetch git@github.com:llvm-mirror/compiler-rt.git release_40 --depth=1
+git fetch git@github.com:llvm-mirror/compiler-rt.git release_50 --depth=1
 
 set -e
 

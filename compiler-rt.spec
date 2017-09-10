@@ -3,16 +3,16 @@
 %global debug_package %{nil}
 %endif
 
-%define _prefix /opt/llvm-4.0.0
+%define _prefix /opt/llvm-5.0.0
 
-Name:		compiler-rt-4.0.0
-Version:	4.0.0
-Release:	1.svn295218%{?dist}.alonid
+Name:		compiler-rt-5.0.0
+Version:	5.0.0
+Release:	1.svn311736%{?dist}.alonid
 Summary:	LLVM "compiler-rt" runtime libraries
 
 License:	NCSA or MIT
 URL:		http://llvm.org
-Source0:	http://llvm.org/releases/%{version}/1fdc27db84c9d0d9ae4ae60185629e8c43b4a11c.tar.gz
+Source0:	http://llvm.org/releases/%{version}/4b38c4038a4f2b8e2d02b5f5d7877fa79d940009.tar.gz
 
 BuildRequires:	cmake
 BuildRequires:	python
@@ -26,7 +26,7 @@ code generation, sanitizer runtimes and profiling library for code
 instrumentation, and Blocks C language extension.
 
 %prep
-%setup -q -n compiler-rt-1fdc27db84c9d0d9ae4ae60185629e8c43b4a11c
+%setup -q -n compiler-rt-4b38c4038a4f2b8e2d02b5f5d7877fa79d940009
 
 %build
 mkdir -p _build
