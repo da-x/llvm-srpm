@@ -5,17 +5,17 @@
   %bcond_with gold
 %endif
 
-%define _prefix /opt/llvm-4.0.0
+%define _prefix /opt/llvm-5.0.0
 %define _pkgdocdir %{_docdir}/llvm
 
-Name:		llvm-4.0.0
-Version:	4.0.0
-Release:	1.svn297204%{?dist}.alonid
+Name:		llvm-5.0.0
+Version:	5.0.0
+Release:	1.svn312333%{?dist}.alonid
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
 URL:		http://llvm.org
-Source0:	http://llvm.org/releases/%{version}/4423e351176a92975739dd4ea43c2ff5877236ae.tar.gz
+Source0:	http://llvm.org/releases/%{version}/657c31173ea30090583e40c7a9204561d9c2d8c4.tar.gz
 
 Source100:	llvm-config.h
 
@@ -74,7 +74,7 @@ Summary:	LLVM static libraries
 Static libraries for the LLVM compiler infrastructure.
 
 %prep
-%setup -q -n llvm-4423e351176a92975739dd4ea43c2ff5877236ae
+%setup -q -n llvm-657c31173ea30090583e40c7a9204561d9c2d8c4
 %patch0 -p1 -b .s390
 %patch1 -p1
 
@@ -169,6 +169,7 @@ make check-all || :
 %if 0%{?fedora} > 25
 %{_mandir}/man1/*.1.*
 %endif
+%{_datadir}/opt-viewer
 %if 0%{?fedora} == 24 || 0%{?fedora} == 25
 %{_mandir}/man1/*.1
 %endif
@@ -186,7 +187,7 @@ make check-all || :
 %if %{with gold}
 %{_libdir}/LLVMgold.so
 %endif
-%{_libdir}/libLLVM-4.0*.so
+%{_libdir}/libLLVM-5.0*.so
 %{_libdir}/libLTO.so
 %{_libdir}/libLTO.so.*
 /etc/ld.so.conf.d/%{name}.conf
