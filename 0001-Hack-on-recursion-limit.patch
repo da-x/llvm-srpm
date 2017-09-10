@@ -1,0 +1,25 @@
+From 7eadb8b6321b9c0948e1d4a1c14df1c53c34fc12 Mon Sep 17 00:00:00 2001
+From: Dan Aloni <alonid@gmail.com>
+Date: Tue, 14 Mar 2017 14:58:23 +0200
+Subject: [PATCH] Hack on recursion limit
+
+---
+ docs/conf.py | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/docs/conf.py b/docs/conf.py
+index b71280150ac9..3ac28becf914 100644
+--- a/docs/conf.py
++++ b/docs/conf.py
+@@ -13,6 +13,8 @@
+ import sys, os
+ from datetime import date
+ 
++sys.setrecursionlimit(10000)
++
+ # If extensions (or modules to document with autodoc) are in another directory,
+ # add these directories to sys.path here. If the directory is relative to the
+ # documentation root, use os.path.abspath to make it absolute, like shown here.
+-- 
+2.7.4
+
