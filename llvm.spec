@@ -45,6 +45,16 @@ runtime, and idle-time optimization of programs from arbitrary programming
 languages. The compiler infrastructure includes mirror sets of programming
 tools as well as libraries with equivalent functionality.
 
+%if 0%{?epel} == 7
+# We don't know yet, why this gets stuck:
+#
+# extracting debug info from /builddir/build/BUILDROOT/llvm-5.0.0-5.0.0-1.svn312333.el7.centos.alonid.x86_64/opt/llvm-5.0.0/lib64/LLVMHello.so
+#
+# Tried upgrading dwz to 0.12 but it did not help.
+#
+%define  debug_package %{nil}
+%endif
+
 %package devel
 Summary:	Libraries and header files for LLVM
 Requires:	%{name}%{?_isa} = %{version}-%{release}
