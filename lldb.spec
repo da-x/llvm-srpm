@@ -1,29 +1,29 @@
-%define _prefix /opt/llvm-4.0.0
+%define _prefix /opt/llvm-5.0.0
 %define python_sitearch %{_libdir}/python2.7/site-packages
 
-Name:		lldb-4.0.0
-Version:	4.0.0
-Release:	1.svn291842%{?dist}.alonid
+Name:		lldb-5.0.0
+Version:	5.0.0
+Release:	1.svn312016%{?dist}.alonid
 Summary:	Next generation high-performance debugger
 
 License:	NCSA
 URL:		http://lldb.llvm.org/
-Source0:	http://llvm.org/releases/%{version}/fcd2aac9f179b968a20cf0231c3386dcef8a6659.tar.gz
+Source0:	http://llvm.org/releases/%{version}/05c1c5ef75c6a62ff458b1478a52d5d9e4425d84.tar.gz
 
 ExclusiveArch:  %{arm} aarch64 %{ix86} x86_64
 # Patch to remove use of private llvm headers
 Patch3: 0001-Patch.patch
 
 BuildRequires:	cmake
-BuildRequires:  llvm-4.0.0-devel = %{version}
-BuildRequires:  clang-4.0.0-devel = %{version}
+BuildRequires:  llvm-5.0.0-devel = %{version}
+BuildRequires:  clang-5.0.0-devel = %{version}
 BuildRequires:  ncurses-devel
 BuildRequires:  swig
-BuildRequires:  llvm-4.0.0-static = %{version}
+BuildRequires:  llvm-5.0.0-static = %{version}
 BuildRequires:  libffi-devel
 BuildRequires:  zlib-devel
 BuildRequires:  libxml2-devel
-Requires:  clang-4.0.0-libs = %{version}
+Requires:  clang-5.0.0-libs = %{version}
 
 %description
 LLDB is a next generation, high-performance debugger. It is built as a set
@@ -38,16 +38,16 @@ Requires:	%{name}%{?_isa} = %{version}-%{release}
 %description devel
 The package contains header files for the LLDB debugger.
 
-%package -n python-lldb-4.0.0
+%package -n python-lldb-5.0.0
 Summary:	Python module for LLDB
 BuildRequires:	python2-devel
 Requires:	python2-six
 
-%description -n python-lldb-4.0.0
+%description -n python-lldb-5.0.0
 The package contains the LLDB Python module.
 
 %prep
-%setup -q -n lldb-fcd2aac9f179b968a20cf0231c3386dcef8a6659
+%setup -q -n lldb-05c1c5ef75c6a62ff458b1478a52d5d9e4425d84
 
 %patch3 -p1
 
@@ -111,13 +111,14 @@ rm -f %{buildroot}%{python_sitearch}/six.*
 
 %files
 %{_bindir}/lldb*
+%{_bindir}/liblldb-*.so
 %{_libdir}/liblldb.so.*
 %{_libdir}/*.so
 
 %files devel
 %{_includedir}/lldb
 
-%files -n python-lldb-4.0.0
+%files -n python-lldb-5.0.0
 %{python_sitearch}/lldb
 
 %changelog
