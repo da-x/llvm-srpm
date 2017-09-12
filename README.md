@@ -10,10 +10,15 @@ You can use pre-built binaries linked from below, or you can use [fedpkg](https:
 
 Branches:
 
+ * [llvm-5.0.0 (SVN 312333)](https://github.com/da-x/llvm-srpm/tree/llvm-5.0.0), 
+   [clang-5.0.0 (SVN 312293)](https://github.com/da-x/llvm-srpm/tree/clang-5.0.0),
+   [compiler-rt-5.0.0 (SVN 311736)](https://github.com/da-x/llvm-srpm/tree/compiler-rt-5.0.0),
+   [lldb-5.0.0 (SVN 312016)](https://github.com/da-x/llvm-srpm/tree/lldb-5.0.0),
+   **[Binaries in Copr](https://copr.fedorainfracloud.org/coprs/alonid/llvm-5.0.0/)**
  * [llvm-4.0.0 (SVN 297204)](https://github.com/da-x/llvm-srpm/tree/llvm-4.0.0), 
    [clang-4.0.0 (SVN 293134)](https://github.com/da-x/llvm-srpm/tree/clang-4.0.0),
    [compiler-rt-4.0.0 (SVN 292518)](https://github.com/da-x/llvm-srpm/tree/compiler-rt-4.0.0),
-   [lldb-4.0.0] (SVN 291842)(https://github.com/da-x/llvm-srpm/tree/lldb-4.0.0),
+   [lldb-4.0.0 (SVN 291842)](https://github.com/da-x/llvm-srpm/tree/lldb-4.0.0),
    **[Binaries in Copr](https://copr.fedorainfracloud.org/coprs/alonid/llvm-4.0.0/)**
  * [llvm-3.9.1](https://github.com/da-x/llvm-srpm/tree/llvm-3.9.1), 
    [clang-3.9.1](https://github.com/da-x/llvm-srpm/tree/clang-3.9.1),
