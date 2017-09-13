@@ -10,7 +10,7 @@
 
 Name:		llvm-5.0.0
 Version:	5.0.0
-Release:	1.svn312333%{?dist}.alonid
+Release:	2.svn312333%{?dist}.alonid
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -170,6 +170,7 @@ make check-all || :
 %if 0%{?fedora} >= 24
 %{_mandir}/man1/*.1
 %endif
+%exclude %{_bindir}/llvm-config
 %exclude %{_bindir}/llvm-config-%{__isa_bits}
 %if 0%{?fedora} >= 24
 %exclude %{_mandir}/man1/llvm-config.1
