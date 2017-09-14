@@ -1,0 +1,55 @@
+From 8550277f51f85c633f06a75c814d437fd2da3060 Mon Sep 17 00:00:00 2001
+From: Dan Aloni <alonid@gmail.com>
+Date: Thu, 14 Sep 2017 13:51:19 +0300
+Subject: [PATCH] Support RPATH
+
+---
+ CMakeLists.txt               | 14 ++++++++++++++
+ cmake/modules/AddClang.cmake |  6 ++++++
+ 2 files changed, 20 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 2667b1d6892e..287f1e53247b 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -181,6 +181,20 @@ endif()
+ # we can include cmake files from this directory.
+ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
+ 
++set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
++if (APPLE)
++  set(CMAKE_INSTALL_NAME_DIR "@rpath")
++  set(CMAKE_INSTALL_RPATH "@executable_path/../lib")
++else(UNIX)
++  if(NOT DEFINED CMAKE_INSTALL_RPATH)
++    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib${LLVM_LIBDIR_SUFFIX}")
++    if(${CMAKE_SYSTEM_NAME} MATCHES "(FreeBSD|DragonFly)")
++      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,origin")
++      set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,origin")
++    endif()
++  endif(NOT DEFINED CMAKE_INSTALL_RPATH)
++endif()
++
+ find_package(LibXml2 2.5.3 QUIET)
+ if (LIBXML2_FOUND)
+   set(CLANG_HAVE_LIBXML 1)
+diff --git a/cmake/modules/AddClang.cmake b/cmake/modules/AddClang.cmake
+index e657059744a4..c9ae412953be 100644
+--- a/cmake/modules/AddClang.cmake
++++ b/cmake/modules/AddClang.cmake
+@@ -124,6 +124,12 @@ endmacro(add_clang_library)
+ macro(add_clang_executable name)
+   add_llvm_executable( ${name} ${ARGN} )
+   set_target_properties(${name} PROPERTIES FOLDER "Clang executables")
++  target_link_libraries(${name}
++      ${CMAKE_EXECUTABLE_RPATH_LINK_CXX_FLAG}../../lib${LLVM_LIBDIR_SUFFIX}
++      ${CMAKE_EXECUTABLE_RPATH_LINK_CXX_FLAG}../../../lib${LLVM_LIBDIR_SUFFIX}
++      ${CMAKE_EXECUTABLE_RPATH_LINK_CXX_FLAG}../../../../lib${LLVM_LIBDIR_SUFFIX}
++      ${CMAKE_EXECUTABLE_RPATH_LINK_CXX_FLAG}../../../../../lib${LLVM_LIBDIR_SUFFIX}
++      )
+   set_clang_windows_version_resource_properties(${name})
+ endmacro(add_clang_executable)
+ 
+-- 
+2.13.5
+

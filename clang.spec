@@ -1,3 +1,9 @@
+%define _prefix /opt/llvm-5.0.0
+
+%define h_cfe 7e8743f82ac7957c66d9c2444996be5b1218673b
+%define h_clang_tools_extra 58cffec4d74b21c1097de4298e637a31c637851a
+%define h_test_suite 5a456733120cf04bd3700b3bfa6e8de2f970089b
+
 %global clang_tools_binaries \
 	%{_bindir}/clang-apply-replacements \
 	%{_bindir}/clang-change-namespace \
@@ -10,7 +16,7 @@
 %global clang_binaries \
 	%{_bindir}/clang \
 	%{_bindir}/clang++ \
-	%{_bindir}/clang-4.0 \
+	%{_bindir}/clang-5.0 \
 	%{_bindir}/clang-check \
 	%{_bindir}/clang-cl \
 	%{_bindir}/clang-cpp \
@@ -24,16 +30,17 @@
 %bcond_with python3
 %endif
 
-Name:		clang
-Version:	4.0.1
-Release:	5%{?dist}
+Name:		clang-5.0.0
+Version:	5.0.0
+Release:	4.svn312293%{?dist}.alonid
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
 URL:		http://llvm.org
-Source0:	http://llvm.org/releases/%{version}/cfe-%{version}.src.tar.xz
-Source1:	http://llvm.org/releases/%{version}/clang-tools-extra-%{version}.src.tar.xz
-Source2:	http://llvm.org/releases/%{version}/test-suite-%{version}.src.tar.xz
+
+Source0:	http://llvm.org/releases/%{version}/cfe-%{h_cfe}.tar.gz
+Source1:	http://llvm.org/releases/%{version}/clang-tools-extra-%{h_clang_tools_extra}.tar.gz
+Source2:	http://llvm.org/releases/%{version}/test-suite-%{h_test_suite}.tar.gz
 
 Source100:	clang-config.h
 
@@ -44,11 +51,11 @@ Patch3:		0001-test-Remove-FileCheck-not-count-dependencies.patch
 Patch4:		0001-lit.cfg-Remove-substitutions-for-clang-llvm-tools.patch
 
 BuildRequires:	cmake
-BuildRequires:	llvm-devel = %{version}
+BuildRequires:	llvm-%{version}-devel = %{version}
 BuildRequires:	libxml2-devel
 # llvm-static is required, because clang-tablegen needs libLLVMTableGen, which
 # is not included in libLLVM.so.
-BuildRequires:  llvm-static = %{version}
+BuildRequires:  llvm-%{version}-static = %{version}
 BuildRequires:  perl-generators
 BuildRequires:  ncurses-devel
 
@@ -63,10 +70,12 @@ BuildRequires: zlib-devel
 BuildRequires: tcl
 BuildRequires: python-virtualenv
 BuildRequires: libstdc++-static
+%if 0%{?fedora}
 BuildRequires: python3-sphinx
-
+%endif
 
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
+Patch100:         0001-Support-RPATH.patch
 
 # clang requires gcc, clang++ requires libstdc++-devel
 # - https://bugzilla.redhat.com/show_bug.cgi?id=1021645
@@ -87,7 +96,7 @@ as libraries and designed to be loosely-coupled and extensible.
 
 %package libs
 Summary: Runtime library for clang
-Requires: compiler-rt%{?_isa} >= %{version}
+Requires: compiler-rt-%{version}%{?_isa} >= %{version}
 
 %description libs
 Runtime library for clang.
@@ -116,8 +125,8 @@ intended to run in tandem with a build of a project or code base.
 
 %package tools-extra
 Summary: Extra tools for clang
-Requires: llvm-libs%{?_isa} = %{version}
-Requires: clang-libs%{?_isa} = %{version}
+Requires: llvm-%{version}-libs%{?_isa} = %{version}
+Requires: clang-%{version}-libs%{?_isa} = %{version}
 
 %description tools-extra
 A set of extra tools built using Clang's tooling API.
@@ -125,27 +134,28 @@ A set of extra tools built using Clang's tooling API.
 # Put git-clang-format in its own package, because it Requires git and python2
 # and we don't want to force users to install all those dependenices if they
 # just want clang.
-%package -n git-clang-format
+%package -n git-clang-format-%{version}
 Summary: clang-format integration for git
 Requires: %{name}%{?_isa} = %{version}-%{release}
 Requires: git
 Requires: python2
 
-%description -n git-clang-format
+%description -n git-clang-format-%{version}
 clang-format integration for git.
 
 %prep
-%setup -T -q -b 1 -n clang-tools-extra-%{version}.src
-%patch3 -p1 -b .lit-dep-fix
+%setup -T -q -b 1 -n clang-tools-extra-%{h_clang_tools_extra}
+# %patch3 -p1 -b .lit-dep-fix
 
-%setup -T -q -b 2 -n test-suite-%{version}.src
-%patch1 -p1 -b .lit-fix
+%setup -T -q -b 2 -n test-suite-%{h_test_suite}
+# %patch1 -p1 -b .lit-fix
 
-%setup -q -n cfe-%{version}.src
-%patch2 -p1 -b .docs-fix
+%setup -q -n cfe-%{h_cfe}
+# %patch2 -p1 -b .docs-fix
 %patch4 -p1 -b .lit-tools-fix
+%patch100 -p1 -b .rpath
 
-mv ../clang-tools-extra-%{version}.src tools/extra
+mv ../clang-tools-extra-%{h_clang_tools_extra} tools/extra
 
 %build
 mkdir -p _build
@@ -153,7 +163,7 @@ cd _build
 %cmake .. \
 	-DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
-	-DLLVM_CONFIG:FILEPATH=/usr/bin/llvm-config-%{__isa_bits} \
+	-DLLVM_CONFIG:FILEPATH=/opt/llvm-%{version}/bin/llvm-config-%{__isa_bits} \
 	\
 	-DCLANG_ENABLE_ARCMT:BOOL=ON \
 	-DCLANG_ENABLE_STATIC_ANALYZER:BOOL=ON \
@@ -164,7 +174,11 @@ cd _build
 	-DLLVM_ENABLE_EH=ON \
 	-DLLVM_ENABLE_RTTI=ON \
 	-DLLVM_BUILD_DOCS=ON \
+%if 0%{?fedora}
 	-DLLVM_ENABLE_SPHINX=ON \
+%else
+	-DLLVM_ENABLE_SPHINX=OFF \
+%endif
 	-DSPHINX_WARNINGS_AS_ERRORS=OFF \
 	\
 	-DCLANG_BUILD_EXAMPLES:BOOL=OFF \
@@ -181,7 +195,7 @@ make %{?_smp_mflags}
 cd _build
 make install DESTDIR=%{buildroot}
 
-sed -i -e 's~#!/usr/bin/env python~#!%{_bindir}/python2~' %{buildroot}%{_bindir}/git-clang-format
+sed -i -e 's~#!/usr/bin/env python~#!/usr/bin/python2~' %{buildroot}%{_bindir}/git-clang-format
 
 # multilib fix
 mv -v %{buildroot}%{_includedir}/clang/Config/config{,-%{__isa_bits}}.h
@@ -225,7 +239,10 @@ make %{?_smp_mflags} check || :
 %{_libdir}/clang/
 %{clang_binaries}
 %{_bindir}/c-index-test
-%{_mandir}/man1/clang.1.gz
+%if 0%{?fedora}
+%{_mandir}/man1/clang.1
+%endif
+%{_datadir}/clang/bash-autocomplete.sh
 
 %files libs
 %{_libdir}/*.so.*
@@ -236,23 +253,27 @@ make %{?_smp_mflags} check || :
 %{_includedir}/clang-c/
 %{_libdir}/cmake/*
 %dir %{_datadir}/clang/
+%if 0%{?fedora}
+%{_datadir}/doc/clang/html/.buildinfo
+%{_datadir}/doc/clang/html/*
+%endif
 
 %files analyzer
 %{_bindir}/scan-view
-%{_bindir}/scan-build
 %{_bindir}/scan-build
 %{_libexecdir}/ccc-analyzer
 %{_libexecdir}/c++-analyzer
 %{_datadir}/scan-view/
 %{_datadir}/scan-build/
-%{_mandir}/man1/scan-build.1.*
+%{_prefix}/share/man/man1/scan-build.1*
 
 %files tools-extra
 %{clang_tools_binaries}
 %{_bindir}/find-all-symbols
 %{_bindir}/modularize
+%{_bindir}/clangd
 
-%files -n git-clang-format
+%files -n git-clang-format-%{version}
 %{_bindir}/git-clang-format
 
 %changelog
