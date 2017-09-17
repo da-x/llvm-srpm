@@ -10,7 +10,7 @@
 
 Name:		llvm-5.0.0
 Version:	5.0.0
-Release:	2.svn312333%{?dist}.alonid
+Release:	3.svn312333%{?dist}.alonid
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
@@ -23,7 +23,17 @@ Source100:	llvm-config.h
 Patch0:		llvm-3.7.1-cmake-s390.patch
 Patch1:		0001-Hack-on-recursion-limit.patch
 
+%if 0%{?epel} == 6
+BuildRequires:	cmake3
+BuildRequires:	devtoolset-2-gcc
+BuildRequires:	devtoolset-2-binutils
+BuildRequires:	devtoolset-2-gcc-c++
+BuildRequires:	devtoolset-2-gcc-plugin-devel
+BuildRequires:	libffi-devel
+BuildRequires:	python27
+%else
 BuildRequires:	cmake
+%endif
 BuildRequires:	zlib-devel
 BuildRequires:  libffi-devel
 BuildRequires:	ncurses-devel
@@ -35,7 +45,12 @@ BuildRequires:	python
 %if %{with gold}
 BuildRequires:  binutils-devel
 %endif
+%if 0%{?epel} == 6
+BuildRequires:  libstdc++
+BuildRequires:  libstdc++-devel
+%else
 BuildRequires:  libstdc++-static
+%endif
 
 Requires:	%{name}-libs%{?_isa} = %{version}-%{release}
 
@@ -97,8 +112,28 @@ cd _build
 %global optflags %(echo %{optflags} | sed 's/-g /-g1 /')
 %endif
 
+%if 0%{?epel} == 6
+if [[ "$LD_LIBRARY_PATH" == "" ]] ; then
+    export LD_LIBRARY_PATH=/opt/rh/python27/root/usr/lib64
+else
+    export LD_LIBRARY_PATH=/opt/rh/python27/root/usr/lib64:$LD_LIBRARY_PATH
+fi
+export PATH=/opt/rh/python27/root/usr/bin:$PATH
+if [[ "$PKG_CONFIG_PATH" == "" ]] ; then
+    export PKG_CONFIG_PATH=/opt/rh/python27/root/usr/lib64/pkgconfig
+else
+    export PKG_CONFIG_PATH=/opt/rh/python27/root/usr/lib64/pkgconfig:$PKG_CONFIG_PATH
+fi
+
+source /opt/rh/devtoolset-2/enable
+%endif
+
 # force off shared libs as cmake macros turns it on.
+%if 0%{?epel} == 6
+%cmake3 .. \
+%else
 %cmake .. \
+%endif
 	-DBUILD_SHARED_LIBS:BOOL=OFF \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	-DCMAKE_SHARED_LINKER_FLAGS="-Wl,-Bsymbolic -static-libstdc++" \
@@ -116,10 +151,18 @@ cd _build
 	-DLLVM_ENABLE_LIBCXX:BOOL=OFF \
 	-DLLVM_ENABLE_ZLIB:BOOL=ON \
 	-DLLVM_ENABLE_FFI:BOOL=ON \
+%if 0%{?epel} == 6
+	-DFFI_INCLUDE_DIR=/usr/lib64/libffi-3.0.5/include \
+	-DFFI_LIBRARY_DIR=/usr/lib64 \
+%endif
 	-DLLVM_ENABLE_RTTI:BOOL=ON \
 	-DSPHINX_WARNINGS_AS_ERRORS:BOOL=OFF \
 %if %{with gold}
+%if 0%{?epel} == 6
+	-DLLVM_BINUTILS_INCDIR=/opt/rh/devtoolset-2/root/usr/lib/gcc/x86_64-redhat-linux/4.8.2/plugin/include \
+%else
 	-DLLVM_BINUTILS_INCDIR=%{_includedir} \
+%endif
 %endif
 	\
 	-DLLVM_BUILD_RUNTIME:BOOL=ON \
@@ -156,6 +199,22 @@ cd _build
 make %{?_smp_mflags}
 
 %install
+
+%if 0%{?epel} == 6
+if [[ "$LD_LIBRARY_PATH" == "" ]] ; then
+    export LD_LIBRARY_PATH=/opt/rh/python27/root/usr/lib64
+else
+    export LD_LIBRARY_PATH=/opt/rh/python27/root/usr/lib64:$LD_LIBRARY_PATH
+fi
+export PATH=/opt/rh/python27/root/usr/bin:$PATH
+if [[ "$PKG_CONFIG_PATH" == "" ]] ; then
+    export PKG_CONFIG_PATH=/opt/rh/python27/root/usr/lib64/pkgconfig
+else
+    export PKG_CONFIG_PATH=/opt/rh/python27/root/usr/lib64/pkgconfig:$PKG_CONFIG_PATH
+fi
+source /opt/rh/devtoolset-2/enable
+%endif
+
 cd _build
 make install DESTDIR=%{buildroot}
 
