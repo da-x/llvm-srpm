@@ -7,14 +7,23 @@
 
 Name:		compiler-rt-5.0.0
 Version:	5.0.0
-Release:	1.svn311736%{?dist}.alonid
+Release:	2.svn311736%{?dist}.alonid
 Summary:	LLVM "compiler-rt" runtime libraries
 
 License:	NCSA or MIT
 URL:		http://llvm.org
 Source0:	http://llvm.org/releases/%{version}/4b38c4038a4f2b8e2d02b5f5d7877fa79d940009.tar.gz
 
+%if 0%{?epel} == 6
+BuildRequires:	cmake3
+BuildRequires:	devtoolset-2-gcc
+BuildRequires:	devtoolset-2-binutils
+BuildRequires:	devtoolset-2-gcc-c++
+BuildRequires:	devtoolset-2-gcc-plugin-devel
+BuildRequires:	python-argparse
+%else
 BuildRequires:	cmake
+%endif
 BuildRequires:	python
 BuildRequires:  llvm-%{version}-devel = %{version}
 BuildRequires:  llvm-%{version}-static = %{version}
@@ -31,7 +40,16 @@ instrumentation, and Blocks C language extension.
 %build
 mkdir -p _build
 cd _build
+
+%if 0%{?epel} == 6
+source /opt/rh/devtoolset-2/enable
+%endif
+
+%if 0%{?epel} == 6
+%cmake3 .. \
+%else
 %cmake .. \
+%endif
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	-DLLVM_CONFIG_PATH:FILEPATH=%{_bindir}/llvm-config-%{__isa_bits} \
 	\
