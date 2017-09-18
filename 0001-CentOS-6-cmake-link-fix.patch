@@ -1,0 +1,24 @@
+From ba3e201be5ac3ba2f776b5dac8dcbb0191c08c4d Mon Sep 17 00:00:00 2001
+From: Dan Aloni <alonid@gmail.com>
+Date: Sun, 17 Sep 2017 22:27:38 +0300
+Subject: [PATCH] CentOS-6-cmake-link-fix
+
+---
+ cmake/modules/LLDBConfig.cmake | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/cmake/modules/LLDBConfig.cmake b/cmake/modules/LLDBConfig.cmake
+index 726552675f47..d6f481f8b427 100644
+--- a/cmake/modules/LLDBConfig.cmake
++++ b/cmake/modules/LLDBConfig.cmake
+@@ -370,6 +370,7 @@ if (NOT LLDB_DISABLE_CURSES)
+ 
+     # Add panels to the library path
+     set (CURSES_LIBRARIES ${CURSES_LIBRARIES} ${CURSES_PANEL_LIBRARY})
++    set (CURSES_LIBRARIES ${CURSES_LIBRARIES} tinfo pthread dl)
+ 
+     list(APPEND system_libs ${CURSES_LIBRARIES})
+     include_directories(${CURSES_INCLUDE_DIR})
+-- 
+2.13.5
+

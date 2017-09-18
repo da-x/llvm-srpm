@@ -3,7 +3,7 @@
 
 Name:		lldb-5.0.0
 Version:	5.0.0
-Release:	1.svn312016%{?dist}.alonid
+Release:	2.svn312016%{?dist}.alonid
 Summary:	Next generation high-performance debugger
 
 License:	NCSA
@@ -13,8 +13,20 @@ Source0:	http://llvm.org/releases/%{version}/05c1c5ef75c6a62ff458b1478a52d5d9e44
 ExclusiveArch:  %{arm} aarch64 %{ix86} x86_64
 # Patch to remove use of private llvm headers
 Patch3: 0001-Patch.patch
+Patch4: 0001-CentOS-6-cmake-link-fix.patch
 
+
+%if 0%{?epel} == 6
+BuildRequires:	cmake3
+BuildRequires:	devtoolset-2-gcc
+BuildRequires:	devtoolset-2-binutils
+BuildRequires:	devtoolset-2-gcc-c++
+BuildRequires:	devtoolset-2-gcc-plugin-devel
+BuildRequires:	python27
+%else
 BuildRequires:	cmake
+%endif
+BuildRequires:  clang-5.0.0-tools-extra = %{version}
 BuildRequires:  llvm-5.0.0-devel = %{version}
 BuildRequires:  clang-5.0.0-devel = %{version}
 BuildRequires:  ncurses-devel
@@ -50,6 +62,17 @@ The package contains the LLDB Python module.
 %setup -q -n lldb-05c1c5ef75c6a62ff458b1478a52d5d9e4425d84
 
 %patch3 -p1
+%if 0%{?epel} == 6
+%patch4 -p1
+%endif
+
+%if 0%{?epel} == 6
+%define x__python          %python27__python
+%define xpython_sitearch   %python27python_sitearch
+%else
+%define x__python          %__python
+%define xpython_sitearch   %python_sitearch
+%endif
 
 %build
 
@@ -60,12 +83,32 @@ cd _build
 
 # Python version detection is broken
 
+%if 0%{?epel} == 6
+if [[ "$LD_LIBRARY_PATH" == "" ]] ; then
+    export LD_LIBRARY_PATH=/opt/rh/python27/root/usr/lib64
+else
+    export LD_LIBRARY_PATH=/opt/rh/python27/root/usr/lib64:$LD_LIBRARY_PATH
+fi
+export PATH=/opt/rh/python27/root/usr/bin:$PATH
+if [[ "$PKG_CONFIG_PATH" == "" ]] ; then
+    export PKG_CONFIG_PATH=/opt/rh/python27/root/usr/lib64/pkgconfig
+else
+    export PKG_CONFIG_PATH=/opt/rh/python27/root/usr/lib64/pkgconfig:$PKG_CONFIG_PATH
+fi
+
+source /opt/rh/devtoolset-2/enable
+%endif
+
 LDFLAGS="%{__global_ldflags} -lpthread -ldl"
 
 CFLAGS="%{optflags} -fno-strict-aliasing -Wno-error=format-security -fno-rtti -fPIC"
 CXXFLAGS="%{optflags} -fno-strict-aliasing -Wno-error=format-security -fno-rtti -fPIC"
 
+%if 0%{?epel} == 6
+%cmake3 .. \
+%else
 %cmake .. \
+%endif
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	-DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
 	-DLLVM_CONFIG:FILEPATH=/usr/bin/llvm-config-%{__isa_bits} \
@@ -82,15 +125,30 @@ CXXFLAGS="%{optflags} -fno-strict-aliasing -Wno-error=format-security -fno-rtti 
         -DLLVM_LIBDIR_SUFFIX= \
 %endif
 	\
-	-DPYTHON_EXECUTABLE:STRING=%{__python} \
-	-DPYTHON_VERSION_MAJOR:STRING=$(%{__python} -c "import sys; print sys.version_info.major") \
-	-DPYTHON_VERSION_MINOR:STRING=$(%{__python} -c "import sys; print sys.version_info.minor")
+	-DPYTHON_EXECUTABLE:STRING=%{x__python} \
+	-DPYTHON_VERSION_MAJOR:STRING=$(%{x__python} -c "import sys; print sys.version_info.major") \
+	-DPYTHON_VERSION_MINOR:STRING=$(%{x__python} -c "import sys; print sys.version_info.minor")
 
 make %{?_smp_mflags}
 
 %install
 
 export PATH=%{_prefix}/bin:$PATH
+
+%if 0%{?epel} == 6
+if [[ "$LD_LIBRARY_PATH" == "" ]] ; then
+    export LD_LIBRARY_PATH=/opt/rh/python27/root/usr/lib64
+else
+    export LD_LIBRARY_PATH=/opt/rh/python27/root/usr/lib64:$LD_LIBRARY_PATH
+fi
+export PATH=/opt/rh/python27/root/usr/bin:$PATH
+if [[ "$PKG_CONFIG_PATH" == "" ]] ; then
+    export PKG_CONFIG_PATH=/opt/rh/python27/root/usr/lib64/pkgconfig
+else
+    export PKG_CONFIG_PATH=/opt/rh/python27/root/usr/lib64/pkgconfig:$PKG_CONFIG_PATH
+fi
+source /opt/rh/devtoolset-2/enable
+%endif
 
 cd _build
 make install DESTDIR=%{buildroot}
@@ -100,7 +158,9 @@ rm -fv %{buildroot}%{_libdir}/*.a
 
 # python: fix binary libraries location
 liblldb=$(basename $(readlink -e %{buildroot}%{_libdir}/liblldb.so))
-ln -vsf "../../../${liblldb}" %{buildroot}%{python_sitearch}/lldb/_lldb.so
+%if 0%{?epel} != 6
+ln -vsf "../../../${liblldb}" %{buildroot}%{xpython_sitearch}/lldb/_lldb.so
+%endif
 mv -v %{buildroot}%{python_sitearch}/readline.so %{buildroot}%{python_sitearch}/lldb/readline.so
 
 # remove bundled six.py
