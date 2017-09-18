@@ -32,7 +32,7 @@
 
 Name:		clang-5.0.0
 Version:	5.0.0
-Release:	4.svn312293%{?dist}.alonid
+Release:	5.svn312293%{?dist}.alonid
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -50,7 +50,17 @@ Patch2:		0001-docs-Fix-Sphinx-detection-with-out-of-tree-builds.patch
 Patch3:		0001-test-Remove-FileCheck-not-count-dependencies.patch
 Patch4:		0001-lit.cfg-Remove-substitutions-for-clang-llvm-tools.patch
 
+%if 0%{?epel} == 6
+BuildRequires:	cmake3
+BuildRequires:	devtoolset-2-gcc
+BuildRequires:	devtoolset-2-binutils
+BuildRequires:	devtoolset-2-gcc-c++
+BuildRequires:	devtoolset-2-gcc-plugin-devel
+BuildRequires:	libffi-devel
+BuildRequires:	python27
+%else
 BuildRequires:	cmake
+%endif
 BuildRequires:	llvm-%{version}-devel = %{version}
 BuildRequires:	libxml2-devel
 # llvm-static is required, because clang-tablegen needs libLLVMTableGen, which
@@ -60,16 +70,23 @@ BuildRequires:  perl-generators
 BuildRequires:  ncurses-devel
 
 # These build dependencies are required for the test suite.
+%if 0%{?epel} != 6
 %if %with python3
 BuildRequires:  python3-lit
 %else
 BuildRequires:  python2-lit
 %endif
+%endif
 
 BuildRequires: zlib-devel
 BuildRequires: tcl
 BuildRequires: python-virtualenv
-BuildRequires: libstdc++-static
+%if 0%{?epel} == 6
+BuildRequires:  libstdc++
+BuildRequires:  libstdc++-devel
+%else
+BuildRequires:  libstdc++-static
+%endif
 %if 0%{?fedora}
 BuildRequires: python3-sphinx
 %endif
@@ -155,12 +172,34 @@ clang-format integration for git.
 %patch4 -p1 -b .lit-tools-fix
 %patch100 -p1 -b .rpath
 
+
 mv ../clang-tools-extra-%{h_clang_tools_extra} tools/extra
 
 %build
+
+%if 0%{?epel} == 6
+if [[ "$LD_LIBRARY_PATH" == "" ]] ; then
+    export LD_LIBRARY_PATH=/opt/rh/python27/root/usr/lib64
+else
+    export LD_LIBRARY_PATH=/opt/rh/python27/root/usr/lib64:$LD_LIBRARY_PATH
+fi
+export PATH=/opt/rh/python27/root/usr/bin:$PATH
+if [[ "$PKG_CONFIG_PATH" == "" ]] ; then
+    export PKG_CONFIG_PATH=/opt/rh/python27/root/usr/lib64/pkgconfig
+else
+    export PKG_CONFIG_PATH=/opt/rh/python27/root/usr/lib64/pkgconfig:$PKG_CONFIG_PATH
+fi
+
+source /opt/rh/devtoolset-2/enable
+%endif
+
 mkdir -p _build
 cd _build
+%if 0%{?epel} == 6
+%cmake3 .. \
+%else
 %cmake .. \
+%endif
 	-DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	-DLLVM_CONFIG:FILEPATH=/opt/llvm-%{version}/bin/llvm-config-%{__isa_bits} \
@@ -192,6 +231,23 @@ cd _build
 make %{?_smp_mflags}
 
 %install
+
+%if 0%{?epel} == 6
+if [[ "$LD_LIBRARY_PATH" == "" ]] ; then
+    export LD_LIBRARY_PATH=/opt/rh/python27/root/usr/lib64
+else
+    export LD_LIBRARY_PATH=/opt/rh/python27/root/usr/lib64:$LD_LIBRARY_PATH
+fi
+export PATH=/opt/rh/python27/root/usr/bin:$PATH
+if [[ "$PKG_CONFIG_PATH" == "" ]] ; then
+    export PKG_CONFIG_PATH=/opt/rh/python27/root/usr/lib64/pkgconfig
+else
+    export PKG_CONFIG_PATH=/opt/rh/python27/root/usr/lib64/pkgconfig:$PKG_CONFIG_PATH
+fi
+
+source /opt/rh/devtoolset-2/enable
+%endif
+
 cd _build
 make install DESTDIR=%{buildroot}
 
