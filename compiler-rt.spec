@@ -3,11 +3,11 @@
 %global debug_package %{nil}
 %endif
 
-%define _prefix /opt/llvm-5.0.0
+%define _prefix /opt/llvm-5.0.1
 
-Name:		compiler-rt-5.0.0
-Version:	5.0.0
-Release:	2.svn311736%{?dist}.alonid
+Name:		compiler-rt-5.0.1
+Version:	5.0.1
+Release:	1.svn311736%{?dist}.alonid
 Summary:	LLVM "compiler-rt" runtime libraries
 
 License:	NCSA or MIT
