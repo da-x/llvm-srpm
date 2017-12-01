@@ -40,7 +40,7 @@ get_and_patch clang-tools-extra clang_tools_extra clang-tools-extra
 get_and_patch test-suite test_suite test-suite
 
 cat ${spec_name}.spec \
-    | sed -E "s#^Release:.*\$#Release:\t5.svn${cfe_svn}%{?dist}.alonid#g"  \
+    | sed -E "s#^Release:.*\$#Release:\t1.svn${cfe_svn}%{?dist}.alonid#g"  \
     > _temp.spec
 mv _temp.spec ${spec_name}.spec
 
