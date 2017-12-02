@@ -1,14 +1,14 @@
-%define _prefix /opt/llvm-5.0.0
+%define _prefix /opt/llvm-5.0.1
 %define python_sitearch %{_libdir}/python2.7/site-packages
 
-Name:		lldb-5.0.0
-Version:	5.0.0
-Release:	2.svn312016%{?dist}.alonid
+Name:		lldb-5.0.1
+Version:	5.0.1
+Release:	1.svn319035%{?dist}.alonid
 Summary:	Next generation high-performance debugger
 
 License:	NCSA
 URL:		http://lldb.llvm.org/
-Source0:	http://llvm.org/releases/%{version}/05c1c5ef75c6a62ff458b1478a52d5d9e4425d84.tar.gz
+Source0:	http://llvm.org/releases/%{version}/c9b520a36641d09f00c7ee079353a1af19e4c707.tar.gz
 
 ExclusiveArch:  %{arm} aarch64 %{ix86} x86_64
 # Patch to remove use of private llvm headers
@@ -26,16 +26,16 @@ BuildRequires:	python27
 %else
 BuildRequires:	cmake
 %endif
-BuildRequires:  clang-5.0.0-tools-extra = %{version}
-BuildRequires:  llvm-5.0.0-devel = %{version}
-BuildRequires:  clang-5.0.0-devel = %{version}
+BuildRequires:  clang-5.0.1-tools-extra = %{version}
+BuildRequires:  llvm-5.0.1-devel = %{version}
+BuildRequires:  clang-5.0.1-devel = %{version}
 BuildRequires:  ncurses-devel
 BuildRequires:  swig
-BuildRequires:  llvm-5.0.0-static = %{version}
+BuildRequires:  llvm-5.0.1-static = %{version}
 BuildRequires:  libffi-devel
 BuildRequires:  zlib-devel
 BuildRequires:  libxml2-devel
-Requires:  clang-5.0.0-libs = %{version}
+Requires:  clang-5.0.1-libs = %{version}
 
 %description
 LLDB is a next generation, high-performance debugger. It is built as a set
@@ -50,16 +50,16 @@ Requires:	%{name}%{?_isa} = %{version}-%{release}
 %description devel
 The package contains header files for the LLDB debugger.
 
-%package -n python-lldb-5.0.0
+%package -n python-lldb-5.0.1
 Summary:	Python module for LLDB
 BuildRequires:	python2-devel
 Requires:	python2-six
 
-%description -n python-lldb-5.0.0
+%description -n python-lldb-5.0.1
 The package contains the LLDB Python module.
 
 %prep
-%setup -q -n lldb-05c1c5ef75c6a62ff458b1478a52d5d9e4425d84
+%setup -q -n lldb-c9b520a36641d09f00c7ee079353a1af19e4c707
 
 %patch3 -p1
 %if 0%{?epel} == 6
@@ -178,7 +178,7 @@ rm -f %{buildroot}%{python_sitearch}/six.*
 %files devel
 %{_includedir}/lldb
 
-%files -n python-lldb-5.0.0
+%files -n python-lldb-5.0.1
 %{python_sitearch}/lldb
 
 %changelog
