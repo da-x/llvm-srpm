@@ -1,4 +1,6 @@
-Name: libomp
+%define _prefix /opt/llvm-5.0.0
+
+Name: libomp-5.0.0
 Version: 5.0.0
 Release: 1%{?dist}
 Summary: OpenMP runtime for clang
@@ -59,5 +61,6 @@ cd _build
 %changelog
 * Mon Dec 4 2017 David Wagner <david.wagner@easymile.com> - 5.0.0-1
 - Bump to 5.0.0
+- Install in /opt/llvm-5.0.0
 * Mon May 15 2017 Tom Stellard <tstellar@redhat.com> - 4.0.0-1
 - Initial version.
