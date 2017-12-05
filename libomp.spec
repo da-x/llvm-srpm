@@ -29,7 +29,7 @@ Summary: OpenMP header files
 OpenMP header files.
 
 %prep
-%autosetup -n openmp-%{version}.src -p1
+%autosetup -n libomp-29b515e1e6d26b5b0d32d47d28dcdb4b8a11470d -p1
 
 %build
 mkdir -p _build

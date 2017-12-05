@@ -22,7 +22,7 @@ md5sum $GIT_HASH.tar.gz > sources
 cat ${BASE}.spec \
    | sed -E "s#^Release:.*\$#Release:\t1.svn${SVN_ID}%{?dist}.alonid#g"  \
    | sed -E "s#^Source0:.*\$#Source0:\thttp://llvm.org/releases/%{version}/${GIT_HASH}.tar.gz#g"  \
-   | sed -E "s#^%setup -q -n ${BASE}-.*\$#%setup -q -n ${BASE}-${GIT_HASH}#g"  \
+   | sed -E "s#^%autosetup .*\$#%autosetup -n libomp-${GIT_HASH} -p1#g"  \
  > _temp.spec
 
 mv _temp.spec ${BASE}.spec
