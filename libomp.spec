@@ -2,12 +2,12 @@
 
 Name: libomp-5.0.0
 Version: 5.0.0
-Release: 1%{?dist}
+Release:	1.svn319057%{?dist}.alonid
 Summary: OpenMP runtime for clang
 
 License: NCSA
-URL: http://openmp.llvm.org	
-Source0: http://llvm.org/releases/%{version}/openmp-%{version}.src.tar.xz
+URL: http://openmp.llvm.org
+Source0:	http://llvm.org/releases/%{version}/29b515e1e6d26b5b0d32d47d28dcdb4b8a11470d.tar.gz
 
 Patch0: 0001-CMake-Make-LIBOMP_HEADERS_INSTALL_PATH-a-cache-varia.patch
 
