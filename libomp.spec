@@ -14,8 +14,19 @@ Patch0: 0001-CMake-Make-LIBOMP_HEADERS_INSTALL_PATH-a-cache-varia.patch
 BuildRequires: cmake
 BuildRequires: elfutils-libelf-devel
 BuildRequires: perl
+
+%if 0%{?epel} == 6
+BuildRequires: perl516-perl-Data-Dumper
+BuildRequires: perl516-perl-Encode
+BuildRequires: devtoolset-3-libstdc++-devel
+BuildRequires: devtoolset-3-runtime
+BuildRequires: devtoolset-3-gcc-c++
+%else
 BuildRequires: perl-Data-Dumper
 BuildRequires: perl-Encode
+%endif
+
+BuildRequires:  clang-5.0.1 = %{version}
 
 Requires: elfutils-libelf
 
@@ -34,6 +45,11 @@ OpenMP header files.
 %build
 mkdir -p _build
 cd _build
+
+%if 0%{?epel} == 6
+export PATH=/opt/rh/perl516/root/usr/bin:$PATH
+source /opt/rh/devtoolset-3/enable
+%endif
 
 %cmake .. \
 	-DLIBOMP_INSTALL_ALIASES=OFF \
