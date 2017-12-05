@@ -1,7 +1,7 @@
-%define _prefix /opt/llvm-5.0.0
+%define _prefix /opt/llvm-5.0.1
 
-Name: libomp-5.0.0
-Version: 5.0.0
+Name: libomp-5.0.1
+Version: 5.0.1
 Release:	1.svn319057%{?dist}.alonid
 Summary: OpenMP runtime for clang
 
