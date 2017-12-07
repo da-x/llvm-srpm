@@ -12,13 +12,13 @@
 	%{_bindir}/clang-reorder-fields \
 	%{_bindir}/clang-rename \
 	%{_bindir}/clang-tidy \
-	%{_datadir}/clang/clang-include-fixer.py \
-	%{_datadir}/clang/clang-tidy-diff.py \
-	%{_datadir}/clang/run-clang-tidy.py \
-	%{_datadir}/clang/run-find-all-symbols.py \
+	%{_datadir}/clang/clang-include-fixer.py* \
+	%{_datadir}/clang/clang-tidy-diff.py* \
+	%{_datadir}/clang/run-clang-tidy.py* \
+	%{_datadir}/clang/run-find-all-symbols.py* \
 	%{_datadir}/clang/clang-include-fixer.el \
 	%{_datadir}/clang/clang-rename.el \
-	%{_datadir}/clang/clang-rename.py
+	%{_datadir}/clang/clang-rename.py*
 
 %global clang_binaries \
 	%{_bindir}/clang \
@@ -32,10 +32,10 @@
 	%{_bindir}/clang-offload-bundler
 
 %global clang_format_tools \
-	%{_datadir}/clang/clang-format-sublime.py \
+	%{_datadir}/clang/clang-format-sublime.py* \
 	%{_datadir}/clang/clang-format.el \
-	%{_datadir}/clang/clang-format.py \
-	%{_datadir}/clang/clang-format-diff.py
+	%{_datadir}/clang/clang-format.py* \
+	%{_datadir}/clang/clang-format-diff.py*
 
 %if 0%{?fedora}
 %bcond_without python3
@@ -317,7 +317,6 @@ make %{?_smp_mflags} check || :
 %files
 %{_libdir}/clang/
 %{clang_binaries}
-%{clang_format_tools}
 %{_bindir}/c-index-test
 %if 0%{?fedora}
 %{_mandir}/man1/clang.1
@@ -349,6 +348,7 @@ make %{?_smp_mflags} check || :
 
 %files tools-extra
 %{clang_tools_binaries}
+%{clang_format_tools}
 %{_bindir}/find-all-symbols
 %{_bindir}/modularize
 %{_bindir}/clangd
