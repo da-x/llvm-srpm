@@ -1,15 +1,27 @@
-Name:		libcxxabi
-Version:	5.0.0
-Release:	1%{?dist}
+%define _prefix /opt/llvm-5.0.1
+
+Name:		libcxxabi-5.0.1
+Version:	5.0.1
+Release:	1.svn308470%{?dist}.alonid
 Summary:	Low level support for a standard C++ library
 License:	MIT or NCSA
 URL:		http://libcxxabi.llvm.org/
-Source0:	http://llvm.org/releases/%{version}/libcxxabi-%{version}.src.tar.xz
-BuildRequires:	clang llvm-devel cmake llvm-static
-BuildRequires:	libcxx-devel >= %{version}
+Source0:	http://llvm.org/releases/%{version}/5df6b5da0deba63bbf9046bcaa385241c4d72847.tar.gz
+BuildRequires:	clang-5.0.1 llvm-5.0.1-devel llvm-5.0.1-static
+BuildRequires:	libcxx-5.0.1-devel >= %{version}
 %if 0%{?rhel}
 # libcxx-devel has this, so we need to as well.
 ExcludeArch:	ppc64 ppc64le
+%endif
+
+%if 0%{?epel} == 6
+BuildRequires:	cmake3
+BuildRequires:	devtoolset-2-gcc
+BuildRequires:	devtoolset-2-binutils
+BuildRequires:	devtoolset-2-gcc-c++
+BuildRequires:	devtoolset-2-gcc-plugin-devel
+%else
+BuildRequires:	cmake
 %endif
 
 %description
@@ -29,7 +41,7 @@ Summary:	Static libraries for libcxxabi
 %{summary}.
 
 %prep
-%setup -q -n %{name}-%{version}.src
+%setup -q -n libcxxabi-5df6b5da0deba63bbf9046bcaa385241c4d72847
 
 sed -i 's|${LLVM_BINARY_DIR}/share/llvm/cmake|%{_libdir}/cmake/llvm|g' CMakeLists.txt
 
@@ -49,10 +61,18 @@ cd _build
 %endif
 %endif
 
+%if 0%{?epel} == 6
+source /opt/rh/devtoolset-2/enable
+%endif
+
 export LDFLAGS="-Wl,--build-id"
+%if 0%{?epel} == 6
+%cmake3 .. \
+%else
 %cmake .. \
-	-DCMAKE_C_COMPILER=/usr/bin/clang \
-	-DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
+%endif
+	-DCMAKE_C_COMPILER=%{_bindir}/clang \
+	-DCMAKE_CXX_COMPILER=%{_bindir}/clang++ \
 	-DLLVM_CONFIG=%{_bindir}/llvm-config \
 	-DCMAKE_CXX_FLAGS="-std=c++11" \
 	-DLIBCXXABI_LIBCXX_INCLUDES=%{_includedir}/c++/v1/ \
