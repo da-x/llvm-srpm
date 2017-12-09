@@ -5,17 +5,17 @@
   %bcond_with gold
 %endif
 
-%define _prefix /opt/llvm-5.0.0
+%define _prefix /opt/llvm-5.0.1
 %define _pkgdocdir %{_docdir}/llvm
 
-Name:		llvm-5.0.0
-Version:	5.0.0
-Release:	3.svn312333%{?dist}.alonid
+Name:		llvm-5.0.1
+Version:	5.0.1
+Release:	1.svn319952%{?dist}.alonid
 Summary:	The Low Level Virtual Machine
 
 License:	NCSA
 URL:		http://llvm.org
-Source0:	http://llvm.org/releases/%{version}/657c31173ea30090583e40c7a9204561d9c2d8c4.tar.gz
+Source0:	http://llvm.org/releases/%{version}/1368f4044e62cad4316da638d919a93fd3ac3fe6.tar.gz
 
 Source100:	llvm-config.h
 
@@ -99,7 +99,7 @@ Summary:	LLVM static libraries
 Static libraries for the LLVM compiler infrastructure.
 
 %prep
-%setup -q -n llvm-657c31173ea30090583e40c7a9204561d9c2d8c4
+%setup -q -n llvm-1368f4044e62cad4316da638d919a93fd3ac3fe6
 %patch0 -p1 -b .s390
 %patch1 -p1
 
