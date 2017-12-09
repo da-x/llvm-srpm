@@ -1,17 +1,24 @@
+%define _prefix /opt/llvm-5.0.1
+
 # If you need to bootstrap this, turn this on.
 # Otherwise, you have a loop with libcxxabi
-%global bootstrap 0
+%global bootstrap 1
 
-Name:		libcxx
-Version:	5.0.0
-Release:	1%{?dist}
+Name:		libcxx-5.0.1
+Version:	5.0.1
+Release:	1.svn318837%{?dist}.alonid
 Summary:	C++ standard library targeting C++11
 License:	MIT or NCSA
 URL:		http://libcxx.llvm.org/
-Source0:	http://llvm.org/releases/%{version}/libcxx-%{version}.src.tar.xz
-BuildRequires:	clang llvm-devel cmake llvm-static
+Source0:	http://llvm.org/releases/%{version}/598ae4fa2e4da8b0a4b839c8c26b6cd3f672a968.tar.gz
+BuildRequires:	clang-5.0.1 llvm-5.0.1-devel llvm-5.0.1-static
+%if 0%{?epel} == 6
+BuildRequires:	cmake3
+%else
+BuildRequires:	cmake
+%endif
 %if %{bootstrap} < 1
-BuildRequires:	libcxxabi-devel
+BuildRequires:	libcxxabi-5.0.1-devel
 BuildRequires:	python3
 %endif
 # PPC64 (on EL7) doesn't like this code.
@@ -28,7 +35,7 @@ libc++ is a new implementation of the C++ standard library, targeting C++11.
 Summary:	Headers and libraries for libcxx devel
 Requires:	%{name}%{?_isa} = %{version}-%{release}
 %if %{bootstrap} < 1
-Requires:	libcxxabi-devel
+Requires:	libcxxabi-5.0.1-devel
 %endif
 
 %description devel
@@ -41,7 +48,7 @@ Summary:	Static libraries for libcxx
 %{summary}.
 
 %prep
-%setup -q -n %{name}-%{version}.src
+%setup -q -n libcxx-598ae4fa2e4da8b0a4b839c8c26b6cd3f672a968
 
 %build
 mkdir _build
@@ -56,14 +63,18 @@ cd _build
 export LDFLAGS="-Wl,--build-id"
 # Clang in older releases than f24 can't build this code without crashing.
 # So, we use gcc there. But the really old version in RHEL 6 works. Huh.
+%if 0%{?epel} == 6
+%cmake3 .. \
+%else
 %cmake .. \
+%endif
 %if 0%{?rhel} == 6
-	-DCMAKE_C_COMPILER=/usr/bin/clang \
-	-DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
+	-DCMAKE_C_COMPILER=/opt/llvm-5.0.1/bin/clang \
+	-DCMAKE_CXX_COMPILER=/opt/llvm-5.0.1/bin/clang++ \
 %else
 %if 0%{?fedora} >= 24
-	-DCMAKE_C_COMPILER=/usr/bin/clang \
-	-DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
+	-DCMAKE_C_COMPILER=/opt/llvm-5.0.1/bin/clang \
+	-DCMAKE_CXX_COMPILER=/opt/llvm-5.0.1/bin/clang++ \
 %else
 	-DCMAKE_C_COMPILER=/usr/bin/gcc \
 	-DCMAKE_CXX_COMPILER=/usr/bin/g++ \
