@@ -1,7 +1,7 @@
 %define _prefix /opt/llvm-5.0.1
 
-%define h_cfe bfac2c57b31e9f26fb4145852a040df307394ec7
-%define h_clang_tools_extra feb3aa99b53a85e4ec594bd219f2df9a631e8c6a
+%define h_cfe 9fc5dfce8e15fd7b3ffe657278c045ee5471d26f
+%define h_clang_tools_extra bf75b14aaf1c50decb69deaa9cd0b46c2b3dddc6
 %define h_test_suite 5a456733120cf04bd3700b3bfa6e8de2f970089b
 
 %global clang_tools_binaries \
@@ -45,7 +45,7 @@
 
 Name:		clang-5.0.1
 Version:	5.0.1
-Release:	1.svn319179%{?dist}.alonid
+Release:	1.svn319847%{?dist}.alonid
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
